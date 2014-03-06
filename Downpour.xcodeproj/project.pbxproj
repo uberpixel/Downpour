@@ -12,6 +12,8 @@
 		E939D7B518C73A620008D4A5 /* DPWorkspace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E939D7B318C73A620008D4A5 /* DPWorkspace.cpp */; };
 		E939D7B618C73A620008D4A5 /* DPWorkspace.h in Headers */ = {isa = PBXBuildFile; fileRef = E939D7B418C73A620008D4A5 /* DPWorkspace.h */; };
 		E947605C188E4C790068D2E6 /* DPMain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E947605B188E4C790068D2E6 /* DPMain.cpp */; };
+		E95892FF18C90CED009F3F6D /* DPSavedState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E95892FD18C90CED009F3F6D /* DPSavedState.cpp */; };
+		E958930018C90CED009F3F6D /* DPSavedState.h in Headers */ = {isa = PBXBuildFile; fileRef = E95892FE18C90CED009F3F6D /* DPSavedState.h */; };
 		E97B529F18C74BF500C65F57 /* DPColorScheme.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E97B529D18C74BF500C65F57 /* DPColorScheme.cpp */; };
 		E97B52A018C74BF500C65F57 /* DPColorScheme.h in Headers */ = {isa = PBXBuildFile; fileRef = E97B529E18C74BF500C65F57 /* DPColorScheme.h */; };
 /* End PBXBuildFile section */
@@ -23,6 +25,8 @@
 		E939D7B418C73A620008D4A5 /* DPWorkspace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPWorkspace.h; path = Classes/DPWorkspace.h; sourceTree = "<group>"; };
 		E9476057188E4C790068D2E6 /* libDownpour.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libDownpour.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		E947605B188E4C790068D2E6 /* DPMain.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = DPMain.cpp; path = Classes/DPMain.cpp; sourceTree = "<group>"; };
+		E95892FD18C90CED009F3F6D /* DPSavedState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPSavedState.cpp; path = Classes/DPSavedState.cpp; sourceTree = "<group>"; };
+		E95892FE18C90CED009F3F6D /* DPSavedState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPSavedState.h; path = Classes/DPSavedState.h; sourceTree = "<group>"; };
 		E97B529D18C74BF500C65F57 /* DPColorScheme.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPColorScheme.cpp; path = Classes/DPColorScheme.cpp; sourceTree = "<group>"; };
 		E97B529E18C74BF500C65F57 /* DPColorScheme.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPColorScheme.h; path = Classes/DPColorScheme.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -62,6 +66,8 @@
 				E915663518C73FCB005033FC /* DPFileTree.cpp */,
 				E915663618C73FCB005033FC /* DPFileTree.h */,
 				E947605B188E4C790068D2E6 /* DPMain.cpp */,
+				E95892FD18C90CED009F3F6D /* DPSavedState.cpp */,
+				E95892FE18C90CED009F3F6D /* DPSavedState.h */,
 				E939D7B318C73A620008D4A5 /* DPWorkspace.cpp */,
 				E939D7B418C73A620008D4A5 /* DPWorkspace.h */,
 			);
@@ -78,6 +84,7 @@
 			files = (
 				E915663818C73FCB005033FC /* DPFileTree.h in Headers */,
 				E97B52A018C74BF500C65F57 /* DPColorScheme.h in Headers */,
+				E958930018C90CED009F3F6D /* DPSavedState.h in Headers */,
 				E939D7B618C73A620008D4A5 /* DPWorkspace.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -137,6 +144,7 @@
 				E947605C188E4C790068D2E6 /* DPMain.cpp in Sources */,
 				E939D7B518C73A620008D4A5 /* DPWorkspace.cpp in Sources */,
 				E97B529F18C74BF500C65F57 /* DPColorScheme.cpp in Sources */,
+				E95892FF18C90CED009F3F6D /* DPSavedState.cpp in Sources */,
 				E915663718C73FCB005033FC /* DPFileTree.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

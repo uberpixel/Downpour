@@ -20,6 +20,7 @@
 
 #include <Rayne/Rayne.h>
 #include "DPFileTree.h"
+#include "DPSavedState.h"
 
 namespace DP
 {
@@ -30,10 +31,12 @@ namespace DP
 		~Workspace() override;
 		
 		std::string GetResourcePath() const { return RN::PathManager::Join(_module->GetPath(), "Resources"); }
+		SavedState *GetSavedState() const { return _state; }
 		
 	private:
 		void UpdateSize();
 		
+		SavedState *_state;
 		FileTree *_fileTree;
 		RN::Module *_module;
 		

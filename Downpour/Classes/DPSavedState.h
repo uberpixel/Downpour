@@ -1,5 +1,5 @@
 //
-//  DPWorkspace.cpp
+//  DPSavedState.h
 //  Downpour
 //
 //  Copyright 2014 by Überpixel. All rights reserved.
@@ -15,43 +15,29 @@
 //  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include "DPWorkspace.h"
+#ifndef __DPSAVEDSTATE_H__
+#define __DPSAVEDSTATE_H__
+
+#include <Rayne/Rayne.h>
 
 namespace DP
 {
-	RNDefineSingleton(Workspace)
-	
-	Workspace::Workspace(RN::Module *module) :
-		RN::UI::Widget(RN::UI::Widget::StyleBorderless),
-		_module(module)
+	class SavedState
 	{
-		MakeShared();
-		SetWidgetLevel(kRNUIWidgetLevelBackground);
+	public:
+		SavedState();
+		~SavedState();
 		
-		// Capture the current state of the scene
-		_state = new SavedState();
-		_fileTree = new FileTree();
-		_fileTree->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight);
+		RN::Camera *GetMainCamera() const { return _mainCamera; };
+		RN::Array *GetLights() const { return _lights; }
 		
-		GetContentView()->AddSubview(_fileTree);
+	private:
+		RN::Camera *_mainCamera;
+		RN::Array *_cameras;
+		RN::Array *_lights;
 		
-		UpdateSize();
-		RN::MessageCenter::GetSharedInstance()->AddObserver(kRNUIServerDidResizeMessage, std::bind(&Workspace::UpdateSize, this), this);
-	}
-	
-	Workspace::~Workspace()
-	{
-		RN::MessageCenter::GetSharedInstance()->RemoveObserver(this);
-		
-		_fileTree->Release();
-		// Restore the old state
-		delete _state;
-	}
-	
-	
-	void Workspace::UpdateSize()
-	{
-		RN::UI::Server *server = RN::UI::Server::GetSharedInstance();
-		SetFrame(RN::Rect(0.0f, 0.0f, server->GetWidth(), server->GetHeight()));
-	}
+		uint32 _maxFPS;
+	};
 }
+
+#endif /* __DPSAVEDSTATE_H__ */
