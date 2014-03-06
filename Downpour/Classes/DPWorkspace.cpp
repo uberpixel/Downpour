@@ -26,6 +26,7 @@ namespace DP
 		_module(module)
 	{
 		MakeShared();
+		SetWidgetLevel(kRNUIWidgetLevelBackground);
 		
 		_fileTree = new FileTree();
 		_fileTree->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight);
