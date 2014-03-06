@@ -1,0 +1,8 @@
+{
+	"colors": {
+		"background": [0.2, 0.2, 0.2],
+		"filetree_selection": [0.173, 0.286, 0.463],
+		"filetree_text_selection": [0.97, 0.97, 0.97],
+		"filetree_text": [0.89, 0.89, 0.89]
+	}
+}
