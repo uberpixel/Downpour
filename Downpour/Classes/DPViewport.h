@@ -1,5 +1,5 @@
 //
-//  DPWorkspace.h
+//  DPViewport.h
 //  Downpour
 //
 //  Copyright 2014 by Überpixel. All rights reserved.
@@ -15,35 +15,35 @@
 //  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#ifndef __DPWORKSPACE_H__
-#define __DPWORKSPACE_H__
+#ifndef __DPVIEWPORT_H__
+#define __DPVIEWPORT_H__
 
 #include <Rayne/Rayne.h>
-#include "DPFileTree.h"
-#include "DPViewport.h"
-#include "DPSavedState.h"
 
 namespace DP
 {
-	class Workspace : public RN::UI::Widget, public RN::INonConstructingSingleton<Workspace>
+	class Viewport : public RN::UI::View
 	{
 	public:
-		Workspace(RN::Module *module);
-		~Workspace() override;
+		Viewport();
+		~Viewport() override;
 		
-		std::string GetResourcePath() const { return RN::PathManager::Join(_module->GetPath(), "Resources"); }
-		SavedState *GetSavedState() const { return _state; }
+		void SetFrame(const RN::Rect &frame) override;
+		void Update() override;
+		
+		RN::Camera *GetCamera() const { return _camera; }
 		
 	private:
-		void UpdateSize();
+		bool CanBecomeFirstResponder() override;
 		
-		SavedState *_state;
-		FileTree *_fileTree;
-		Viewport *_viewport;
-		RN::Module *_module;
+		void MouseDown(RN::Event *event) override;
+		void MouseDragged(RN::Event *event) override;
 		
-		RNDeclareSingleton(Workspace)
+		RN::Camera *_camera;
+		RN::Camera *_sourceCamera;
+		
+		RN::UI::ImageView *_renderView;
 	};
 }
 
-#endif /* __DPWORKSPACE_H__ */
+#endif /* __DPVIEWPORT_H__ */

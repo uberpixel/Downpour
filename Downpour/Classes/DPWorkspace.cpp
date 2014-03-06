@@ -30,10 +30,24 @@ namespace DP
 		
 		// Capture the current state of the scene
 		_state = new SavedState();
+		
+		// File tree
 		_fileTree = new FileTree();
+		_fileTree->SetFrame(RN::Rect(0.0f, 0.0f, 250.0f, 0.0f));
 		_fileTree->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight);
 		
+		// Viewport
+		_viewport = new Viewport();
+		_viewport->SetFrame(RN::Rect(250.0f, 0.0f, 0.0f, 0.0f));
+		_viewport->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleWidth);
+		
 		GetContentView()->AddSubview(_fileTree);
+		GetContentView()->AddSubview(_viewport);
+		
+		MakeFirstResponder(_viewport); // Make the viewport the first responder to allow camera movement
+		
+		_worldAttachment = new WorldAttachment();
+		RN::WorldCoordinator::GetSharedInstance()->GetWorld()->AddAttachment(_worldAttachment);
 		
 		UpdateSize();
 		RN::MessageCenter::GetSharedInstance()->AddObserver(kRNUIServerDidResizeMessage, std::bind(&Workspace::UpdateSize, this), this);

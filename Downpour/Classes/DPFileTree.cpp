@@ -60,14 +60,12 @@ namespace DP
 	// MARK: FileTree
 	// -----------------------
 	
-	FileTree::FileTree() :
-		RN::UI::View(RN::Rect(0.0f, 0.0f, 250.0f, 0.0f))
+	FileTree::FileTree()
 	{
 		_data = RN::FileManager::GetSharedInstance()->GetSearchPaths()->Retain();
 		
 		_tree = new RN::UI::OutlineView();
-		_tree->SetFrame(GetBounds());
-		_tree->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight);
+		_tree->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleWidth);
 		_tree->SetDataSource(this);
 		_tree->SetDelegate(this);
 		
