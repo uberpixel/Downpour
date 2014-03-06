@@ -1,5 +1,5 @@
 //
-//  DPWorkspace.h
+//  DPWorldAttachment.h
 //  Downpour
 //
 //  Copyright 2014 by Überpixel. All rights reserved.
@@ -15,49 +15,31 @@
 //  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#ifndef __DPWORKSPACE_H__
-#define __DPWORKSPACE_H__
+#ifndef __DPWORLDATTACHMENT_H__
+#define __DPWORLDATTACHMENT_H__
 
 #include <Rayne/Rayne.h>
-#include "DPFileTree.h"
-#include "DPViewport.h"
-#include "DPWorldAttachment.h"
-#include "DPSavedState.h"
-
-#define kDPWorkspaceSelectionChanged RNCSTR("kDPWorkspaceSelectionChanged")
 
 namespace DP
 {
-	class Workspace : public RN::UI::Widget, public RN::INonConstructingSingleton<Workspace>
+	class WorldAttachment : public RN::WorldAttachment
 	{
 	public:
-		Workspace(RN::Module *module);
-		~Workspace() override;
+		WorldAttachment(RN::Camera *camera);
+		~WorldAttachment();
 		
-		std::string GetResourcePath() const { return RN::PathManager::Join(_module->GetPath(), "Resources"); }
-		RN::Array *GetSelection() const { return _selection; }
-		
-		SavedState *GetSavedState() const { return _state; }
-		
-		void SetSelection(RN::Array *selection);
-		void SetSelection(RN::SceneNode *selection);
-		void SetSelection(std::nullptr_t null);
+		void DidBeginCamera(RN::Camera *camera) override;
+		void WillRenderSceneNode(RN::SceneNode *node) override;
 		
 	private:
-		void UpdateSize();
+		bool _shouldDraw;
 		
-		SavedState *_state;
-		WorldAttachment *_worldAttachment;
+		RN::Set *_sceneNodes;
+		RN::Camera *_camera;
 		
-		FileTree *_fileTree;
-		Viewport *_viewport;
-		
-		RN::Array *_selection;
-		
-		RN::Module *_module;
-		
-		RNDeclareSingleton(Workspace)
+		RN::MetaClassBase *_lightClass;
+		RN::MetaClassBase *_cameraClass;
 	};
 }
 
-#endif /* __DPWORKSPACE_H__ */
+#endif /* __DPWORLDATTACHMENT_H__ */

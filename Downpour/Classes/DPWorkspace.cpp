@@ -23,7 +23,8 @@ namespace DP
 	
 	Workspace::Workspace(RN::Module *module) :
 		RN::UI::Widget(RN::UI::Widget::StyleBorderless),
-		_module(module)
+		_module(module),
+		_selection(nullptr)
 	{
 		MakeShared();
 		SetWidgetLevel(kRNUIWidgetLevelBackground);
@@ -46,7 +47,7 @@ namespace DP
 		
 		MakeFirstResponder(_viewport); // Make the viewport the first responder to allow camera movement
 		
-		_worldAttachment = new WorldAttachment();
+		_worldAttachment = new WorldAttachment(_viewport->GetCamera());
 		RN::WorldCoordinator::GetSharedInstance()->GetWorld()->AddAttachment(_worldAttachment);
 		
 		UpdateSize();
@@ -56,12 +57,48 @@ namespace DP
 	Workspace::~Workspace()
 	{
 		RN::MessageCenter::GetSharedInstance()->RemoveObserver(this);
+		RN::WorldCoordinator::GetSharedInstance()->GetWorld()->RemoveAttachment(_worldAttachment);
 		
+		_viewport->Release();
 		_fileTree->Release();
+		
+		_worldAttachment->Release();
+		
 		// Restore the old state
 		delete _state;
 	}
 	
+	
+	// -----------------------
+	// MARK: -
+	// MARK: Selection
+	// -----------------------
+	
+	void Workspace::SetSelection(RN::Array *selection)
+	{
+		RN::SafeRelease(_selection);
+		_selection = selection->Copy();
+		
+		RN::MessageCenter::GetSharedInstance()->PostMessage(kDPWorkspaceSelectionChanged, _selection, nullptr);
+	}
+	void Workspace::SetSelection(RN::SceneNode *selection)
+	{
+		RN::SafeRelease(_selection);
+		_selection = RN::Array::WithObjects(selection, nullptr)->Retain();
+		
+		RN::MessageCenter::GetSharedInstance()->PostMessage(kDPWorkspaceSelectionChanged, _selection, nullptr);
+	}
+	void Workspace::SetSelection(std::nullptr_t null)
+	{
+		RN::SafeRelease(_selection);
+		RN::MessageCenter::GetSharedInstance()->PostMessage(kDPWorkspaceSelectionChanged, nullptr, nullptr);
+	}
+	
+	
+	// -----------------------
+	// MARK: -
+	// MARK: Resizing
+	// -----------------------
 	
 	void Workspace::UpdateSize()
 	{
