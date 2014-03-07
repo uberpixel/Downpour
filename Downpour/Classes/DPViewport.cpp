@@ -24,7 +24,7 @@ namespace DP
 	{
 		SetInteractionEnabled(true);
 		
-		_camera = new RN::Camera(RN::Vector2(), RN::Texture::Format::RGB16F, RN::Camera::Flags::UpdateAspect | RN::Camera::Flags::UpdateStorageFrame);
+		_camera = new RN::Camera(RN::Vector2(), RN::Texture::Format::RGB16F, RN::Camera::Flags::UpdateAspect | RN::Camera::Flags::UpdateStorageFrame | RN::Camera::Flags::NoFlush);
 		_camera->SetBlitShader(RN::Shader::WithFile("shader/rn_DrawFramebufferTonemap"));
 		
 		_sourceCamera = Workspace::GetSharedInstance()->GetSavedState()->GetMainCamera();
@@ -47,10 +47,9 @@ namespace DP
 			});
 		}
 		
-		_renderView = new RN::UI::ImageView();
+		_renderView = new RenderView();
 		_renderView->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleWidth);
-		_renderView->SetImage(RN::UI::Image::WithTexture(_camera->GetStorage()->GetRenderTarget()));
-		_renderView->GetImage()->SetAtlas(RN::UI::Atlas(0.0f, 1.0f, 1.0f, 0.0f));
+		_renderView->SetTexture(_camera->GetStorage()->GetRenderTarget());
 		
 		AddSubview(_renderView);
 	}

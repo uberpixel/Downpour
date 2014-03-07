@@ -1,5 +1,5 @@
 //
-//  DPViewport.h
+//  DPRenderView.h
 //  Downpour
 //
 //  Copyright 2014 by Überpixel. All rights reserved.
@@ -15,36 +15,44 @@
 //  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#ifndef __DPVIEWPORT_H__
-#define __DPVIEWPORT_H__
+#ifndef __DPRENDERVIEW_H__
+#define __DPRENDERVIEW_H__
 
 #include <Rayne/Rayne.h>
-#include "DPRenderView.h"
 
 namespace DP
 {
-	class Viewport : public RN::UI::View
+	class RenderView : public RN::UI::View
 	{
 	public:
-		Viewport();
-		~Viewport() override;
+		RNAPI RenderView();
+		RNAPI ~RenderView() override;
 		
-		void SetFrame(const RN::Rect &frame) override;
-		void Update() override;
+		RNAPI void SetTexture(RN::Texture *texture);
+		RNAPI void SetScaleMode(RN::UI::ScaleMode mode);
+		RNAPI void SetFrame(const RN::Rect& frame) override;
 		
-		RN::Camera *GetCamera() const { return _camera; }
+		RNAPI RN::UI::ScaleMode GetScaleMode() const { return _scaleMode; }
+		
+		RNAPI RN::Vector2 GetSizeThatFits() override;
+		
+	protected:
+		RNAPI void Update() override;
+		RNAPI void Draw(RN::Renderer *renderer) override;
 		
 	private:
-		bool CanBecomeFirstResponder() override;
+		void Initialize();
 		
-		void MouseDown(RN::Event *event) override;
-		void MouseDragged(RN::Event *event) override;
+		bool _isDirty;
 		
-		RN::Camera *_camera;
-		RN::Camera *_sourceCamera;
+		RN::UI::ScaleMode _scaleMode;
+		RN::Texture *_texture;
 		
-		RenderView *_renderView;
+		RN::Material *_material;
+		RN::Mesh  *_mesh;
+		
+		RNDeclareMeta(RenderView, View)
 	};
 }
 
-#endif /* __DPVIEWPORT_H__ */
+#endif /* __DPRENDERVIEW_H__ */
