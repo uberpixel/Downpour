@@ -59,7 +59,7 @@ namespace DP
 			if(node->IsKindOfClass(_lightClass))
 			{
 				float distance = _camera->GetWorldPosition().GetDistance(node->GetWorldPosition());
-				float tessellation = ((_camera->GetClipFar() - distance) / _camera->GetClipFar()) * 15.0f;
+				float tessellation = ((_camera->GetClipFar() - distance) / _camera->GetClipFar()) * 30.0f;
 				
 				tessellation = std::max(5.0f, tessellation);
 				
