@@ -34,6 +34,32 @@ namespace DP
 		
 		const RN::Color &GetColor(Type type);
 	}
+	
+	class OutlineViewCell : public RN::UI::OutlineViewCell
+	{
+	public:
+		OutlineViewCell(RN::String *identifier) :
+			RN::UI::OutlineViewCell(identifier)
+		{
+			SetSelected(IsSelected());
+		}
+		
+		void SetSelected(bool selected) override
+		{
+			RN::UI::OutlineViewCell::SetSelected(selected);
+			
+			if(selected)
+			{
+				SetBackgroundColor(ColorScheme::GetColor(ColorScheme::Type::FileTree_Selection));
+				GetTextLabel()->SetTextColor(ColorScheme::GetColor(ColorScheme::Type::FileTree_TextSelection));
+			}
+			else
+			{
+				SetBackgroundColor(RN::Color::ClearColor());
+				GetTextLabel()->SetTextColor(ColorScheme::GetColor(ColorScheme::Type::FileTree_Text));
+			}
+		}
+	};
 }
 
 #endif /* __DPCOLORSCHEME_H__ */

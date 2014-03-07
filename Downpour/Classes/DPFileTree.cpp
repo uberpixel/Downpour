@@ -25,38 +25,6 @@ namespace DP
 {
 	// -----------------------
 	// MARK: -
-	// MARK: FileTreeCell
-	// -----------------------
-	
-	class FileTreeCell : public RN::UI::OutlineViewCell
-	{
-	public:
-		FileTreeCell(RN::String *identifier) :
-			RN::UI::OutlineViewCell(identifier)
-		{
-			SetSelected(IsSelected());
-		}
-		
-		void SetSelected(bool selected) override
-		{
-			RN::UI::OutlineViewCell::SetSelected(selected);
-			
-			if(selected)
-			{
-				SetBackgroundColor(ColorScheme::GetColor(ColorScheme::Type::FileTree_Selection));
-				GetTextLabel()->SetTextColor(ColorScheme::GetColor(ColorScheme::Type::FileTree_TextSelection));
-			}
-			else
-			{
-				SetBackgroundColor(RN::Color::ClearColor());
-				GetTextLabel()->SetTextColor(ColorScheme::GetColor(ColorScheme::Type::FileTree_Text));
-			}
-		}
-	};
-	
-	
-	// -----------------------
-	// MARK: -
 	// MARK: FileTree
 	// -----------------------
 	
@@ -129,11 +97,11 @@ namespace DP
 	RN::UI::OutlineViewCell *FileTree::OutlineViewGetCellForItem(RN::UI::OutlineView *outlineView, void *item)
 	{
 		RN::String *identifier = RNCSTR("Cell");
-		FileTreeCell *cell = static_cast<FileTreeCell *>(outlineView->DequeCellWithIdentifier(identifier));
+		OutlineViewCell *cell = static_cast<OutlineViewCell *>(outlineView->DequeCellWithIdentifier(identifier));
 		
 		if(!cell)
 		{
-			cell = new FileTreeCell(identifier);
+			cell = new OutlineViewCell(identifier);
 			cell->Autorelease();
 		}
 		
