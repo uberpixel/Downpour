@@ -1,5 +1,5 @@
 //
-//  DPWorkspace.h
+//  DPSceneHierarchy.h
 //  Downpour
 //
 //  Copyright 2014 by Überpixel. All rights reserved.
@@ -15,51 +15,31 @@
 //  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#ifndef __DPWORKSPACE_H__
-#define __DPWORKSPACE_H__
+#ifndef __DPSCENEHIERARCHY_H__
+#define __DPSCENEHIERARCHY_H__
 
 #include <Rayne/Rayne.h>
-#include "DPFileTree.h"
-#include "DPViewport.h"
-#include "DPSceneHierarchy.h"
-#include "DPWorldAttachment.h"
-#include "DPSavedState.h"
-
-#define kDPWorkspaceSelectionChanged RNCSTR("kDPWorkspaceSelectionChanged")
 
 namespace DP
 {
-	class Workspace : public RN::UI::Widget, public RN::INonConstructingSingleton<Workspace>
+	class SceneHierarchy : public RN::UI::View, RN::UI::OutlineViewDataSource, RN::UI::OutlineViewDelegate
 	{
 	public:
-		Workspace(RN::Module *module);
-		~Workspace() override;
-		
-		std::string GetResourcePath() const { return RN::PathManager::Join(_module->GetPath(), "Resources"); }
-		RN::Array *GetSelection() const { return _selection; }
-		
-		SavedState *GetSavedState() const { return _state; }
-		
-		void SetSelection(RN::Array *selection);
-		void SetSelection(RN::SceneNode *selection);
-		void SetSelection(std::nullptr_t null);
+		SceneHierarchy();
+		~SceneHierarchy();
 		
 	private:
-		void UpdateSize();
+		bool OutlineViewItemIsExpandable(RN::UI::OutlineView *outlineView, void *item) override;
+		size_t OutlineViewGetNumberOfChildrenForItem(RN::UI::OutlineView *outlineView, void *item) override;
+		void *OutlineViewGetChildOfItem(RN::UI::OutlineView *outlineView, void *item, size_t child) override;
+		RN::UI::OutlineViewCell *OutlineViewGetCellForItem(RN::UI::OutlineView *outlineView, void *item) override;
 		
-		SavedState *_state;
-		WorldAttachment *_worldAttachment;
+		void OutlineViewSelectionDidChange(RN::UI::OutlineView *outlineView) override;
 		
-		FileTree *_fileTree;
-		Viewport *_viewport;
-		SceneHierarchy *_hierarchy;
 		
-		RN::Array *_selection;
-		
-		RN::Module *_module;
-		
-		RNDeclareSingleton(Workspace)
+		RN::Array *_data;
+		RN::UI::OutlineView *_tree;
 	};
 }
 
-#endif /* __DPWORKSPACE_H__ */
+#endif /* __DPSCENEHIERARCHY_H__ */

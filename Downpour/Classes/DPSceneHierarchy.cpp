@@ -1,5 +1,5 @@
 //
-//  DPFileTree.cpp
+//  DPSceneHierarchy.cpp
 //  Downpour
 //
 //  Copyright 2014 by Überpixel. All rights reserved.
@@ -15,86 +15,79 @@
 //  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include "DPFileTree.h"
-#include "DPColorScheme.h"
+#include "DPSceneHierarchy.h"
 #include "DPWorkspace.h"
-
-const char *kDPFileTreeChangesAssociationKey = "kDPFileTreeChangesAssociationKey";
+#include "DPColorScheme.h"
 
 namespace DP
 {
-	// -----------------------
-	// MARK: -
-	// MARK: FileTree
-	// -----------------------
-	
-	FileTree::FileTree()
+	SceneHierarchy::SceneHierarchy()
 	{
-		_data = RN::FileManager::GetSharedInstance()->GetSearchPaths()->Retain();
+		_data = new RN::Array();
 		
+		{
+			RN::Array *sceneGraph = RN::World::GetActiveWorld()->GetSceneNodes();
+			sceneGraph->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &flags) {
+				
+				if(!node->GetParent())
+					_data->AddObject(node);
+				
+			});
+		}
+			
 		_tree = new RN::UI::OutlineView();
 		_tree->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleWidth);
 		_tree->SetDataSource(this);
 		_tree->SetDelegate(this);
-		
-		// Expand the first level of items
+		_tree->SetAllowsMultipleSelection(true);
 		_tree->ReloadData();
-		_tree->ExpandItem(nullptr, false);
 		
 		AddSubview(_tree);
 		SetBackgroundColor(ColorScheme::GetColor(ColorScheme::Type::Background));
 	}
 	
-	FileTree::~FileTree()
+	SceneHierarchy::~SceneHierarchy()
 	{
-		_tree->Release();
 		_data->Release();
+		_tree->Release();
 	}
-	
 	
 	// -----------------------
 	// MARK: -
 	// MARK: RN::UI::OutlineViewDataSource
 	// -----------------------
 	
-	RN::Array *FileTree::GetFilteredDirectoryProxy(RN::DirectoryProxy *proxy)
+	bool SceneHierarchy::OutlineViewItemIsExpandable(RN::UI::OutlineView *outlineView, void *item)
 	{
-		return proxy->GetSubNodes();
+		RN::SceneNode *node = static_cast<RN::SceneNode *>(item);
+		return node->HasChildren();
 	}
 	
-	bool FileTree::OutlineViewItemIsExpandable(RN::UI::OutlineView *outlineView, void *item)
-	{
-		RN::FileSystemNode *node = static_cast<RN::FileSystemNode *>(item);
-		return node->IsDirectory();
-	}
-	
-	size_t FileTree::OutlineViewGetNumberOfChildrenForItem(RN::UI::OutlineView *outlineView, void *item)
+	size_t SceneHierarchy::OutlineViewGetNumberOfChildrenForItem(RN::UI::OutlineView *outlineView, void *item)
 	{
 		if(!item)
 			return _data->GetCount();
 		
-		RN::FileSystemNode *fsnode = static_cast<RN::FileSystemNode *>(item);
-		if(!fsnode->IsDirectory())
+		RN::SceneNode *node = static_cast<RN::SceneNode *>(item);
+		if(!node->HasChildren())
 			return 0;
 		
-		RN::DirectoryProxy *node = static_cast<RN::DirectoryProxy *>(item);
-		RN::Array *children = GetFilteredDirectoryProxy(node);
-		
+		const RN::Array *children = node->GetChildren();
 		return children->GetCount();
 	}
 	
-	void *FileTree::OutlineViewGetChildOfItem(RN::UI::OutlineView *outlineView, void *item, size_t child)
+	void *SceneHierarchy::OutlineViewGetChildOfItem(RN::UI::OutlineView *outlineView, void *item, size_t child)
 	{
 		if(!item)
 			return _data->GetObjectAtIndex(child);
 		
-		RN::DirectoryProxy *node = static_cast<RN::DirectoryProxy *>(item);
-		RN::Array *children = GetFilteredDirectoryProxy(node);
+		RN::SceneNode *node = static_cast<RN::SceneNode *>(item);
 		
+		const RN::Array *children = node->GetChildren();
 		return children->GetObjectAtIndex(child);
 	}
 	
-	RN::UI::OutlineViewCell *FileTree::OutlineViewGetCellForItem(RN::UI::OutlineView *outlineView, void *item)
+	RN::UI::OutlineViewCell *SceneHierarchy::OutlineViewGetCellForItem(RN::UI::OutlineView *outlineView, void *item)
 	{
 		RN::String *identifier = RNCSTR("Cell");
 		OutlineViewCell *cell = static_cast<OutlineViewCell *>(outlineView->DequeCellWithIdentifier(identifier));
@@ -105,9 +98,13 @@ namespace DP
 			cell->Autorelease();
 		}
 		
-		RN::FileSystemNode *node = static_cast<RN::FileSystemNode *>(item);
+		RN::SceneNode *node = static_cast<RN::SceneNode *>(item);
 		
-		cell->GetTextLabel()->SetText(RNSTR(node->GetName().c_str()));
+		std::string name = node->GetDebugName();
+		if(name.empty())
+			name = node->Class()->Name();
+		
+		cell->GetTextLabel()->SetText(RNSTR(name.c_str()));
 		
 		return cell;
 	}
@@ -118,13 +115,27 @@ namespace DP
 	// MARK: RN::UI::OutlineViewDelegate
 	// -----------------------
 	
-	void FileTree::OutlineViewDidSelectItem(RN::UI::OutlineView *outlineView, void *item)
+	void SceneHierarchy::OutlineViewSelectionDidChange(RN::UI::OutlineView *outlineView)
 	{
-		RN::FileSystemNode *file =  static_cast<RN::FileSystemNode*>(item);
+		RN::IndexSet *selection = outlineView->GetSelection();
 		
-		if(!file->IsFile())
-			return;
-		
-		// TODO: Functionality for drag and drop of files
+		if(selection->GetCount() > 0)
+		{
+			RN::Array *items = new RN::Array(selection->GetCount());
+			
+			size_t count = selection->GetCount();
+			for(size_t i = 0; i < count; i ++)
+			{
+				RN::SceneNode *node = static_cast<RN::SceneNode *>(outlineView->GetItemForRow(selection->GetIndex(i)));
+				items->AddObject(node);
+			}
+			
+			Workspace::GetSharedInstance()->SetSelection(items);
+			items->Release();
+		}
+		else
+		{
+			Workspace::GetSharedInstance()->SetSelection(nullptr);
+		}
 	}
 }

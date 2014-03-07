@@ -22,6 +22,8 @@
 		E97B52A818C8E2DD00C65F57 /* DPViewport.h in Headers */ = {isa = PBXBuildFile; fileRef = E97B52A618C8E2DD00C65F57 /* DPViewport.h */; };
 		E9C2243218C8FD0A00626302 /* DPWorldAttachment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E9C2243018C8FD0A00626302 /* DPWorldAttachment.cpp */; };
 		E9C2243318C8FD0A00626302 /* DPWorldAttachment.h in Headers */ = {isa = PBXBuildFile; fileRef = E9C2243118C8FD0A00626302 /* DPWorldAttachment.h */; };
+		E9FB736A18C938AE00726541 /* DPSceneHierarchy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E9FB736818C938AE00726541 /* DPSceneHierarchy.cpp */; };
+		E9FB736B18C938AE00726541 /* DPSceneHierarchy.h in Headers */ = {isa = PBXBuildFile; fileRef = E9FB736918C938AE00726541 /* DPSceneHierarchy.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +43,8 @@
 		E97B52A618C8E2DD00C65F57 /* DPViewport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPViewport.h; path = Classes/DPViewport.h; sourceTree = "<group>"; };
 		E9C2243018C8FD0A00626302 /* DPWorldAttachment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPWorldAttachment.cpp; path = Classes/DPWorldAttachment.cpp; sourceTree = "<group>"; };
 		E9C2243118C8FD0A00626302 /* DPWorldAttachment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPWorldAttachment.h; path = Classes/DPWorldAttachment.h; sourceTree = "<group>"; };
+		E9FB736818C938AE00726541 /* DPSceneHierarchy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPSceneHierarchy.cpp; path = Classes/DPSceneHierarchy.cpp; sourceTree = "<group>"; };
+		E9FB736918C938AE00726541 /* DPSceneHierarchy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPSceneHierarchy.h; path = Classes/DPSceneHierarchy.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +86,8 @@
 				D5126C7818C944FC00F91F80 /* DPRenderView.cpp */,
 				E95892FD18C90CED009F3F6D /* DPSavedState.cpp */,
 				E95892FE18C90CED009F3F6D /* DPSavedState.h */,
+				E9FB736818C938AE00726541 /* DPSceneHierarchy.cpp */,
+				E9FB736918C938AE00726541 /* DPSceneHierarchy.h */,
 				E97B52A518C8E2DD00C65F57 /* DPViewport.cpp */,
 				E97B52A618C8E2DD00C65F57 /* DPViewport.h */,
 				E939D7B318C73A620008D4A5 /* DPWorkspace.cpp */,
@@ -105,6 +111,7 @@
 				E958930018C90CED009F3F6D /* DPSavedState.h in Headers */,
 				D5126C7918C944FC00F91F80 /* DPRenderView.h in Headers */,
 				E9C2243318C8FD0A00626302 /* DPWorldAttachment.h in Headers */,
+				E9FB736B18C938AE00726541 /* DPSceneHierarchy.h in Headers */,
 				E97B52A818C8E2DD00C65F57 /* DPViewport.h in Headers */,
 				E939D7B618C73A620008D4A5 /* DPWorkspace.h in Headers */,
 			);
@@ -169,6 +176,7 @@
 				E9C2243218C8FD0A00626302 /* DPWorldAttachment.cpp in Sources */,
 				E97B529F18C74BF500C65F57 /* DPColorScheme.cpp in Sources */,
 				E95892FF18C90CED009F3F6D /* DPSavedState.cpp in Sources */,
+				E9FB736A18C938AE00726541 /* DPSceneHierarchy.cpp in Sources */,
 				E915663718C73FCB005033FC /* DPFileTree.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
