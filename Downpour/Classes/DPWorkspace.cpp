@@ -22,7 +22,7 @@ namespace DP
 	RNDefineSingleton(Workspace)
 	
 	Workspace::Workspace(RN::Module *module) :
-		RN::UI::Widget(RN::UI::Widget::StyleBorderless),
+		RN::UI::Widget(RN::UI::Widget::StyleBorderless, RN::Rect(0.0f, 0.0f, 1024.0f, 768.0f)),
 		_module(module),
 		_selection(nullptr)
 	{
@@ -34,16 +34,22 @@ namespace DP
 		
 		// File tree
 		_fileTree = new FileTree();
-		_fileTree->SetFrame(RN::Rect(0.0f, 0.0f, 250.0f, 0.0f));
+		_fileTree->SetFrame(RN::Rect(0.0f, 0.0f, 230.0f, 768.0f));
 		_fileTree->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight);
 		
 		// Viewport
 		_viewport = new Viewport();
-		_viewport->SetFrame(RN::Rect(250.0f, 0.0f, 0.0f, 0.0f));
+		_viewport->SetFrame(RN::Rect(230.0f, 0.0f, 564.0f, 768.0f));
 		_viewport->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleWidth);
+		
+		// Hierarchy
+		_hierarchy = new SceneHierarchy();
+		_hierarchy->SetFrame(RN::Rect(794.0f, 0.0f, 230.0f, 768.0f));
+		_hierarchy->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleLeftMargin);
 		
 		GetContentView()->AddSubview(_fileTree);
 		GetContentView()->AddSubview(_viewport);
+		GetContentView()->AddSubview(_hierarchy);
 		
 		MakeFirstResponder(_viewport); // Make the viewport the first responder to allow camera movement
 		
