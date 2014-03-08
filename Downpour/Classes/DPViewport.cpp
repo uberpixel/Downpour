@@ -24,8 +24,7 @@ namespace DP
 	{
 		SetInteractionEnabled(true);
 		
-		_camera = new RN::Camera(RN::Vector2(), RN::Texture::Format::RGB16F, RN::Camera::Flags::UpdateAspect | RN::Camera::Flags::UpdateStorageFrame | RN::Camera::Flags::NoFlush);
-		_camera->SetBlitShader(RN::Shader::WithFile("shader/rn_DrawFramebufferTonemap"));
+		_camera = new RN::Camera(RN::Vector2(32.0f, 32.0f), RN::Texture::Format::RGB16F, RN::Camera::Flags::UpdateAspect | RN::Camera::Flags::UpdateStorageFrame | RN::Camera::Flags::NoFlush);
 		
 		_sourceCamera = Workspace::GetSharedInstance()->GetSavedState()->GetMainCamera();
 		if(_sourceCamera)
