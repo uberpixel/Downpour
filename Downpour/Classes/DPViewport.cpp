@@ -25,6 +25,7 @@ namespace DP
 		SetInteractionEnabled(true);
 		
 		_camera = new RN::Camera(RN::Vector2(32.0f, 32.0f), RN::Texture::Format::RGB16F, RN::Camera::Flags::UpdateAspect | RN::Camera::Flags::UpdateStorageFrame | RN::Camera::Flags::NoFlush);
+		_camera->SetRenderGroups(_camera->GetRenderGroups() | (1 << 31));
 		
 		_sourceCamera = Workspace::GetSharedInstance()->GetSavedState()->GetMainCamera();
 		if(_sourceCamera)
@@ -32,7 +33,7 @@ namespace DP
 			_camera->SetPosition(_sourceCamera->GetWorldPosition());
 			_camera->SetRotation(_sourceCamera->GetWorldRotation());
 			
-			_camera->SetRenderGroups(_sourceCamera->GetRenderGroups());
+			_camera->SetRenderGroups(_sourceCamera->GetRenderGroups() | (1 << 31));
 			_camera->SetSky(_sourceCamera->GetSky());
 			
 			RN::Array *lights = Workspace::GetSharedInstance()->GetSavedState()->GetLights();
@@ -99,14 +100,56 @@ namespace DP
 	void Viewport::MouseDown(RN::Event *event)
 	{
 		GetWidget()->MakeFirstResponder(this);
+		
+		if(event->GetButton() == 0)
+		{
+			RN::Vector2 mouse = ConvertPointFromBase(event->GetMousePosition());
+			mouse /= _camera->GetFrame().Size();
+			mouse.y = 1.0f - mouse.y;
+			mouse *= 2.0f;
+			mouse -= 1.0f;
+			
+			RN::Vector3 direction = (_camera->ToWorld(RN::Vector3(mouse, 1.0f)) - _camera->GetPosition()).Normalize();
+			RN::Hit hit;
+			
+			Workspace *workspace = Workspace::GetSharedInstance();
+			Gizmo *gizmo = workspace->GetGizmo();
+			
+			if(gizmo->GetCollisionGroup() == 0)
+				hit = std::move(gizmo->CastRay(_camera->GetPosition(), direction));
+			
+			if(hit.node == gizmo)
+			{
+				gizmo->BeginMove(hit.meshid, ConvertPointFromBase(event->GetMousePosition()));
+				return;
+			}
+			
+			hit = RN::World::GetActiveWorld()->GetSceneManager()->CastRay(_camera->GetPosition(), direction, 1);
+			workspace->SetSelection(hit.node);
+		}
 	}
 	
 	void Viewport::MouseDragged(RN::Event *event)
 	{
+		if(event->GetButton() == 0)
+		{
+			Gizmo *gizmo = Workspace::GetSharedInstance()->GetGizmo();
+			if(gizmo->IsActive())
+			{
+				RN::Vector2 mouse = ConvertPointFromBase(event->GetMousePosition());
+				gizmo->ContinueMove(mouse);
+			}
+		}
+		else
 		if(event->GetButton() == 1)
 		{
 			const RN::Vector2 &delta = event->GetMouseDelta();
 			_camera->Rotate(RN::Vector3(delta.x, delta.y, 0.0f));
 		}
+	}
+	
+	void Viewport::MouseUp(RN::Event *event)
+	{
+		Workspace::GetSharedInstance()->GetGizmo()->EndMove();
 	}
 }

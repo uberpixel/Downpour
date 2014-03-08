@@ -19,13 +19,14 @@
 #define __DPWORKSPACE_H__
 
 #include <Rayne/Rayne.h>
+#include "DPSavedState.h"
 #include "DPWidgetContainer.h"
 #include "DPFileTree.h"
 #include "DPViewport.h"
 #include "DPInspectorView.h"
 #include "DPSceneHierarchy.h"
 #include "DPWorldAttachment.h"
-#include "DPSavedState.h"
+#include "DPGizmo.h"
 
 #define kDPWorkspaceSelectionChanged RNCSTR("kDPWorkspaceSelectionChanged")
 
@@ -40,6 +41,7 @@ namespace DP
 		std::string GetResourcePath() const { return RN::PathManager::Join(_module->GetPath(), "Resources"); }
 		RN::Array *GetSelection() const { return _selection; }
 		
+		Gizmo *GetGizmo() const { return _gizmo; }
 		SavedState *GetSavedState() const { return _state; }
 		
 		void SetSelection(RN::Array *selection);
@@ -47,6 +49,7 @@ namespace DP
 		void SetSelection(std::nullptr_t null);
 		
 	private:
+		void CreateToolbar();
 		void UpdateSize();
 		
 		SavedState *_state;
@@ -57,8 +60,12 @@ namespace DP
 		WidgetContainer<InspectorViewContainer> *_inspectors;
 		WidgetContainer<SceneHierarchy> *_hierarchy;
 		
-		RN::Array *_selection;
+		RN::UI::View *_toolbar;
+		RN::UI::SegmentView *_gizmoTool;
 		
+		Gizmo *_gizmo;
+		
+		RN::Array *_selection;
 		RN::Module *_module;
 		
 		RNDeclareSingleton(Workspace)

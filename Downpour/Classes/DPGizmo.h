@@ -1,5 +1,5 @@
 //
-//  DPViewport.h
+//  DPGizmo.h
 //  Downpour
 //
 //  Copyright 2014 by Überpixel. All rights reserved.
@@ -15,37 +15,52 @@
 //  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#ifndef __DPVIEWPORT_H__
-#define __DPVIEWPORT_H__
+#ifndef __DPGIZMO_H__
+#define __DPGIZMO_H__
 
 #include <Rayne/Rayne.h>
-#include "DPRenderView.h"
 
 namespace DP
 {
-	class Viewport : public RN::UI::View
+	class Gizmo : public RN::Entity
 	{
 	public:
-		Viewport();
-		~Viewport() override;
+		enum class Mode
+		{
+			Move = 0,
+			Scale = 1,
+			Rotate = 2
+		};
 		
-		void SetFrame(const RN::Rect &frame) override;
-		void Update() override;
+		Gizmo(RN::Camera *camera);
+		~Gizmo();
 		
-		RN::Camera *GetCamera() const { return _camera; }
+		void SetSelection(RN::Array *selection);
+		void SetMode(Mode mode);
+		
+		Mode GetMode() const { return _mode; }
+		
+		void UpdateEditMode(float delta) override;
+		bool IsActive() const { return _active; }
+		
+		void BeginMove(uint32 selection, const RN::Vector2 &mousePos);
+		void ContinueMove(const RN::Vector2 &mousePos);
+		void EndMove();
 		
 	private:
-		bool CanBecomeFirstResponder() override;
-		
-		void MouseDown(RN::Event *event) override;
-		void MouseDragged(RN::Event *event) override;
-		void MouseUp(RN::Event *event) override;
+		RN::Vector3 CameraToWorld(const RN::Vector3 &dir);
 		
 		RN::Camera *_camera;
-		RN::Camera *_sourceCamera;
+		RN::Array  *_selection;
 		
-		RenderView *_renderView;
+		Mode _mode;
+		
+		bool _active;
+		uint32 _selectedMesh;
+		RN::Vector2 _previousMouse;
+		
+		RNDeclareMeta(Gizmo, RN::Entity)
 	};
 }
 
-#endif /* __DPVIEWPORT_H__ */
+#endif /* __DPGIZMO_H__ */

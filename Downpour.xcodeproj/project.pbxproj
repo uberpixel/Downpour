@@ -29,6 +29,8 @@
 		E9FB737618CA4BFA00726541 /* DPPropertyView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E9FB737418CA4BFA00726541 /* DPPropertyView.cpp */; };
 		E9FB737718CA4BFA00726541 /* DPPropertyView.h in Headers */ = {isa = PBXBuildFile; fileRef = E9FB737518CA4BFA00726541 /* DPPropertyView.h */; };
 		E9FB737B18CAB36600726541 /* DPWidgetContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = E9FB737918CAB36600726541 /* DPWidgetContainer.h */; };
+		E9FB737E18CB757800726541 /* DPGizmo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E9FB737C18CB757800726541 /* DPGizmo.cpp */; };
+		E9FB737F18CB757800726541 /* DPGizmo.h in Headers */ = {isa = PBXBuildFile; fileRef = E9FB737D18CB757800726541 /* DPGizmo.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -55,6 +57,8 @@
 		E9FB737418CA4BFA00726541 /* DPPropertyView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPPropertyView.cpp; path = Classes/DPPropertyView.cpp; sourceTree = "<group>"; };
 		E9FB737518CA4BFA00726541 /* DPPropertyView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPPropertyView.h; path = Classes/DPPropertyView.h; sourceTree = "<group>"; };
 		E9FB737918CAB36600726541 /* DPWidgetContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPWidgetContainer.h; path = Classes/DPWidgetContainer.h; sourceTree = "<group>"; };
+		E9FB737C18CB757800726541 /* DPGizmo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPGizmo.cpp; path = Classes/DPGizmo.cpp; sourceTree = "<group>"; };
+		E9FB737D18CB757800726541 /* DPGizmo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPGizmo.h; path = Classes/DPGizmo.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,6 +95,8 @@
 				E97B529E18C74BF500C65F57 /* DPColorScheme.h */,
 				E915663518C73FCB005033FC /* DPFileTree.cpp */,
 				E915663618C73FCB005033FC /* DPFileTree.h */,
+				E9FB737C18CB757800726541 /* DPGizmo.cpp */,
+				E9FB737D18CB757800726541 /* DPGizmo.h */,
 				E9FB736C18C959AD00726541 /* DPInspectorView.cpp */,
 				E9FB736D18C959AD00726541 /* DPInspectorView.h */,
 				E947605B188E4C790068D2E6 /* DPMain.cpp */,
@@ -130,6 +136,7 @@
 				E9C2243318C8FD0A00626302 /* DPWorldAttachment.h in Headers */,
 				E9FB736B18C938AE00726541 /* DPSceneHierarchy.h in Headers */,
 				E9FB736F18C959AD00726541 /* DPInspectorView.h in Headers */,
+				E9FB737F18CB757800726541 /* DPGizmo.h in Headers */,
 				E97B52A818C8E2DD00C65F57 /* DPViewport.h in Headers */,
 				E939D7B618C73A620008D4A5 /* DPWorkspace.h in Headers */,
 			);
@@ -193,6 +200,7 @@
 				E939D7B518C73A620008D4A5 /* DPWorkspace.cpp in Sources */,
 				E9C2243218C8FD0A00626302 /* DPWorldAttachment.cpp in Sources */,
 				E97B529F18C74BF500C65F57 /* DPColorScheme.cpp in Sources */,
+				E9FB737E18CB757800726541 /* DPGizmo.cpp in Sources */,
 				E95892FF18C90CED009F3F6D /* DPSavedState.cpp in Sources */,
 				E9FB736A18C938AE00726541 /* DPSceneHierarchy.cpp in Sources */,
 				E9FB737618CA4BFA00726541 /* DPPropertyView.cpp in Sources */,
