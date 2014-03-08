@@ -39,6 +39,7 @@ namespace DP
 				RN::AutoreleasePool pool;
 				
 				LoadColor(Type::Background, "background");
+				LoadColor(Type::Background_Light, "background_light");
 				LoadColor(Type::FileTree_Selection, "filetree_selection");
 				LoadColor(Type::FileTree_Text, "filetree_text");
 				LoadColor(Type::FileTree_TextSelection, "filetree_text_selection");

@@ -27,6 +27,7 @@ namespace DP
 		enum class Type : uint32
 		{
 			Background,
+			Background_Light,
 			FileTree_Selection,
 			FileTree_Text,
 			FileTree_TextSelection
