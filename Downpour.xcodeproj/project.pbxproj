@@ -24,6 +24,10 @@
 		E9C2243318C8FD0A00626302 /* DPWorldAttachment.h in Headers */ = {isa = PBXBuildFile; fileRef = E9C2243118C8FD0A00626302 /* DPWorldAttachment.h */; };
 		E9FB736A18C938AE00726541 /* DPSceneHierarchy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E9FB736818C938AE00726541 /* DPSceneHierarchy.cpp */; };
 		E9FB736B18C938AE00726541 /* DPSceneHierarchy.h in Headers */ = {isa = PBXBuildFile; fileRef = E9FB736918C938AE00726541 /* DPSceneHierarchy.h */; };
+		E9FB736E18C959AD00726541 /* DPInspectorView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E9FB736C18C959AD00726541 /* DPInspectorView.cpp */; };
+		E9FB736F18C959AD00726541 /* DPInspectorView.h in Headers */ = {isa = PBXBuildFile; fileRef = E9FB736D18C959AD00726541 /* DPInspectorView.h */; };
+		E9FB737618CA4BFA00726541 /* DPPropertyView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E9FB737418CA4BFA00726541 /* DPPropertyView.cpp */; };
+		E9FB737718CA4BFA00726541 /* DPPropertyView.h in Headers */ = {isa = PBXBuildFile; fileRef = E9FB737518CA4BFA00726541 /* DPPropertyView.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,6 +49,10 @@
 		E9C2243118C8FD0A00626302 /* DPWorldAttachment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPWorldAttachment.h; path = Classes/DPWorldAttachment.h; sourceTree = "<group>"; };
 		E9FB736818C938AE00726541 /* DPSceneHierarchy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPSceneHierarchy.cpp; path = Classes/DPSceneHierarchy.cpp; sourceTree = "<group>"; };
 		E9FB736918C938AE00726541 /* DPSceneHierarchy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPSceneHierarchy.h; path = Classes/DPSceneHierarchy.h; sourceTree = "<group>"; };
+		E9FB736C18C959AD00726541 /* DPInspectorView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPInspectorView.cpp; path = Classes/DPInspectorView.cpp; sourceTree = "<group>"; };
+		E9FB736D18C959AD00726541 /* DPInspectorView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPInspectorView.h; path = Classes/DPInspectorView.h; sourceTree = "<group>"; };
+		E9FB737418CA4BFA00726541 /* DPPropertyView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPPropertyView.cpp; path = Classes/DPPropertyView.cpp; sourceTree = "<group>"; };
+		E9FB737518CA4BFA00726541 /* DPPropertyView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPPropertyView.h; path = Classes/DPPropertyView.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,7 +89,11 @@
 				E97B529E18C74BF500C65F57 /* DPColorScheme.h */,
 				E915663518C73FCB005033FC /* DPFileTree.cpp */,
 				E915663618C73FCB005033FC /* DPFileTree.h */,
+				E9FB736C18C959AD00726541 /* DPInspectorView.cpp */,
+				E9FB736D18C959AD00726541 /* DPInspectorView.h */,
 				E947605B188E4C790068D2E6 /* DPMain.cpp */,
+				E9FB737418CA4BFA00726541 /* DPPropertyView.cpp */,
+				E9FB737518CA4BFA00726541 /* DPPropertyView.h */,
 				D5126C7718C944FC00F91F80 /* DPRenderView.h */,
 				D5126C7818C944FC00F91F80 /* DPRenderView.cpp */,
 				E95892FD18C90CED009F3F6D /* DPSavedState.cpp */,
@@ -106,12 +118,14 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E9FB737718CA4BFA00726541 /* DPPropertyView.h in Headers */,
 				E915663818C73FCB005033FC /* DPFileTree.h in Headers */,
 				E97B52A018C74BF500C65F57 /* DPColorScheme.h in Headers */,
 				E958930018C90CED009F3F6D /* DPSavedState.h in Headers */,
 				D5126C7918C944FC00F91F80 /* DPRenderView.h in Headers */,
 				E9C2243318C8FD0A00626302 /* DPWorldAttachment.h in Headers */,
 				E9FB736B18C938AE00726541 /* DPSceneHierarchy.h in Headers */,
+				E9FB736F18C959AD00726541 /* DPInspectorView.h in Headers */,
 				E97B52A818C8E2DD00C65F57 /* DPViewport.h in Headers */,
 				E939D7B618C73A620008D4A5 /* DPWorkspace.h in Headers */,
 			);
@@ -177,6 +191,8 @@
 				E97B529F18C74BF500C65F57 /* DPColorScheme.cpp in Sources */,
 				E95892FF18C90CED009F3F6D /* DPSavedState.cpp in Sources */,
 				E9FB736A18C938AE00726541 /* DPSceneHierarchy.cpp in Sources */,
+				E9FB737618CA4BFA00726541 /* DPPropertyView.cpp in Sources */,
+				E9FB736E18C959AD00726541 /* DPInspectorView.cpp in Sources */,
 				E915663718C73FCB005033FC /* DPFileTree.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

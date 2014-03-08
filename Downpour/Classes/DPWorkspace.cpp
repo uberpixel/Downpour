@@ -39,17 +39,24 @@ namespace DP
 		
 		// Viewport
 		_viewport = new Viewport();
-		_viewport->SetFrame(RN::Rect(230.0f, 0.0f, 564.0f, 768.0f));
+		_viewport->SetFrame(RN::Rect(230.0f, 0.0f, 534.0f, 768.0f));
 		_viewport->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleWidth);
+		
+		// Inspector views
+		_inspectors = new InspectorViewContainer();
+		_inspectors->SetFrame(RN::Rect(764.0f, 0.0f, 260.0f, 512.0f));
+		_inspectors->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleLeftMargin | RN::UI::View::AutoresizingFlexibleBottomMargin);
 		
 		// Hierarchy
 		_hierarchy = new SceneHierarchy();
-		_hierarchy->SetFrame(RN::Rect(794.0f, 0.0f, 230.0f, 768.0f));
-		_hierarchy->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleLeftMargin);
+		_hierarchy->SetFrame(RN::Rect(764.0f, 512.0f, 260.0f, 256.0f));
+		_hierarchy->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleLeftMargin | RN::UI::View::AutoresizingFlexibleTopMargin);
 		
 		GetContentView()->AddSubview(_fileTree);
 		GetContentView()->AddSubview(_viewport);
+		GetContentView()->AddSubview(_inspectors);
 		GetContentView()->AddSubview(_hierarchy);
+		
 		
 		MakeFirstResponder(_viewport); // Make the viewport the first responder to allow camera movement
 		
@@ -67,6 +74,8 @@ namespace DP
 		
 		_viewport->Release();
 		_fileTree->Release();
+		_inspectors->Release();
+		_hierarchy->Release();
 		
 		_worldAttachment->Release();
 		

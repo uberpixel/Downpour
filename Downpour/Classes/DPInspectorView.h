@@ -1,5 +1,5 @@
 //
-//  DPWorkspace.h
+//  DPInspectorView.h
 //  Downpour
 //
 //  Copyright 2014 by Überpixel. All rights reserved.
@@ -15,53 +15,59 @@
 //  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#ifndef __DPWORKSPACE_H__
-#define __DPWORKSPACE_H__
+#ifndef __DPINSPECTORVIEW_H__
+#define __DPINSPECTORVIEW_H__
 
 #include <Rayne/Rayne.h>
-#include "DPFileTree.h"
-#include "DPViewport.h"
-#include "DPInspectorView.h"
-#include "DPSceneHierarchy.h"
-#include "DPWorldAttachment.h"
-#include "DPSavedState.h"
-
-#define kDPWorkspaceSelectionChanged RNCSTR("kDPWorkspaceSelectionChanged")
+#include "DPPropertyView.h"
 
 namespace DP
 {
-	class Workspace : public RN::UI::Widget, public RN::INonConstructingSingleton<Workspace>
+	class InspectorViewContainer : public RN::UI::View
 	{
 	public:
-		Workspace(RN::Module *module);
-		~Workspace() override;
+		InspectorViewContainer();
+		~InspectorViewContainer();
 		
-		std::string GetResourcePath() const { return RN::PathManager::Join(_module->GetPath(), "Resources"); }
-		RN::Array *GetSelection() const { return _selection; }
+		void SetSelection(RN::Object *object);
 		
-		SavedState *GetSavedState() const { return _state; }
-		
-		void SetSelection(RN::Array *selection);
-		void SetSelection(RN::SceneNode *selection);
-		void SetSelection(std::nullptr_t null);
+		void LayoutSubviews() override;
 		
 	private:
-		void UpdateSize();
+		RN::Object *_selection;
+		RN::Array *_inspectors;
+	};
+	
+	class InspectorView : public RN::UI::View
+	{
+	public:
+		~InspectorView();
 		
-		SavedState *_state;
-		WorldAttachment *_worldAttachment;
+		RN::Object *GetObject() const { return _object; }
+		RN::MetaClassBase *GetMetaClassBase() const { return _meta; }
 		
-		FileTree *_fileTree;
-		Viewport *_viewport;
-		InspectorViewContainer *_inspectors;
-		SceneHierarchy *_hierarchy;
+		RN::Vector2 GetSizeThatFits() override;
 		
-		RN::Array *_selection;
+		void LayoutSubviews() override;
 		
-		RN::Module *_module;
+	protected:
+		InspectorView(RN::Object *object, RN::MetaClassBase *meta, RN::String *title);
 		
-		RNDeclareSingleton(Workspace)
+		void AddPropertyView(PropertyView *view);
+		
+	private:
+		RN::Object *_object;
+		RN::MetaClassBase *_meta;
+		
+		RN::UI::Label *_titleLabel;
+		RN::Array *_propertyViews;
+	};
+	
+	class GenericInspectorView : public InspectorView
+	{
+	public:
+		GenericInspectorView(RN::Object *object, RN::MetaClassBase *meta, RN::String *title);
 	};
 }
 
-#endif /* __DPWORKSPACE_H__ */
+#endif /* __DPINSPECTORVIEW_H__ */
