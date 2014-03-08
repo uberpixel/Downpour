@@ -106,7 +106,7 @@ namespace DP
 			RN::UI::TableViewCell *temp = _tree->GetCellForRow(i + range.origin);
 			if(temp == cell)
 			{
-				row = i;
+				row = i + range.origin;
 				break;
 			}
 		}
