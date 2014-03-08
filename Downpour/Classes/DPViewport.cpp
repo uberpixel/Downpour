@@ -125,7 +125,7 @@ namespace DP
 			}
 			
 			hit = RN::World::GetActiveWorld()->GetSceneManager()->CastRay(_camera->GetPosition(), direction, 1);
-			workspace->SetSelection(hit.node);
+			hit.node ? workspace->SetSelection(hit.node) : workspace->SetSelection(nullptr);
 		}
 	}
 	
