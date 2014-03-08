@@ -90,6 +90,7 @@ namespace DP
 		// Misc
 		_maxFPS = RN::Kernel::GetSharedInstance()->GetMaxFPS();
 		RN::Kernel::GetSharedInstance()->SetMaxFPS(20);
+		RN::World::GetActiveWorld()->SetMode(RN::World::Mode::Edit);
 	}
 	
 	SavedState::~SavedState()
@@ -111,5 +112,6 @@ namespace DP
 		_lights->Release();
 		
 		RN::Kernel::GetSharedInstance()->SetMaxFPS(_maxFPS);
+		RN::World::GetActiveWorld()->SetMode(RN::World::Mode::Play);
 	}
 }
