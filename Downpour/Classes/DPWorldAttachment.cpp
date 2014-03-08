@@ -30,7 +30,9 @@ namespace DP
 		RN::MessageCenter::GetSharedInstance()->AddObserver(kDPWorkspaceSelectionChanged, [this](RN::Message *message) {
 			
 			RN::SafeRelease(_sceneNodes);
-			_sceneNodes = new RN::Set(static_cast<RN::Array *>(message->GetObject()));
+			RN::Array *objects = static_cast<RN::Array *>(message->GetObject());
+			
+			_sceneNodes = objects ? new RN::Set(objects) : new RN::Set();
 			
 		}, this);
 	}
