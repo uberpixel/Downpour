@@ -31,6 +31,8 @@
 		E9FB737B18CAB36600726541 /* DPWidgetContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = E9FB737918CAB36600726541 /* DPWidgetContainer.h */; };
 		E9FB737E18CB757800726541 /* DPGizmo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E9FB737C18CB757800726541 /* DPGizmo.cpp */; };
 		E9FB737F18CB757800726541 /* DPGizmo.h in Headers */ = {isa = PBXBuildFile; fileRef = E9FB737D18CB757800726541 /* DPGizmo.h */; };
+		E9FB738218CBC47400726541 /* DPDragNDropTarget.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E9FB738018CBC47400726541 /* DPDragNDropTarget.cpp */; };
+		E9FB738318CBC47400726541 /* DPDragNDropTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = E9FB738118CBC47400726541 /* DPDragNDropTarget.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -59,6 +61,8 @@
 		E9FB737918CAB36600726541 /* DPWidgetContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPWidgetContainer.h; path = Classes/DPWidgetContainer.h; sourceTree = "<group>"; };
 		E9FB737C18CB757800726541 /* DPGizmo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPGizmo.cpp; path = Classes/DPGizmo.cpp; sourceTree = "<group>"; };
 		E9FB737D18CB757800726541 /* DPGizmo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPGizmo.h; path = Classes/DPGizmo.h; sourceTree = "<group>"; };
+		E9FB738018CBC47400726541 /* DPDragNDropTarget.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPDragNDropTarget.cpp; path = Classes/DPDragNDropTarget.cpp; sourceTree = "<group>"; };
+		E9FB738118CBC47400726541 /* DPDragNDropTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPDragNDropTarget.h; path = Classes/DPDragNDropTarget.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,6 +97,8 @@
 			children = (
 				E97B529D18C74BF500C65F57 /* DPColorScheme.cpp */,
 				E97B529E18C74BF500C65F57 /* DPColorScheme.h */,
+				E9FB738018CBC47400726541 /* DPDragNDropTarget.cpp */,
+				E9FB738118CBC47400726541 /* DPDragNDropTarget.h */,
 				E915663518C73FCB005033FC /* DPFileTree.cpp */,
 				E915663618C73FCB005033FC /* DPFileTree.h */,
 				E9FB737C18CB757800726541 /* DPGizmo.cpp */,
@@ -127,6 +133,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E9FB738318CBC47400726541 /* DPDragNDropTarget.h in Headers */,
 				E9FB737718CA4BFA00726541 /* DPPropertyView.h in Headers */,
 				E915663818C73FCB005033FC /* DPFileTree.h in Headers */,
 				E97B52A018C74BF500C65F57 /* DPColorScheme.h in Headers */,
@@ -206,6 +213,7 @@
 				E9FB737618CA4BFA00726541 /* DPPropertyView.cpp in Sources */,
 				E9FB736E18C959AD00726541 /* DPInspectorView.cpp in Sources */,
 				E915663718C73FCB005033FC /* DPFileTree.cpp in Sources */,
+				E9FB738218CBC47400726541 /* DPDragNDropTarget.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -67,6 +67,15 @@ namespace DP
 		_camera->SetFrame(RN::Rect(RN::Vector2(), frame.Size()));
 	}
 	
+	RN::Vector3 Viewport::GetDirectionForPoint(const RN::Vector2 &tpoint)
+	{
+		RN::Vector2 point = tpoint / _camera->GetFrame().Size();
+		point.y = 1.0f - point.y;
+		point *= 2.0f;
+		point -= 1.0f;
+		
+		return (_camera->ToWorld(RN::Vector3(point, 1.0f)) - _camera->GetPosition()).Normalize();
+	}
 	
 	void Viewport::Update()
 	{
@@ -103,13 +112,7 @@ namespace DP
 		
 		if(event->GetButton() == 0)
 		{
-			RN::Vector2 mouse = ConvertPointFromBase(event->GetMousePosition());
-			mouse /= _camera->GetFrame().Size();
-			mouse.y = 1.0f - mouse.y;
-			mouse *= 2.0f;
-			mouse -= 1.0f;
-			
-			RN::Vector3 direction = (_camera->ToWorld(RN::Vector3(mouse, 1.0f)) - _camera->GetPosition()).Normalize();
+			RN::Vector3 direction = GetDirectionForPoint(ConvertPointFromBase(event->GetMousePosition()));
 			RN::Hit hit;
 			
 			Workspace *workspace = Workspace::GetSharedInstance();
@@ -151,5 +154,36 @@ namespace DP
 	void Viewport::MouseUp(RN::Event *event)
 	{
 		Workspace::GetSharedInstance()->GetGizmo()->EndMove();
+	}
+	
+	
+	// -----------------------
+	// MARK: -
+	// MARK: Drag & Drop
+	// -----------------------
+	
+	bool Viewport::AcceptsDropOfObject(RN::Object *object)
+	{
+		return (object->IsKindOfClass(RN::Model::MetaClass()));
+	}
+	
+	void Viewport::HandleDropOfObject(RN::Object *object, const RN::Vector2 &position)
+	{
+		Workspace *workspace = Workspace::GetSharedInstance();
+		Gizmo *gizmo = workspace->GetGizmo();
+		
+		uint8 group = gizmo->GetCollisionGroup();
+		gizmo->SetCollisionGroup(1);
+		
+		RN::Vector3 direction = GetDirectionForPoint(position);
+		RN::Hit hit = RN::World::GetActiveWorld()->GetSceneManager()->CastRay(_camera->GetPosition(), direction, 1);
+		float distance = hit.node ? hit.distance : 15.0f;
+		
+		gizmo->SetCollisionGroup(group);
+		
+		
+		// Place the model
+		RN::Model *model = static_cast<RN::Model *>(object);
+		RN::Entity *entity = new RN::Entity(model, _camera->GetPosition() + direction * distance);
 	}
 }

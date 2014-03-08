@@ -1,5 +1,5 @@
 //
-//  DPFileTree.h
+//  DPDragNDropTarget.h
 //  Downpour
 //
 //  Copyright 2014 by Überpixel. All rights reserved.
@@ -15,38 +15,21 @@
 //  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#ifndef __DPFILETREE_H__
-#define __DPFILETREE_H__
+#ifndef __DPDRAGNDROPTARGET_H__
+#define __DPDRAGNDROPTARGET_H__
 
 #include <Rayne/Rayne.h>
 
 namespace DP
 {
-	class FileTree : public RN::UI::View, RN::UI::OutlineViewDataSource, RN::UI::OutlineViewDelegate
+	class DragNDropTarget : public RN::UI::View
 	{
 	public:
-		FileTree();
-		~FileTree() override;
+		virtual bool AcceptsDropOfObject(RN::Object *object) = 0;
+		virtual void HandleDropOfObject(RN::Object *object, const RN::Vector2 &position) = 0;
 		
-		void MouseDownOnCell(RN::UI::OutlineViewCell *cell, RN::Event *event);
-		void MouseDraggedOnCell(RN::UI::OutlineViewCell *cell, RN::Event *event);
-		void MouseUpOnCell(RN::UI::OutlineViewCell *cell, RN::Event *event);
-		
-	private:
-		RN::Array *GetFilteredDirectoryProxy(RN::DirectoryProxy *proxy);
-		
-		bool OutlineViewItemIsExpandable(RN::UI::OutlineView *outlineView, void *item) override;
-		size_t OutlineViewGetNumberOfChildrenForItem(RN::UI::OutlineView *outlineView, void *item) override;
-		void *OutlineViewGetChildOfItem(RN::UI::OutlineView *outlineView, void *item, size_t child) override;
-		RN::UI::OutlineViewCell *OutlineViewGetCellForItem(RN::UI::OutlineView *outlineView, void *item) override;
-		void OutlineViewDidSelectItem(RN::UI::OutlineView *outlineView, void *item) override;
-		
-		RN::Array *_data;
-		RN::UI::OutlineView *_tree;
-		
-		RN::FileProxy *_draggedNode;
-		RN::Object *_draggedData;
+		RNDeclareMeta(DragNDropTarget, RN::UI::View)
 	};
 }
 
-#endif /* __DPFILETREE_H__ */
+#endif /* __DPDRAGNDROPTARGET_H__ */

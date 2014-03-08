@@ -1,5 +1,5 @@
 //
-//  DPViewport.h
+//  DPDragNDropTarget.cpp
 //  Downpour
 //
 //  Copyright 2014 by Überpixel. All rights reserved.
@@ -15,42 +15,9 @@
 //  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#ifndef __DPVIEWPORT_H__
-#define __DPVIEWPORT_H__
-
-#include <Rayne/Rayne.h>
-#include "DPRenderView.h"
 #include "DPDragNDropTarget.h"
 
 namespace DP
 {
-	class Viewport : public DragNDropTarget
-	{
-	public:
-		Viewport();
-		~Viewport() override;
-		
-		void SetFrame(const RN::Rect &frame) override;
-		void Update() override;
-		
-		bool AcceptsDropOfObject(RN::Object *object) final;
-		void HandleDropOfObject(RN::Object *object, const RN::Vector2 &position) final;
-		
-		RN::Camera *GetCamera() const { return _camera; }
-		
-	private:
-		RN::Vector3 GetDirectionForPoint(const RN::Vector2 &point);
-		bool CanBecomeFirstResponder() override;
-		
-		void MouseDown(RN::Event *event) override;
-		void MouseDragged(RN::Event *event) override;
-		void MouseUp(RN::Event *event) override;
-		
-		RN::Camera *_camera;
-		RN::Camera *_sourceCamera;
-		
-		RenderView *_renderView;
-	};
+	RNDefineMeta(DragNDropTarget)
 }
-
-#endif /* __DPVIEWPORT_H__ */
