@@ -34,7 +34,7 @@ namespace DP
 		for(size_t i = 0; i < model->GetMeshCount(0); i ++)
 			model->GetMaterialAtIndex(0, i)->SetLighting(false);
 		
-		SetModel(RN::Model::WithFile(gizmo));
+		SetModel(model);
 		SetRenderGroup(31);
 		SetSelection(nullptr);
 		
