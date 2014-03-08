@@ -21,7 +21,8 @@
 
 namespace DP
 {
-	SceneHierarchy::SceneHierarchy()
+	SceneHierarchy::SceneHierarchy() :
+		_suppressSelectionNotification(false)
 	{
 		_data = new RN::Array();
 		
@@ -44,12 +45,51 @@ namespace DP
 		
 		AddSubview(_tree);
 		SetBackgroundColor(ColorScheme::GetColor(ColorScheme::Type::Background));
+		
+		RN::MessageCenter::GetSharedInstance()->AddObserver(kDPWorkspaceSelectionChanged, [this](RN::Message *message) {
+			
+			if(_suppressSelectionNotification)
+				return;
+			
+			RN::IndexSet *selection = new RN::IndexSet();
+			RN::Array *objects = static_cast<RN::Array *>(message->GetObject());
+			
+			bool hasVisibleRow = false;
+			
+			if(objects)
+			{
+				RN::Range range = _tree->GetVisibleRange();
+				
+				objects->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
+					
+					size_t row = _tree->GetRowForItem(node);
+					
+					selection->AddIndex(row);
+					
+					if(range.origin <= row && row <= range.GetEnd())
+						hasVisibleRow = true;
+				});
+			}
+			
+			_suppressSelectionNotification = true;
+			_tree->SetSelection(selection);
+			_suppressSelectionNotification = false;
+			
+			// Scroll the first selection into the visible area
+			if(!hasVisibleRow && selection->GetCount() > 0)
+				_tree->ScrollToRow(selection->GetFirstIndex(), RN::UI::TableView::ScrollPosition::Top);
+			
+			selection->Release();
+			
+		}, this);
 	}
 	
 	SceneHierarchy::~SceneHierarchy()
 	{
 		_data->Release();
 		_tree->Release();
+		
+		RN::MessageCenter::GetSharedInstance()->RemoveObserver(this);
 	}
 	
 	// -----------------------
@@ -117,6 +157,9 @@ namespace DP
 	
 	void SceneHierarchy::OutlineViewSelectionDidChange(RN::UI::OutlineView *outlineView)
 	{
+		if(_suppressSelectionNotification)
+			return;
+		
 		RN::IndexSet *selection = outlineView->GetSelection();
 		
 		if(selection->GetCount() > 0)
@@ -130,12 +173,17 @@ namespace DP
 				items->AddObject(node);
 			}
 			
+			_suppressSelectionNotification = true;
 			Workspace::GetSharedInstance()->SetSelection(items);
+			_suppressSelectionNotification = false;
+			
 			items->Release();
 		}
 		else
 		{
+			_suppressSelectionNotification = true;
 			Workspace::GetSharedInstance()->SetSelection(nullptr);
+			_suppressSelectionNotification = false;
 		}
 	}
 }

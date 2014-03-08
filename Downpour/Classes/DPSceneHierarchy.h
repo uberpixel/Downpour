@@ -36,9 +36,9 @@ namespace DP
 		
 		void OutlineViewSelectionDidChange(RN::UI::OutlineView *outlineView) override;
 		
-		
 		RN::Array *_data;
 		RN::UI::OutlineView *_tree;
+		bool _suppressSelectionNotification;
 	};
 }
 
