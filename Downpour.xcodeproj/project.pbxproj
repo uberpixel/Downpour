@@ -28,6 +28,7 @@
 		E9FB736F18C959AD00726541 /* DPInspectorView.h in Headers */ = {isa = PBXBuildFile; fileRef = E9FB736D18C959AD00726541 /* DPInspectorView.h */; };
 		E9FB737618CA4BFA00726541 /* DPPropertyView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E9FB737418CA4BFA00726541 /* DPPropertyView.cpp */; };
 		E9FB737718CA4BFA00726541 /* DPPropertyView.h in Headers */ = {isa = PBXBuildFile; fileRef = E9FB737518CA4BFA00726541 /* DPPropertyView.h */; };
+		E9FB737B18CAB36600726541 /* DPWidgetContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = E9FB737918CAB36600726541 /* DPWidgetContainer.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -53,6 +54,7 @@
 		E9FB736D18C959AD00726541 /* DPInspectorView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPInspectorView.h; path = Classes/DPInspectorView.h; sourceTree = "<group>"; };
 		E9FB737418CA4BFA00726541 /* DPPropertyView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPPropertyView.cpp; path = Classes/DPPropertyView.cpp; sourceTree = "<group>"; };
 		E9FB737518CA4BFA00726541 /* DPPropertyView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPPropertyView.h; path = Classes/DPPropertyView.h; sourceTree = "<group>"; };
+		E9FB737918CAB36600726541 /* DPWidgetContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPWidgetContainer.h; path = Classes/DPWidgetContainer.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +104,7 @@
 				E9FB736918C938AE00726541 /* DPSceneHierarchy.h */,
 				E97B52A518C8E2DD00C65F57 /* DPViewport.cpp */,
 				E97B52A618C8E2DD00C65F57 /* DPViewport.h */,
+				E9FB737918CAB36600726541 /* DPWidgetContainer.h */,
 				E939D7B318C73A620008D4A5 /* DPWorkspace.cpp */,
 				E939D7B418C73A620008D4A5 /* DPWorkspace.h */,
 				E9C2243018C8FD0A00626302 /* DPWorldAttachment.cpp */,
@@ -123,6 +126,7 @@
 				E97B52A018C74BF500C65F57 /* DPColorScheme.h in Headers */,
 				E958930018C90CED009F3F6D /* DPSavedState.h in Headers */,
 				D5126C7918C944FC00F91F80 /* DPRenderView.h in Headers */,
+				E9FB737B18CAB36600726541 /* DPWidgetContainer.h in Headers */,
 				E9C2243318C8FD0A00626302 /* DPWorldAttachment.h in Headers */,
 				E9FB736B18C938AE00726541 /* DPSceneHierarchy.h in Headers */,
 				E9FB736F18C959AD00726541 /* DPInspectorView.h in Headers */,

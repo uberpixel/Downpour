@@ -33,22 +33,22 @@ namespace DP
 		_state = new SavedState();
 		
 		// File tree
-		_fileTree = new FileTree();
+		_fileTree = new WidgetContainer<FileTree>(RNCSTR("Project"));
 		_fileTree->SetFrame(RN::Rect(0.0f, 0.0f, 230.0f, 768.0f));
 		_fileTree->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight);
 		
 		// Viewport
-		_viewport = new Viewport();
+		_viewport = new WidgetContainer<Viewport>(RNCSTR("Scene"));
 		_viewport->SetFrame(RN::Rect(230.0f, 0.0f, 534.0f, 768.0f));
 		_viewport->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleWidth);
 		
 		// Inspector views
-		_inspectors = new InspectorViewContainer();
+		_inspectors = new WidgetContainer<InspectorViewContainer>(RNCSTR("Inspector"));
 		_inspectors->SetFrame(RN::Rect(764.0f, 0.0f, 260.0f, 512.0f));
 		_inspectors->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleLeftMargin | RN::UI::View::AutoresizingFlexibleBottomMargin);
 		
 		// Hierarchy
-		_hierarchy = new SceneHierarchy();
+		_hierarchy = new WidgetContainer<SceneHierarchy>(RNCSTR("Hierarchy"));
 		_hierarchy->SetFrame(RN::Rect(764.0f, 512.0f, 260.0f, 256.0f));
 		_hierarchy->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleLeftMargin | RN::UI::View::AutoresizingFlexibleTopMargin);
 		
@@ -60,7 +60,7 @@ namespace DP
 		
 		MakeFirstResponder(_viewport); // Make the viewport the first responder to allow camera movement
 		
-		_worldAttachment = new WorldAttachment(_viewport->GetCamera());
+		_worldAttachment = new WorldAttachment(_viewport->GetContent()->GetCamera());
 		RN::WorldCoordinator::GetSharedInstance()->GetWorld()->AddAttachment(_worldAttachment);
 		
 		UpdateSize();

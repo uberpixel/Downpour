@@ -19,6 +19,7 @@
 #define __DPWORKSPACE_H__
 
 #include <Rayne/Rayne.h>
+#include "DPWidgetContainer.h"
 #include "DPFileTree.h"
 #include "DPViewport.h"
 #include "DPInspectorView.h"
@@ -51,10 +52,10 @@ namespace DP
 		SavedState *_state;
 		WorldAttachment *_worldAttachment;
 		
-		FileTree *_fileTree;
-		Viewport *_viewport;
-		InspectorViewContainer *_inspectors;
-		SceneHierarchy *_hierarchy;
+		WidgetContainer<FileTree> *_fileTree;
+		WidgetContainer<Viewport> *_viewport;
+		WidgetContainer<InspectorViewContainer> *_inspectors;
+		WidgetContainer<SceneHierarchy> *_hierarchy;
 		
 		RN::Array *_selection;
 		
