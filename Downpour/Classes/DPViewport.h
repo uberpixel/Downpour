@@ -37,6 +37,7 @@ namespace DP
 		void HandleDropOfObject(RN::Object *object, const RN::Vector2 &position) final;
 		
 		RN::Camera *GetCamera() const { return _camera; }
+		RN::Camera *GetEditorCamera() const { return _editorCamera; }
 		
 	private:
 		RN::Vector3 GetDirectionForPoint(const RN::Vector2 &point);
@@ -47,6 +48,7 @@ namespace DP
 		void MouseUp(RN::Event *event) override;
 		
 		RN::Camera *_camera;
+		RN::Camera *_editorCamera;
 		RN::Camera *_sourceCamera;
 		
 		RenderView *_renderView;

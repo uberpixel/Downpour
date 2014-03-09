@@ -24,9 +24,15 @@ namespace DP
 	{
 		SetInteractionEnabled(true);
 		
-		_camera = new RN::Camera(RN::Vector2(32.0f, 32.0f), RN::Texture::Format::RGB16F, RN::Camera::Flags::UpdateAspect | RN::Camera::Flags::UpdateStorageFrame | RN::Camera::Flags::NoFlush);
-		_camera->SetRenderGroups(_camera->GetRenderGroups() | (1 << 31));
+		RN::Camera::Flags flags = RN::Camera::Flags::UpdateAspect | RN::Camera::Flags::UpdateStorageFrame | RN::Camera::Flags::NoFlush;
+		
+		_camera = new RN::Camera(RN::Vector2(32.0f, 32.0f), RN::Texture::Format::RGB16F, flags);
 		_camera->SceneNode::SetFlags(_camera->SceneNode::GetFlags() | RN::SceneNode::Flags::HideInEditor);
+		
+		_editorCamera = new RN::Camera(RN::Vector2(32.0f, 32.0f), RN::Texture::Format::RGBA16F, flags);
+		_editorCamera->SetRenderGroups((1 << 31));
+		_editorCamera->SetClearColor(RN::Color::ClearColor());
+		_editorCamera->SceneNode::SetFlags(_editorCamera->SceneNode::GetFlags() | RN::SceneNode::Flags::HideInEditor);
 		
 		_sourceCamera = Workspace::GetSharedInstance()->GetSavedState()->GetMainCamera();
 		if(_sourceCamera)
@@ -34,7 +40,7 @@ namespace DP
 			_camera->SetPosition(_sourceCamera->GetWorldPosition());
 			_camera->SetRotation(_sourceCamera->GetWorldRotation());
 			
-			_camera->SetRenderGroups(_sourceCamera->GetRenderGroups() | (1 << 31));
+			_camera->SetRenderGroups(_sourceCamera->GetRenderGroups());
 			_camera->SetSky(_sourceCamera->GetSky());
 			
 			RN::Array *lights = Workspace::GetSharedInstance()->GetSavedState()->GetLights();
@@ -50,7 +56,8 @@ namespace DP
 		
 		_renderView = new RenderView();
 		_renderView->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleWidth);
-		_renderView->AddTexture(_camera->GetStorage()->GetRenderTarget());
+		_renderView->AddTexture(_camera->GetRenderTarget());
+		_renderView->AddTexture(_editorCamera->GetRenderTarget());
 		
 		AddSubview(_renderView);
 	}
@@ -58,6 +65,8 @@ namespace DP
 	Viewport::~Viewport()
 	{
 		_camera->Release();
+		_editorCamera->Release();
+		
 		_renderView->Release();
 	}
 	
@@ -65,7 +74,9 @@ namespace DP
 	void Viewport::SetFrame(const RN::Rect &frame)
 	{
 		RN::UI::View::SetFrame(frame);
+		
 		_camera->SetFrame(RN::Rect(RN::Vector2(), frame.Size()));
+		_editorCamera->SetFrame(RN::Rect(RN::Vector2(), frame.Size()));
 	}
 	
 	RN::Vector3 Viewport::GetDirectionForPoint(const RN::Vector2 &tpoint)
@@ -93,6 +104,7 @@ namespace DP
 			translation *= (input->GetModifierKeys() & RN::KeyModifier::KeyShift) ? 2.0f : 1.0f;
 			
 			_camera->TranslateLocal(translation * RN::Kernel::GetSharedInstance()->GetDelta());
+			_editorCamera->SetPosition(_camera->GetWorldPosition());
 		}
 		
 		if(_sourceCamera)
@@ -148,7 +160,9 @@ namespace DP
 		if(event->GetButton() == 1)
 		{
 			const RN::Vector2 &delta = event->GetMouseDelta();
+			
 			_camera->Rotate(RN::Vector3(delta.x, delta.y, 0.0f));
+			_editorCamera->SetRotation(_camera->GetWorldRotation());
 		}
 	}
 	
