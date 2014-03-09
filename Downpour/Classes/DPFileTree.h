@@ -46,6 +46,7 @@ namespace DP
 		
 		RN::FileProxy *_draggedNode;
 		RN::Object *_draggedData;
+		size_t _draggedRow;
 	};
 }
 

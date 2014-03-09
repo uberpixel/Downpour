@@ -117,38 +117,39 @@ namespace DP
 			
 			if(node->IsKindOfClass(RN::FileProxy::MetaClass()))
 			{
-				RN::IndexSet *selection = new RN::IndexSet(row);
+				_draggedNode = static_cast<RN::FileProxy *>(node);
+				_draggedData = nullptr;
 				
-				try
-				{
-					std::string path = RN::FileManager::GetSharedInstance()->GetNormalizedPathFromFullpath(node->GetPath());
-					
-					_draggedData = RN::ResourceCoordinator::GetSharedInstance()->GetResourceWithName<RN::Object>(RNSTR(path.c_str()), nullptr);
-					_draggedData->Retain();
-					
-					_draggedNode = static_cast<RN::FileProxy *>(node);
-					_tree->SetSelection(selection->Autorelease());
-				}
-				catch(RN::Exception &e)
-				{
-					_draggedData = nullptr;
-					_draggedNode = nullptr;
-				}
+				_draggedRow = row;
 			};
 		}
 	}
 	
 	void FileTree::MouseDraggedOnCell(RN::UI::OutlineViewCell *cell, RN::Event *event)
 	{
-		if(_draggedNode)
+		if(_draggedNode && !_draggedData)
 		{
-			
+			try
+			{
+				RN::IndexSet *selection = (new RN::IndexSet(_draggedRow))->Autorelease();
+				std::string path = RN::FileManager::GetSharedInstance()->GetNormalizedPathFromFullpath(_draggedNode->GetPath());
+				
+				_draggedData = RN::ResourceCoordinator::GetSharedInstance()->GetResourceWithName<RN::Object>(RNSTR(path.c_str()), nullptr);
+				_draggedData->Retain();
+				
+				_tree->SetSelection(selection);
+			}
+			catch(RN::Exception &e)
+			{
+				_draggedData = nullptr;
+				_draggedNode = nullptr;
+			}
 		}
 	}
 	
 	void FileTree::MouseUpOnCell(RN::UI::OutlineViewCell *cell, RN::Event *event)
 	{
-		if(_draggedNode)
+		if(_draggedNode && _draggedData)
 		{
 			RN::UI::View *base = GetWidget()->GetContentView();
 			RN::UI::View *hit  = base->HitTest(base->ConvertPointFromBase(event->GetMousePosition()), event);
@@ -165,9 +166,10 @@ namespace DP
 			}
 			
 			_draggedData->Release();
-			_draggedData = nullptr;
-			_draggedNode = nullptr;
 		}
+		
+		_draggedData = nullptr;
+		_draggedNode = nullptr;
 	}
 	
 	// -----------------------
