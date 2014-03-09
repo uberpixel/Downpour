@@ -1,5 +1,5 @@
 //
-//  DPWorldAttachment.h
+//  PPViewport.vsh
 //  Downpour
 //
 //  Copyright 2014 by Überpixel. All rights reserved.
@@ -15,34 +15,4 @@
 //  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#ifndef __DPWORLDATTACHMENT_H__
-#define __DPWORLDATTACHMENT_H__
-
-#include <Rayne/Rayne.h>
-
-#define kDPWorldAttachmentDidAddSceneNode     RNCSTR("kDPWorldAttachmentDidAddSceneNode")
-#define kDPWorldAttachmentWillRemoveSceneNode RNCSTR("kDPWorldAttachmentWillRemoveSceneNode")
-
-namespace DP
-{
-	class WorldAttachment : public RN::WorldAttachment
-	{
-	public:
-		WorldAttachment(RN::Camera *camera);
-		~WorldAttachment();
-		
-		void DidBeginCamera(RN::Camera *camera) override;
-		
-		void DidAddSceneNode(RN::SceneNode *node) override;
-		void WillRemoveSceneNode(RN::SceneNode *node) override;
-		
-	private:
-		RN::Array *_sceneNodes;
-		RN::Camera *_camera;
-		
-		RN::MetaClassBase *_lightClass;
-		RN::MetaClassBase *_cameraClass;
-	};
-}
-
-#endif /* __DPWORLDATTACHMENT_H__ */
+#include <shader/rn_PPCopy.vsh>

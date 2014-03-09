@@ -32,6 +32,7 @@ namespace DP
 		
 		SetFlags(GetFlags() | RN::SceneNode::Flags::HideInEditor);
 		SetRenderGroup(31);
+		GetMaterial()->SetDiscard(true);
 		
 		
 		if(node->IsKindOfClass(RN::Light::MetaClass()))

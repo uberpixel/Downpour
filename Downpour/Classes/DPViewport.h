@@ -49,6 +49,8 @@ namespace DP
 		
 		RN::Camera *_camera;
 		RN::Camera *_editorCamera;
+		RN::Camera *_postProcessCamera;
+		
 		RN::Camera *_sourceCamera;
 		
 		RenderView *_renderView;

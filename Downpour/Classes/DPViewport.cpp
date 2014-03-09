@@ -26,10 +26,12 @@ namespace DP
 		
 		RN::Camera::Flags flags = RN::Camera::Flags::UpdateAspect | RN::Camera::Flags::UpdateStorageFrame | RN::Camera::Flags::NoFlush;
 		
-		_camera = new RN::Camera(RN::Vector2(32.0f, 32.0f), RN::Texture::Format::RGB16F, flags);
+		_camera = new RN::Camera(RN::Vector2(32.0f), RN::Texture::Format::RGB16F, flags);
+		_camera->GetStorage()->SetDepthTarget(RN::Texture::Format::DepthStencil);
 		_camera->SceneNode::SetFlags(_camera->SceneNode::GetFlags() | RN::SceneNode::Flags::HideInEditor);
 		
-		_editorCamera = new RN::Camera(RN::Vector2(32.0f, 32.0f), RN::Texture::Format::RGBA16F, flags);
+		_editorCamera = new RN::Camera(RN::Vector2(32.0f), RN::Texture::Format::RGBA16F, flags);
+		_editorCamera->GetStorage()->SetDepthTarget(RN::Texture::Format::DepthStencil);
 		_editorCamera->SetRenderGroups((1 << 31));
 		_editorCamera->SetClearColor(RN::Color::ClearColor());
 		_editorCamera->SceneNode::SetFlags(_editorCamera->SceneNode::GetFlags() | RN::SceneNode::Flags::HideInEditor);
@@ -54,10 +56,32 @@ namespace DP
 			});
 		}
 		
+		// Post processing chain to alter editor content when occluded
+		{
+			std::string path = RN::PathManager::Join(Workspace::GetSharedInstance()->GetResourcePath(), "shaders");
+			
+			RN::Shader *shader = new RN::Shader();
+			shader->SetShaderForType(RN::PathManager::Join(path, "PPViewport.vsh"), RN::ShaderType::VertexShader);
+			shader->SetShaderForType(RN::PathManager::Join(path, "PPViewport.fsh"), RN::ShaderType::FragmentShader);
+			
+			RN::Material *material = new RN::Material(shader->Autorelease());
+			material->AddTexture(_camera->GetStorage()->GetDepthTarget());
+			material->AddTexture(_editorCamera->GetStorage()->GetDepthTarget());
+			
+			_postProcessCamera = new RN::Camera(RN::Vector2(32.0f), RN::Texture::Format::RGBA16F, RN::Camera::Flags::UpdateStorageFrame, RN::RenderStorage::BufferFormatColor);
+			_postProcessCamera->SetClearColor(RN::Color::ClearColor());
+			_postProcessCamera->SetMaterial(material->Autorelease());
+			_postProcessCamera->SceneNode::SetFlags(_editorCamera->SceneNode::GetFlags() | RN::SceneNode::Flags::HideInEditor);
+			
+			RN::PostProcessingPipeline *pipeline = _editorCamera->AddPostProcessingPipeline("pipeline", 3);
+			pipeline->AddStage(_postProcessCamera, RN::RenderStage::Mode::ReUsePreviousStage);
+		}
+		
+		
 		_renderView = new RenderView();
 		_renderView->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleWidth);
 		_renderView->AddTexture(_camera->GetRenderTarget());
-		_renderView->AddTexture(_editorCamera->GetRenderTarget());
+		_renderView->AddTexture(_postProcessCamera->GetRenderTarget());
 		
 		AddSubview(_renderView);
 	}
@@ -66,6 +90,7 @@ namespace DP
 	{
 		_camera->Release();
 		_editorCamera->Release();
+		_postProcessCamera->Release();
 		
 		_renderView->Release();
 	}
@@ -75,8 +100,11 @@ namespace DP
 	{
 		RN::UI::View::SetFrame(frame);
 		
-		_camera->SetFrame(RN::Rect(RN::Vector2(), frame.Size()));
-		_editorCamera->SetFrame(RN::Rect(RN::Vector2(), frame.Size()));
+		RN::Rect rect = RN::Rect(RN::Vector2(), frame.Size());
+		
+		_camera->SetFrame(rect);
+		_editorCamera->SetFrame(rect);
+		_postProcessCamera->SetFrame(rect);
 	}
 	
 	RN::Vector3 Viewport::GetDirectionForPoint(const RN::Vector2 &tpoint)

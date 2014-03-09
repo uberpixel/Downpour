@@ -1,5 +1,5 @@
 //
-//  DPWorldAttachment.h
+//  PPViewport.fsh
 //  Downpour
 //
 //  Copyright 2014 by Überpixel. All rights reserved.
@@ -15,34 +15,26 @@
 //  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#ifndef __DPWORLDATTACHMENT_H__
-#define __DPWORLDATTACHMENT_H__
+#version 150
+precision highp float;
 
-#include <Rayne/Rayne.h>
+uniform sampler2D targetmap0; // Editor camera
 
-#define kDPWorldAttachmentDidAddSceneNode     RNCSTR("kDPWorldAttachmentDidAddSceneNode")
-#define kDPWorldAttachmentWillRemoveSceneNode RNCSTR("kDPWorldAttachmentWillRemoveSceneNode")
+uniform sampler2D mTexture0; // Normal depth
+uniform sampler2D mTexture1; // Editor depth
 
-namespace DP
+in vec2 vertTexcoord;
+out vec4 fragColor0;
+
+void main()
 {
-	class WorldAttachment : public RN::WorldAttachment
-	{
-	public:
-		WorldAttachment(RN::Camera *camera);
-		~WorldAttachment();
-		
-		void DidBeginCamera(RN::Camera *camera) override;
-		
-		void DidAddSceneNode(RN::SceneNode *node) override;
-		void WillRemoveSceneNode(RN::SceneNode *node) override;
-		
-	private:
-		RN::Array *_sceneNodes;
-		RN::Camera *_camera;
-		
-		RN::MetaClassBase *_lightClass;
-		RN::MetaClassBase *_cameraClass;
-	};
-}
+	vec4 color = texture(targetmap0, vertTexcoord);
+	
+	float depth0 = texture(mTexture0, vertTexcoord).r;
+	float depth1 = texture(mTexture1, vertTexcoord).r;
 
-#endif /* __DPWORLDATTACHMENT_H__ */
+	if(depth0 < depth1)
+		color.a *= 0.4;
+
+	fragColor0 = color;
+}

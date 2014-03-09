@@ -30,9 +30,7 @@ namespace DP
 		RN::MessageCenter::GetSharedInstance()->AddObserver(kDPWorkspaceSelectionChanged, [this](RN::Message *message) {
 			
 			RN::SafeRelease(_sceneNodes);
-			RN::Array *objects = static_cast<RN::Array *>(message->GetObject());
-			
-			_sceneNodes = objects ? new RN::Set(objects) : new RN::Set();
+			_sceneNodes = RN::SafeRetain(static_cast<RN::Array *>(message->GetObject()));
 			
 		}, this);
 	}
@@ -47,33 +45,30 @@ namespace DP
 	
 	void WorldAttachment::DidBeginCamera(RN::Camera *camera)
 	{
-		_shouldDraw = (_camera == camera && _sceneNodes && _sceneNodes->GetCount() > 0);
-	}
-	
-	void WorldAttachment::WillRenderSceneNode(RN::SceneNode *node)
-	{
-		if(_shouldDraw && _sceneNodes->ContainsObject(node))
+		if(_camera == camera && _sceneNodes)
 		{
-			// Cameras aren't drawn yet
-			if(node->IsKindOfClass(_cameraClass))
-				return;
-			
-			if(node->IsKindOfClass(_lightClass))
-			{
-				float distance = _camera->GetWorldPosition().GetDistance(node->GetWorldPosition());
-				float tessellation = ((_camera->GetClipFar() - distance) / _camera->GetClipFar()) * 30.0f;
+			_sceneNodes->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
 				
-				tessellation = std::max(5.0f, tessellation);
+				if(node->IsKindOfClass(_cameraClass))
+					return;
 				
-				RN::Debug::DrawSphere(node->GetBoundingSphere(), RN::Color::Yellow(), static_cast<int>(floorf(tessellation)));
-			}
-			else
-			{
-				RN::Debug::DrawBox(node->GetBoundingBox(), RN::Color::Red());
-			}
+				if(node->IsKindOfClass(_lightClass))
+				{
+					float distance = _camera->GetWorldPosition().GetDistance(node->GetWorldPosition());
+					float tessellation = ((_camera->GetClipFar() - distance) / _camera->GetClipFar()) * 30.0f;
+					
+					tessellation = std::max(5.0f, tessellation);
+					
+					RN::Debug::DrawSphere(node->GetBoundingSphere(), RN::Color::Yellow(), static_cast<int>(floorf(tessellation)));
+				}
+				else
+				{
+					RN::Debug::DrawBox(node->GetBoundingBox(), RN::Color::Red());
+				}
+				
+			});
 		}
 	}
-	
 	
 	
 	void WorldAttachment::DidAddSceneNode(RN::SceneNode *node)
