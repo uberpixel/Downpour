@@ -50,7 +50,7 @@ namespace DP
 		
 		_renderView = new RenderView();
 		_renderView->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleWidth);
-		_renderView->SetTexture(_camera->GetStorage()->GetRenderTarget());
+		_renderView->AddTexture(_camera->GetStorage()->GetRenderTarget());
 		
 		AddSubview(_renderView);
 	}

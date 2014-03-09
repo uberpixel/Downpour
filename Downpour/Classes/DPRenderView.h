@@ -28,30 +28,18 @@ namespace DP
 		RNAPI RenderView();
 		RNAPI ~RenderView() override;
 		
-		RNAPI void SetTexture(RN::Texture *texture);
-		RNAPI void SetScaleMode(RN::UI::ScaleMode mode);
+		RNAPI void AddTexture(RN::Texture *texture);
 		RNAPI void SetFrame(const RN::Rect& frame) override;
-		
-		RNAPI RN::UI::ScaleMode GetScaleMode() const { return _scaleMode; }
-		
-		RNAPI RN::Vector2 GetSizeThatFits() override;
-		
+	
 	protected:
-		RNAPI void Update() override;
 		RNAPI void Draw(RN::Renderer *renderer) override;
 		
 	private:
-		void Initialize();
-		
-		bool _isDirty;
-		
-		RN::UI::ScaleMode _scaleMode;
-		RN::Texture *_texture;
-		
-		RN::Material *_material;
+		RN::Shader *_shader;
 		RN::Mesh  *_mesh;
+		RN::Array *_materials;
 		
-		RNDeclareMeta(RenderView, View)
+		RNDeclareMeta(RenderView, RN::UI::View)
 	};
 }
 

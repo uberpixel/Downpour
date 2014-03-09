@@ -21,140 +21,93 @@ namespace DP
 {
 	RNDefineMeta(RenderView)
 	
-	RenderView::RenderView()
+	RenderView::RenderView() :
+		_materials(new RN::Array()),
+		_shader(new RN::Shader())
 	{
-		Initialize();
+		SetInteractionEnabled(false);
+		
+		_shader->SetShaderForType("shader/rn_UIImage.vsh", RN::ShaderType::VertexShader);
+		_shader->SetShaderForType("shader/rn_DrawFramebufferTonemap.fsh", RN::ShaderType::FragmentShader);
+		
+		
+		RN::MeshDescriptor vertexDescriptor(RN::MeshFeature::Vertices);
+		vertexDescriptor.elementMember = 2;
+		vertexDescriptor.elementSize   = sizeof(RN::Vector2);
+		
+		RN::MeshDescriptor uvDescriptor(RN::MeshFeature::UVSet0);
+		uvDescriptor.elementMember = 2;
+		uvDescriptor.elementSize   = sizeof(RN::Vector2);
+		
+		std::vector<RN::MeshDescriptor> descriptors = { vertexDescriptor, uvDescriptor };
+		
+		_mesh = new RN::Mesh(descriptors, 4, 0);
+		_mesh->SetDrawMode(RN::Mesh::DrawMode::TriangleStrip);
+		
+		RN::Mesh::Chunk chunk = _mesh->GetChunk();
+		
+		RN::Mesh::ElementIterator<RN::Vector2> vertices = chunk.GetIterator<RN::Vector2>(RN::MeshFeature::Vertices);
+		RN::Mesh::ElementIterator<RN::Vector2> uvCoords = chunk.GetIterator<RN::Vector2>(RN::MeshFeature::UVSet0);
+		
+		RN::Vector2 size = GetBounds().Size();
+		*vertices ++ = RN::Vector2(size.x, size.y);
+		*vertices ++ = RN::Vector2(0.0f, size.y);
+		*vertices ++ = RN::Vector2(size.x, 0.0f);
+		*vertices ++ = RN::Vector2(0.0f, 0.0f);
+		
+		*uvCoords ++ = RN::Vector2(1.0f, 1.0f);
+		*uvCoords ++ = RN::Vector2(0.0f, 1.0f);
+		*uvCoords ++ = RN::Vector2(1.0f, 0.0f);
+		*uvCoords ++ = RN::Vector2(0.0f, 0.0f);
+		
+		chunk.CommitChanges();
 	}
 		
 	RenderView::~RenderView()
 	{
-		if(_mesh)
-			_mesh->Release();
-		
-		if(_texture)
-			_texture->Release();
-		
-		_material->Release();
-	}
-	
-	
-	void RenderView::Initialize()
-	{
-		SetInteractionEnabled(false);
-		SetBackgroundColor(RN::Color::ClearColor());
-		
-		_mesh  = nullptr;
-		RN::Shader *shader = new RN::Shader();
-		shader->SetShaderForType("shader/rn_UIImage.vsh", RN::ShaderType::VertexShader);
-		shader->SetShaderForType("shader/rn_DrawFramebufferTonemap.fsh", RN::ShaderType::FragmentShader);
-		_material = BasicMaterial(shader);
-		_material->Retain();
-		_material->Define("targetmap0", "mTexture0");
-		
-		_texture   = nullptr;
-		_isDirty = true;
-		_scaleMode = RN::UI::ScaleMode::AxisIndependently;
-	}
-	
-	RN::Vector2 RenderView::GetSizeThatFits()
-	{
-		if(!_texture)
-			return RN::Vector2(0.0f, 0.0f);
-		
-		return RN::Vector2(_texture->GetWidth(), _texture->GetHeight());
+		_materials->Release();
+		_shader->Release();
+		_mesh->Release();
 	}
 	
 	void RenderView::SetFrame(const RN::Rect& frame)
 	{
-		View::SetFrame(frame);
-		_isDirty = true;
-	}
-	
-	void RenderView::SetScaleMode(RN::UI::ScaleMode mode)
-	{
-		_scaleMode = mode;
-		_isDirty = true;
-	}
-	
-	void RenderView::SetTexture(RN::Texture *texture)
-	{			
-		if(_texture)
-		{
-			_texture->Release();
-			_texture = nullptr;
-		}
+		RN::UI::View::SetFrame(frame);
 		
-		_texture = texture ? texture->Retain() : nullptr;
-		_isDirty = true;
+		RN::Mesh::Chunk chunk = _mesh->GetChunk();
+		RN::Mesh::ElementIterator<RN::Vector2> vertices = chunk.GetIterator<RN::Vector2>(RN::MeshFeature::Vertices);
+		
+		*vertices ++ = RN::Vector2(frame.width, frame.height);
+		*vertices ++ = RN::Vector2(0.0f, frame.height);
+		*vertices ++ = RN::Vector2(frame.width, 0.0f);
+		*vertices ++ = RN::Vector2(0.0f, 0.0f);
+
+		chunk.CommitChanges();
 	}
 	
-	void RenderView::Update()
+	void RenderView::AddTexture(RN::Texture *texture)
 	{
-		RN::UI::View::Update();
+		RN::Material *material = BasicMaterial(_shader);
+		material->Define("targetmap0", "mTexture0");
+		material->AddTexture(texture);
 		
-		if(_isDirty)
-		{
-			if(_mesh)
-			{
-				_mesh->Release();
-				_mesh = nullptr;
-			}
-			
-			if(_texture)
-			{
-				_material->RemoveTextures();
-				_material->AddTexture(_texture);
-			}
-				
-			RN::MeshDescriptor vertexDescriptor(RN::MeshFeature::Vertices);
-			vertexDescriptor.elementMember = 2;
-			vertexDescriptor.elementSize   = sizeof(RN::Vector2);
-			
-			RN::MeshDescriptor uvDescriptor(RN::MeshFeature::UVSet0);
-			uvDescriptor.elementMember = 2;
-			uvDescriptor.elementSize   = sizeof(RN::Vector2);
-			
-			std::vector<RN::MeshDescriptor> descriptors = { vertexDescriptor, uvDescriptor };
-			_mesh = new RN::Mesh(descriptors, 4, 0);
-			_mesh->SetDrawMode(RN::Mesh::DrawMode::TriangleStrip);
-			
-			RN::Mesh::Chunk chunk = _mesh->GetChunk();
-			
-			RN::Mesh::ElementIterator<RN::Vector2> vertices = chunk.GetIterator<RN::Vector2>(RN::MeshFeature::Vertices);
-			RN::Mesh::ElementIterator<RN::Vector2> uvCoords = chunk.GetIterator<RN::Vector2>(RN::MeshFeature::UVSet0);
-			
-			RN::Vector2 size = GetBounds().Size();
-			*vertices ++ = RN::Vector2(size.x, size.y);
-			*vertices ++ = RN::Vector2(0.0f, size.y);
-			*vertices ++ = RN::Vector2(size.x, 0.0f);
-			*vertices ++ = RN::Vector2(0.0f, 0.0f);
-			
-			*uvCoords ++ = RN::Vector2(1.0f, 1.0f);
-			*uvCoords ++ = RN::Vector2(0.0f, 1.0f);
-			*uvCoords ++ = RN::Vector2(1.0f, 0.0f);
-			*uvCoords ++ = RN::Vector2(0.0f, 0.0f);
-			
-			chunk.CommitChanges();
-			
-			_mesh->Retain()->Autorelease();
-			
-			_isDirty = false;
-		}
+		_materials->AddObject(material);
 	}
 	
 	void RenderView::Draw(RN::Renderer *renderer)
 	{
-		View::Draw(renderer);
+		RN::UI::View::Draw(renderer);
 		
-		if(_mesh)
-		{
+		_materials->Enumerate<RN::Material>([&](RN::Material *material, size_t index, bool &stop) {
+			
 			RN::RenderingObject object;
 			PopulateRenderingObject(object);
 			
-			object.mesh = _mesh;
-			object.material = _material;
+			object.mesh     = _mesh;
+			object.material = material;
 			
 			renderer->RenderObject(object);
-		}
+			
+		});
 	}
 }
