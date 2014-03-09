@@ -17,21 +17,21 @@
 
 #include "DPSceneHierarchy.h"
 #include "DPWorkspace.h"
+#include "DPWorldAttachment.h"
 #include "DPColorScheme.h"
+#include "DPGizmo.h"
 
 namespace DP
 {
 	SceneHierarchy::SceneHierarchy() :
 		_suppressSelectionNotification(false)
 	{
-		_data = new RN::Array();
-		
 		{
 			RN::Array *sceneGraph = RN::World::GetActiveWorld()->GetSceneNodes();
 			sceneGraph->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &flags) {
 				
 				if(!node->GetParent())
-					_data->AddObject(node);
+					_data.emplace_back(new SceneNodeProxy(node));
 				
 			});
 		}
@@ -62,7 +62,9 @@ namespace DP
 				
 				objects->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
 					
-					size_t row = _tree->GetRowForItem(node);
+					size_t row = _tree->GetRowForItem(FindProxyForNode(node));
+					if(row == kRNNotFound)
+						return;
 					
 					selection->AddIndex(row);
 					
@@ -82,14 +84,98 @@ namespace DP
 			selection->Release();
 			
 		}, this);
+		
+		RN::MessageCenter::GetSharedInstance()->AddObserver(kDPWorldAttachmentDidAddSceneNode, &SceneHierarchy::DidAddSceneNode, this, this);
+		RN::MessageCenter::GetSharedInstance()->AddObserver(kDPWorldAttachmentWillRemoveSceneNode, &SceneHierarchy::WillRemoveSceneNode, this, this);
 	}
 	
 	SceneHierarchy::~SceneHierarchy()
 	{
-		_data->Release();
+		for(SceneNodeProxy *proxy : _data)
+		{
+			delete proxy;
+		}
+		
 		_tree->Release();
 		
 		RN::MessageCenter::GetSharedInstance()->RemoveObserver(this);
+	}
+	
+	// -----------------------
+	// MARK: -
+	// MARK: Scene graph
+	// -----------------------
+	
+	SceneNodeProxy *SceneHierarchy::FindProxyForNode(RN::SceneNode *node)
+	{
+		for(SceneNodeProxy *proxy : _data)
+		{
+			SceneNodeProxy *temp = proxy->FindProxyForNode(node);
+			if(temp)
+				return temp;
+		}
+		
+		return nullptr;
+	}
+	
+	void SceneHierarchy::DidAddSceneNode(RN::Message *message)
+	{
+		RN::SceneNode *node = static_cast<RN::SceneNode *>(message->GetObject());
+		
+		if(node->IsKindOfClass(Gizmo::MetaClass())) // Totally not relevant to us
+			return;
+		
+		RN::SceneNode *parent = node->GetParent();
+		if(!parent)
+		{
+			_data.emplace_back(new SceneNodeProxy(node));
+			_tree->ReloadItem(nullptr, false);
+		}
+		else
+		{
+			SceneNodeProxy *proxy = FindProxyForNode(parent);
+			if(proxy)
+			{
+				proxy->children.emplace_back(new SceneNodeProxy(node));
+				_tree->ReloadItem(proxy, true);
+			}
+		}
+	}
+	
+	void SceneHierarchy::WillRemoveSceneNode(RN::Message *message)
+	{
+		RN::SceneNode *node = static_cast<RN::SceneNode *>(message->GetObject());
+		
+		if(node->IsKindOfClass(Gizmo::MetaClass())) // Totally not relevant to us
+			return;
+		
+		RN::SceneNode *parent = node->GetParent();
+		if(parent)
+		{
+			SceneNodeProxy *proxy = FindProxyForNode(parent);
+			if(proxy)
+			{
+				proxy->RemoveProxyForNode(node);
+				_tree->ReloadItem(proxy, true);
+			}
+		}
+		else
+		{
+			for(auto i = _data.begin(); i != _data.end(); i ++)
+			{
+				SceneNodeProxy *proxy = *i;
+				
+				if(proxy->node == node)
+				{
+					delete proxy;
+					_data.erase(i);
+					
+					break;
+				}
+			}
+			
+			_tree->ReloadItem(nullptr, false);
+		}
 	}
 	
 	// -----------------------
@@ -99,32 +185,26 @@ namespace DP
 	
 	bool SceneHierarchy::OutlineViewItemIsExpandable(RN::UI::OutlineView *outlineView, void *item)
 	{
-		RN::SceneNode *node = static_cast<RN::SceneNode *>(item);
-		return node->HasChildren();
+		SceneNodeProxy *proxy = static_cast<SceneNodeProxy *>(item);
+		return proxy->IsExpandable();
 	}
 	
 	size_t SceneHierarchy::OutlineViewGetNumberOfChildrenForItem(RN::UI::OutlineView *outlineView, void *item)
 	{
 		if(!item)
-			return _data->GetCount();
+			return _data.size();
 		
-		RN::SceneNode *node = static_cast<RN::SceneNode *>(item);
-		if(!node->HasChildren())
-			return 0;
-		
-		const RN::Array *children = node->GetChildren();
-		return children->GetCount();
+		SceneNodeProxy *proxy = static_cast<SceneNodeProxy *>(item);
+		return proxy->children.size();
 	}
 	
 	void *SceneHierarchy::OutlineViewGetChildOfItem(RN::UI::OutlineView *outlineView, void *item, size_t child)
 	{
 		if(!item)
-			return _data->GetObjectAtIndex(child);
+			return _data[child];
 		
-		RN::SceneNode *node = static_cast<RN::SceneNode *>(item);
-		
-		const RN::Array *children = node->GetChildren();
-		return children->GetObjectAtIndex(child);
+		SceneNodeProxy *proxy = static_cast<SceneNodeProxy *>(item);
+		return proxy->children[child];
 	}
 	
 	RN::UI::OutlineViewCell *SceneHierarchy::OutlineViewGetCellForItem(RN::UI::OutlineView *outlineView, void *item)
@@ -138,7 +218,7 @@ namespace DP
 			cell->Autorelease();
 		}
 		
-		RN::SceneNode *node = static_cast<RN::SceneNode *>(item);
+		RN::SceneNode *node = static_cast<SceneNodeProxy *>(item)->node;
 		
 		std::string name = node->GetDebugName();
 		if(name.empty())
@@ -169,7 +249,7 @@ namespace DP
 			size_t count = selection->GetCount();
 			for(size_t i = 0; i < count; i ++)
 			{
-				RN::SceneNode *node = static_cast<RN::SceneNode *>(outlineView->GetItemForRow(selection->GetIndex(i)));
+				RN::SceneNode *node = static_cast<SceneNodeProxy *>(outlineView->GetItemForRow(selection->GetIndex(i)))->node;
 				items->AddObject(node);
 			}
 			

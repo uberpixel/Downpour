@@ -22,13 +22,86 @@
 
 namespace DP
 {
+	struct SceneNodeProxy
+	{
+		SceneNodeProxy(RN::SceneNode *tnode) :
+			node(tnode)
+		{
+			if(node->HasChildren())
+			{
+				const RN::Array *temp = node->GetChildren();
+				temp->Enumerate<RN::SceneNode>([&](RN::SceneNode *child, size_t index, bool &stop) {
+					children.emplace_back(new SceneNodeProxy(child));
+				});
+			}
+		}
+		
+		~SceneNodeProxy()
+		{
+			for(SceneNodeProxy *proxy : children)
+			{
+				delete proxy;
+			}
+		}
+		
+		SceneNodeProxy *FindProxyForNode(RN::SceneNode *tnode)
+		{
+			if(tnode == node)
+				return this;
+			
+			for(SceneNodeProxy *proxy : children)
+			{
+				SceneNodeProxy *temp = proxy->FindProxyForNode(tnode);
+				if(temp)
+					return temp;
+			}
+			
+			return nullptr;
+		}
+		
+		bool RemoveProxyForNode(RN::SceneNode *tnode)
+		{
+			for(auto i = children.begin(); i != children.end(); i ++)
+			{
+				SceneNodeProxy *proxy = *i;
+				
+				if(proxy->node == tnode)
+				{
+					delete proxy;
+					children.erase(i);
+					
+					return true;
+				}
+			}
+			
+			for(SceneNodeProxy *proxy : children)
+			{
+				bool result = proxy->RemoveProxyForNode(tnode);
+				if(result)
+					return result;
+			}
+			
+			return false;
+		}
+		
+		bool IsExpandable() const { return !children.empty(); }
+		
+		RN::SceneNode *node;
+		std::vector<SceneNodeProxy *> children;
+	};
+	
 	class SceneHierarchy : public RN::UI::View, RN::UI::OutlineViewDataSource, RN::UI::OutlineViewDelegate
 	{
 	public:
 		SceneHierarchy();
 		~SceneHierarchy();
 		
+		void DidAddSceneNode(RN::Message *message);
+		void WillRemoveSceneNode(RN::Message *message);
+		
 	private:
+		SceneNodeProxy *FindProxyForNode(RN::SceneNode *node);
+		
 		bool OutlineViewItemIsExpandable(RN::UI::OutlineView *outlineView, void *item) override;
 		size_t OutlineViewGetNumberOfChildrenForItem(RN::UI::OutlineView *outlineView, void *item) override;
 		void *OutlineViewGetChildOfItem(RN::UI::OutlineView *outlineView, void *item, size_t child) override;
@@ -36,7 +109,8 @@ namespace DP
 		
 		void OutlineViewSelectionDidChange(RN::UI::OutlineView *outlineView) override;
 		
-		RN::Array *_data;
+		std::vector<SceneNodeProxy *> _data;
+		
 		RN::UI::OutlineView *_tree;
 		bool _suppressSelectionNotification;
 	};

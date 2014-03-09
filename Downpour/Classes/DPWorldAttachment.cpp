@@ -73,4 +73,15 @@ namespace DP
 			}
 		}
 	}
+	
+	
+	
+	void WorldAttachment::DidAddSceneNode(RN::SceneNode *node)
+	{
+		RN::MessageCenter::GetSharedInstance()->PostMessage(kDPWorldAttachmentDidAddSceneNode, node, nullptr);
+	}
+	void WorldAttachment::WillRemoveSceneNode(RN::SceneNode *node)
+	{
+		RN::MessageCenter::GetSharedInstance()->PostMessage(kDPWorldAttachmentWillRemoveSceneNode, node, nullptr);
+	}
 }

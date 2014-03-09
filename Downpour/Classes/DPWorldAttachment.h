@@ -20,6 +20,9 @@
 
 #include <Rayne/Rayne.h>
 
+#define kDPWorldAttachmentDidAddSceneNode     RNCSTR("kDPWorldAttachmentDidAddSceneNode")
+#define kDPWorldAttachmentWillRemoveSceneNode RNCSTR("kDPWorldAttachmentWillRemoveSceneNode")
+
 namespace DP
 {
 	class WorldAttachment : public RN::WorldAttachment
@@ -30,6 +33,9 @@ namespace DP
 		
 		void DidBeginCamera(RN::Camera *camera) override;
 		void WillRenderSceneNode(RN::SceneNode *node) override;
+		
+		void DidAddSceneNode(RN::SceneNode *node) override;
+		void WillRemoveSceneNode(RN::SceneNode *node) override;
 		
 	private:
 		bool _shouldDraw;

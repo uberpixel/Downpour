@@ -185,5 +185,9 @@ namespace DP
 		// Place the model
 		RN::Model *model = static_cast<RN::Model *>(object);
 		RN::Entity *entity = new RN::Entity(model, _camera->GetPosition() + direction * distance);
+	
+		// Get the world to register the new entity immediately
+		RN::World::GetActiveWorld()->ApplyNodes();
+		Workspace::GetSharedInstance()->SetSelection(entity);
 	}
 }
