@@ -157,6 +157,30 @@ namespace DP
 		RN::MessageCenter::GetSharedInstance()->PostMessage(kDPWorkspaceSelectionChanged, nullptr, nullptr);
 	}
 	
+	void Workspace::KeyDown(RN::Event *event)
+	{
+		switch(event->GetCode())
+		{
+			case RN::KeyDelete:
+			{
+				RN::Array *selection = Workspace::GetSharedInstance()->GetSelection();
+				if(selection)
+				{
+					selection->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
+						
+						if(node->GetParent())
+							node->RemoveFromParent();
+						
+						node->GetWorld()->RemoveSceneNode(node);
+						node->Autorelease();
+						
+					});
+				}
+				
+				SetSelection(nullptr);
+			}
+		}
+	}
 	
 	// -----------------------
 	// MARK: -

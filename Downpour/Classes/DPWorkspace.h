@@ -52,6 +52,8 @@ namespace DP
 		void CreateToolbar();
 		void UpdateSize();
 		
+		void KeyDown(RN::Event *event) override;
+		
 		SavedState *_state;
 		WorldAttachment *_worldAttachment;
 		
