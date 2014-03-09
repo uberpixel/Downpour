@@ -19,7 +19,6 @@
 #include "DPWorkspace.h"
 #include "DPWorldAttachment.h"
 #include "DPColorScheme.h"
-#include "DPGizmo.h"
 
 namespace DP
 {
@@ -30,7 +29,7 @@ namespace DP
 			RN::Array *sceneGraph = RN::World::GetActiveWorld()->GetSceneNodes();
 			sceneGraph->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &flags) {
 				
-				if(!node->GetParent())
+				if(!node->GetParent() && !(node->GetFlags() & RN::SceneNode::Flags::HideInEditor))
 					_data.emplace_back(new SceneNodeProxy(node));
 				
 			});
@@ -122,7 +121,7 @@ namespace DP
 	{
 		RN::SceneNode *node = static_cast<RN::SceneNode *>(message->GetObject());
 		
-		if(node->IsKindOfClass(Gizmo::MetaClass())) // Totally not relevant to us
+		if(node->GetFlags() & RN::SceneNode::Flags::HideInEditor)
 			return;
 		
 		RN::SceneNode *parent = node->GetParent();
@@ -146,7 +145,7 @@ namespace DP
 	{
 		RN::SceneNode *node = static_cast<RN::SceneNode *>(message->GetObject());
 		
-		if(node->IsKindOfClass(Gizmo::MetaClass())) // Totally not relevant to us
+		if(node->GetFlags() & RN::SceneNode::Flags::HideInEditor)
 			return;
 		
 		RN::SceneNode *parent = node->GetParent();

@@ -26,6 +26,7 @@ namespace DP
 		
 		_camera = new RN::Camera(RN::Vector2(32.0f, 32.0f), RN::Texture::Format::RGB16F, RN::Camera::Flags::UpdateAspect | RN::Camera::Flags::UpdateStorageFrame | RN::Camera::Flags::NoFlush);
 		_camera->SetRenderGroups(_camera->GetRenderGroups() | (1 << 31));
+		_camera->SceneNode::SetFlags(_camera->SceneNode::GetFlags() | RN::SceneNode::Flags::HideInEditor);
 		
 		_sourceCamera = Workspace::GetSharedInstance()->GetSavedState()->GetMainCamera();
 		if(_sourceCamera)

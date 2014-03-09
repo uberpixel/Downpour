@@ -37,6 +37,7 @@ namespace DP
 		SetModel(model);
 		SetRenderGroup(31);
 		SetSelection(nullptr);
+		SetFlags(GetFlags() | RN::SceneNode::Flags::HideInEditor);
 		
 		RN::MessageCenter::GetSharedInstance()->AddObserver(kDPWorkspaceSelectionChanged, [this](RN::Message *message) {
 			SetSelection(static_cast<RN::Array *>(message->GetObject()));

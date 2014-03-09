@@ -31,6 +31,10 @@ namespace DP
 			{
 				const RN::Array *temp = node->GetChildren();
 				temp->Enumerate<RN::SceneNode>([&](RN::SceneNode *child, size_t index, bool &stop) {
+					
+					if(child->GetFlags() & RN::SceneNode::Flags::HideInEditor)
+						return;
+					
 					children.emplace_back(new SceneNodeProxy(child));
 				});
 			}
