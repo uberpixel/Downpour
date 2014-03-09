@@ -28,6 +28,7 @@ namespace DP
 	RNDefineMeta(ComponentPropertyView)
 	RNDefineMeta(Vector3PropertyView)
 	RNDefineMeta(QuaternionPropertyView)
+	RNDefineMeta(ColorPropertyView)
 	
 	// -----------------------
 	// MARK: -
@@ -136,6 +137,12 @@ namespace DP
 			case RN::TypeTranslator<RN::Quaternion>::value:
 			{
 				QuaternionPropertyView *view = new QuaternionPropertyView(observable, title);
+				return view->Autorelease();
+			}
+				
+			case RN::TypeTranslator<RN::Color>::value:
+			{
+				ColorPropertyView *view = new ColorPropertyView(observable, title);
 				return view->Autorelease();
 			}
 				
@@ -328,7 +335,7 @@ namespace DP
 	
 	// -----------------------
 	// MARK: -
-	// MARK: Vector3ComponentView
+	// MARK: QuaternionPropertyView
 	// -----------------------
 	
 	QuaternionPropertyView::QuaternionPropertyView(RN::ObservableProperty *observable, RN::String *title) :
@@ -361,5 +368,42 @@ namespace DP
 		SetValue(RN::Number::WithFloat(vector.x), 0);
 		SetValue(RN::Number::WithFloat(vector.y), 1);
 		SetValue(RN::Number::WithFloat(vector.z), 2);
+	}
+	
+	// -----------------------
+	// MARK: -
+	// MARK: ColorPropertyView
+	// -----------------------
+	
+	ColorPropertyView::ColorPropertyView(RN::ObservableProperty *observable, RN::String *title) :
+		ComponentPropertyView(observable, title, 3)
+	{
+		SetTitle(RNCSTR("R"), 0);
+		SetTitle(RNCSTR("G"), 1);
+		SetTitle(RNCSTR("B"), 2);
+		
+		ValueDidChange(_observable->GetValue());
+	}
+	
+	void ColorPropertyView::ValueAtIndexChanged(size_t index)
+	{
+		RN::Color color;
+		
+		color.r = GetValue(0)->Downcast<RN::Number>()->GetFloatValue();
+		color.g = GetValue(1)->Downcast<RN::Number>()->GetFloatValue();
+		color.b = GetValue(2)->Downcast<RN::Number>()->GetFloatValue();
+		color.a = 1.0f;
+		
+		_observable->SetValue(RN::Value::WithColor(color));
+	}
+	
+	void ColorPropertyView::ValueDidChange(RN::Object *newValue)
+	{
+		RN::Value *value = newValue->Downcast<RN::Value>();
+		RN::Color color  = value->GetValue<RN::Color>();
+		
+		SetValue(RN::Number::WithFloat(color.r), 0);
+		SetValue(RN::Number::WithFloat(color.g), 1);
+		SetValue(RN::Number::WithFloat(color.b), 2);
 	}
 }

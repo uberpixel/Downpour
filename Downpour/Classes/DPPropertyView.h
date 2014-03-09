@@ -123,6 +123,18 @@ namespace DP
 	private:
 		RNDeclareMeta(QuaternionPropertyView, ComponentPropertyView)
 	};
+	
+	class ColorPropertyView : public ComponentPropertyView
+	{
+	public:
+		ColorPropertyView(RN::ObservableProperty *observable, RN::String *title);
+		
+		void ValueAtIndexChanged(size_t index) override;
+		void ValueDidChange(RN::Object *newValue) override;
+		
+	private:
+		RNDeclareMeta(ColorPropertyView, ComponentPropertyView)
+	};
 }
 
 #endif /* __DPPROPERTYVIEW_H__ */
