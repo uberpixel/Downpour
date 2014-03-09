@@ -20,6 +20,8 @@
 #include "DPWorldAttachment.h"
 #include "DPColorScheme.h"
 
+#include "DPEditorIcon.h"
+
 namespace DP
 {
 	SceneHierarchy::SceneHierarchy() :
@@ -29,9 +31,14 @@ namespace DP
 			RN::Array *sceneGraph = RN::World::GetActiveWorld()->GetSceneNodes();
 			sceneGraph->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &flags) {
 				
-				if(!node->GetParent() && !(node->GetFlags() & RN::SceneNode::Flags::HideInEditor))
-					_data.emplace_back(new SceneNodeProxy(node));
-				
+				if(!(node->GetFlags() & RN::SceneNode::Flags::HideInEditor))
+				{
+					if(!node->GetParent())
+						_data.emplace_back(new SceneNodeProxy(node));
+					
+					if(EditorIcon::SupportsSceneNodeClass(node))
+						EditorIcon::WithSceneNode(node);
+				}
 			});
 		}
 			
@@ -123,6 +130,9 @@ namespace DP
 		
 		if(node->GetFlags() & RN::SceneNode::Flags::HideInEditor)
 			return;
+		
+		if(EditorIcon::SupportsSceneNodeClass(node))
+			EditorIcon::WithSceneNode(node);
 		
 		RN::SceneNode *parent = node->GetParent();
 		if(!parent)

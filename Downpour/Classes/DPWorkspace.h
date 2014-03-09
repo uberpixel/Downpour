@@ -42,6 +42,7 @@ namespace DP
 		RN::Array *GetSelection() const { return _selection; }
 		
 		Gizmo *GetGizmo() const { return _gizmo; }
+		Viewport *GetViewport() const { return _viewport->GetContent(); }
 		SavedState *GetSavedState() const { return _state; }
 		
 		void SetSelection(RN::Array *selection);
@@ -49,6 +50,7 @@ namespace DP
 		void SetSelection(std::nullptr_t null);
 		
 	private:
+		void SanitizeAndPostSelection();
 		void CreateToolbar();
 		void UpdateSize();
 		

@@ -16,6 +16,7 @@
 //
 
 #include "DPWorkspace.h"
+#include "DPEditorIcon.h"
 
 #define kDPWorkspaceToolbarHeight 40.0f
 
@@ -137,24 +138,63 @@ namespace DP
 	// MARK: Selection
 	// -----------------------
 	
+	void Workspace::SanitizeAndPostSelection()
+	{
+		if(!_selection)
+		{
+			RN::MessageCenter::GetSharedInstance()->PostMessage(kDPWorkspaceSelectionChanged, _selection, nullptr);
+			return;
+		}
+		
+		if(_selection->GetCount() == 0)
+		{
+			_selection->Release();
+			_selection = nullptr;
+			
+			RN::MessageCenter::GetSharedInstance()->PostMessage(kDPWorkspaceSelectionChanged, _selection, nullptr);
+			return;
+		}
+		
+		RN::Array *sanitized = new RN::Array(_selection->GetCount());
+		
+		_selection->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
+			
+			if(node->IsKindOfClass(EditorIcon::MetaClass()))
+			{
+				EditorIcon *icon = static_cast<EditorIcon *>(node);
+				sanitized->AddObject(icon->GetSceneNode());
+				
+				return;
+			}
+			
+			sanitized->AddObject(node);
+			
+		});
+		
+		_selection->Release();
+		_selection = sanitized;
+		
+		RN::MessageCenter::GetSharedInstance()->PostMessage(kDPWorkspaceSelectionChanged, _selection, nullptr);
+	}
+	
 	void Workspace::SetSelection(RN::Array *selection)
 	{
 		RN::SafeRelease(_selection);
 		_selection = selection->Copy();
 		
-		RN::MessageCenter::GetSharedInstance()->PostMessage(kDPWorkspaceSelectionChanged, _selection, nullptr);
+		SanitizeAndPostSelection();
 	}
 	void Workspace::SetSelection(RN::SceneNode *selection)
 	{
 		RN::SafeRelease(_selection);
 		_selection = RN::Array::WithObjects(selection, nullptr)->Retain();
 		
-		RN::MessageCenter::GetSharedInstance()->PostMessage(kDPWorkspaceSelectionChanged, _selection, nullptr);
+		SanitizeAndPostSelection();
 	}
 	void Workspace::SetSelection(std::nullptr_t null)
 	{
 		RN::SafeRelease(_selection);
-		RN::MessageCenter::GetSharedInstance()->PostMessage(kDPWorkspaceSelectionChanged, nullptr, nullptr);
+		SanitizeAndPostSelection();
 	}
 	
 	void Workspace::KeyDown(RN::Event *event)
