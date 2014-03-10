@@ -40,6 +40,15 @@ namespace DP
 						EditorIcon::WithSceneNode(node);
 				}
 			});
+			
+			// GetSceneNodes() returns the scene nodes in an unsorted, "random" way
+			// The hierarchy however should display the nodes in deterministic order, which is achieved by
+			// sorting them by their UID
+			// This is not needed for child nodes since their order is defined
+			
+			std::sort(_data.begin(), _data.end(), [](const SceneNodeProxy *a, const SceneNodeProxy *b) {
+				return (a->node->GetUID() < b->node->GetUID());
+			});
 		}
 			
 		_tree = new RN::UI::OutlineView();
