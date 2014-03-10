@@ -48,6 +48,7 @@ namespace DP
 		void SetSelection(RN::Array *selection);
 		void SetSelection(RN::SceneNode *selection);
 		void SetSelection(std::nullptr_t null);
+		void DuplicateSelection();
 		
 	private:
 		void SanitizeAndPostSelection();

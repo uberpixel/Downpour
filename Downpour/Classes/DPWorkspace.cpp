@@ -193,8 +193,52 @@ namespace DP
 		SanitizeAndPostSelection();
 	}
 	
+	void Workspace::DuplicateSelection()
+	{
+		if(!_selection)
+			return;
+		
+		RN::Array *duplicates = new RN::Array();
+		
+		_selection->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
+			
+			RN::MetaClassBase *meta = node->Class();
+			bool noDirectCopy = false;
+			
+			// Find the first class that supports copying to avoid trying to make a copy
+			// of something that doesn't support copying in the first place
+			while(!meta->SupportsCopying())
+			{
+				noDirectCopy = true;
+				meta = meta->SuperClass();
+			}
+			
+			
+			try
+			{
+				RN::SceneNode *copy = static_cast<RN::SceneNode *>(meta->ConstructWithCopy(node));
+				duplicates->AddObject(copy);
+				if(noDirectCopy)
+					
+					RNDebug("Can't copy %s, copying %s instead (make sure to implement the Copyable meta class trait!", node->Class()->Name().c_str(), meta->Name().c_str());
+			}
+			catch(RN::Exception e)
+			{} // Meh...
+		});
+		
+		RN::World::GetActiveWorld()->ApplyNodes();
+		SetSelection(duplicates);
+	}
+	
+	// -----------------------
+	// MARK: -
+	// MARK: Event handling
+	// -----------------------
+	
 	void Workspace::KeyDown(RN::Event *event)
 	{
+		bool ctrlDown = (RN::Input::GetSharedInstance()->GetModifierKeys() & RN::KeyControl);
+		
 		switch(event->GetCode())
 		{
 			case RN::KeyDelete:
@@ -214,6 +258,14 @@ namespace DP
 				}
 				
 				SetSelection(nullptr);
+			}
+				
+			case 'd':
+			{
+				if(ctrlDown)
+					DuplicateSelection();
+				
+				break;
 			}
 		}
 	}

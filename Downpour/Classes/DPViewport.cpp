@@ -130,13 +130,16 @@ namespace DP
 			RN::Vector3 translation;
 			RN::Input *input = RN::Input::GetSharedInstance();
 			
-			translation.x = (input->IsKeyPressed('d') - input->IsKeyPressed('a')) * 16.0f;
-			translation.z = (input->IsKeyPressed('s') - input->IsKeyPressed('w')) * 16.0f;
-			
-			translation *= (input->GetModifierKeys() & RN::KeyModifier::KeyShift) ? 2.0f : 1.0f;
-			
-			_camera->TranslateLocal(translation * RN::Kernel::GetSharedInstance()->GetDelta());
-			_editorCamera->SetPosition(_camera->GetWorldPosition());
+			if((input->GetModifierKeys() & ~RN::KeyModifier::KeyShift) == 0)
+			{
+				translation.x = (input->IsKeyPressed('d') - input->IsKeyPressed('a')) * 16.0f;
+				translation.z = (input->IsKeyPressed('s') - input->IsKeyPressed('w')) * 16.0f;
+				
+				translation *= (input->GetModifierKeys() & RN::KeyModifier::KeyShift) ? 2.0f : 1.0f;
+				
+				_camera->TranslateLocal(translation * RN::Kernel::GetSharedInstance()->GetDelta());
+				_editorCamera->SetPosition(_camera->GetWorldPosition());
+			}
 		}
 		
 		if(_sourceCamera)
