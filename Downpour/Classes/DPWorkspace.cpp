@@ -146,16 +146,8 @@ namespace DP
 			return;
 		}
 		
-		if(_selection->GetCount() == 0)
-		{
-			_selection->Release();
-			_selection = nullptr;
-			
-			RN::MessageCenter::GetSharedInstance()->PostMessage(kDPWorkspaceSelectionChanged, _selection, nullptr);
-			return;
-		}
 		
-		RN::Array *sanitized = new RN::Array(_selection->GetCount());
+		RN::Array *sanitized = (new RN::Array(_selection->GetCount()))->Autorelease();
 		
 		_selection->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
 			
@@ -167,12 +159,16 @@ namespace DP
 				return;
 			}
 			
+			if(node->GetFlags() & RN::SceneNode::Flags::LockedInEditor)
+				return;
+			
 			sanitized->AddObject(node);
 			
 		});
 		
+		
 		_selection->Release();
-		_selection = sanitized;
+		_selection = (sanitized->GetCount() > 0) ? sanitized->Retain() : nullptr;
 		
 		RN::MessageCenter::GetSharedInstance()->PostMessage(kDPWorkspaceSelectionChanged, _selection, nullptr);
 	}

@@ -74,6 +74,8 @@ namespace DP
 		// Find all cameras that use the main camera as shadow target
 		if(_mainCamera)
 		{
+			_mainCamera->SceneNode::SetFlags(_mainCamera->SceneNode::GetFlags() | RN::SceneNode::Flags::LockedInEditor);
+			
 			sceneGraph->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
 				
 				if(node->IsKindOfClass(lightClass))
@@ -101,14 +103,19 @@ namespace DP
 		});
 		_cameras->Release();
 		
-		_lights->Enumerate<RN::Light>([&](RN::Light *light, size_t index, bool &stop) {
+		if(_mainCamera)
+		{
+			_lights->Enumerate<RN::Light>([&](RN::Light *light, size_t index, bool &stop) {
+				
+				RN::ShadowParameter parameter = light->GetShadowParameters();
+				parameter.shadowTarget = _mainCamera;
+				
+				light->UpdateShadowParameters(parameter);
+				
+			});
 			
-			RN::ShadowParameter parameter = light->GetShadowParameters();
-			parameter.shadowTarget = _mainCamera;
-			
-			light->UpdateShadowParameters(parameter);
-			
-		});
+			_mainCamera->SceneNode::SetFlags(_mainCamera->SceneNode::GetFlags() & ~RN::SceneNode::Flags::LockedInEditor);
+		}
 		_lights->Release();
 		
 		RN::Kernel::GetSharedInstance()->SetMaxFPS(_maxFPS);
