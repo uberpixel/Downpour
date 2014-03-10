@@ -26,15 +26,24 @@ uniform sampler2D mTexture1; // Editor depth
 in vec2 vertTexcoord;
 out vec4 fragColor0;
 
+vec3 desaturate(vec3 color, float amount)
+{
+    vec3 gray = vec3(dot(vec3(0.2126, 0.7152 ,0.0722), color));
+    return vec3(mix(color, gray, amount));
+}
+
 void main()
 {
 	vec4 color = texture(targetmap0, vertTexcoord);
-	
+
 	float depth0 = texture(mTexture0, vertTexcoord).r;
 	float depth1 = texture(mTexture1, vertTexcoord).r;
 
 	if(depth0 < depth1)
-		color.a *= 0.4;
+	{
+		color.rgb = desaturate(color.rgb, 0.4);
+		color.a *= 0.6;
+	}
 
 	fragColor0 = color;
 }
