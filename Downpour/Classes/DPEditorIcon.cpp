@@ -50,7 +50,7 @@ namespace DP
 		RN::Texture::Parameter parameter;
 		parameter.filter = RN::Texture::Filter::Nearest;
 		
-		SetTexture(RN::Texture::WithFile(path, parameter), 0.05f);
+		SetTexture(RN::Texture::WithFile(path, parameter), 0.035f);
 	}
 	
 	void EditorIcon::UpdateEditMode(float delta)
