@@ -78,6 +78,10 @@ namespace DP
 		}
 		
 		
+		_editorCamera->SetPosition(_camera->GetWorldPosition());
+		_editorCamera->SetRotation(_camera->GetWorldRotation());
+		
+		
 		_renderView = new RenderView();
 		_renderView->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleWidth);
 		_renderView->AddTexture(_camera->GetRenderTarget());
