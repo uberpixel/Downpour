@@ -258,6 +258,19 @@ namespace DP
 				}
 				
 				SetSelection(nullptr);
+				break;
+			}
+			
+			case RN::KeyESC:
+			{
+				if(_selection)
+				{
+					SetSelection(nullptr);
+					return;
+				}
+				
+				RN::MessageCenter::GetSharedInstance()->PostMessage(RNCSTR("DPToggle"), nullptr, nullptr);
+				break;
 			}
 				
 			case 'd':
