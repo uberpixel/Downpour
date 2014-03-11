@@ -16,6 +16,7 @@
 //
 
 #include "DPSavedState.h"
+#include "DPWorldAttachment.h"
 
 /* ------------------
  
@@ -29,9 +30,9 @@ namespace DP
 {
 	SavedState::SavedState() :
 		_mainCamera(nullptr),
-		_cameras(new RN::Array()),
-		_lights(new RN::Array()),
-		_instancingNodes(new RN::Array())
+		_cameras(new RN::Set()),
+		_lights(new RN::Set()),
+		_instancingNodes(new RN::Set())
 	{
 		RN::Array *sceneGraph = RN::World::GetActiveWorld()->GetSceneNodes();
 		
@@ -57,7 +58,7 @@ namespace DP
 		});
 		
 		// Take an educated guess about what the "main" rendering camera might be
-		_cameras->Enumerate<RN::Camera>([&](RN::Camera *camera, size_t index, bool &stop) {
+		_cameras->Enumerate<RN::Camera>([&](RN::Camera *camera, bool &stop) {
 			
 			if(_mainCamera)
 			{
@@ -104,11 +105,40 @@ namespace DP
 		_maxFPS = RN::Kernel::GetSharedInstance()->GetMaxFPS();
 		RN::Kernel::GetSharedInstance()->SetMaxFPS(20);
 		RN::World::GetActiveWorld()->SetMode(RN::World::Mode::Edit);
+		
+		// Listen to removal of scene nodes
+		RN::MessageCenter::GetSharedInstance()->AddObserver(kDPWorldAttachmentWillRemoveSceneNode, [this](RN::Message *message) {
+			
+			RN::Object *node = message->GetObject();
+			if(_cameras->ContainsObject(node))
+			{
+				_cameras->RemoveObject(node);
+				return;
+			}
+			
+			if(_lights->ContainsObject(node))
+			{
+				_lights->RemoveObject(node);
+				return;
+			}
+			
+			if(_instancingNodes->ContainsObject(node))
+			{
+				_instancingNodes->RemoveObject(node);
+				return;
+			}
+			
+			// XXX: Todo: What about the main camera?
+			// Removing it should work, but that also requires the viewport to play nicely
+			
+		}, this);
 	}
 	
 	SavedState::~SavedState()
 	{
-		_cameras->Enumerate<RN::Camera>([&](RN::Camera *camera, size_t index, bool &stop) {
+		RN::MessageCenter::GetSharedInstance()->RemoveObserver(this);
+		
+		_cameras->Enumerate<RN::Camera>([&](RN::Camera *camera, bool &stop) {
 			RN::Camera::Flags flags = camera->GetFlags();
 			camera->SetFlags(flags & ~RN::Camera::Flags::Hidden);
 		});
@@ -131,7 +161,7 @@ namespace DP
 	
 	void SavedState::UpdateCamera(RN::Camera *newCamera)
 	{
-		_lights->Enumerate<RN::Light>([&](RN::Light *light, size_t index, bool &stop) {
+		_lights->Enumerate<RN::Light>([&](RN::Light *light, bool &stop) {
 			
 			RN::ShadowParameter paramter = light->GetShadowParameters();
 			paramter.shadowTarget = newCamera;
@@ -140,7 +170,7 @@ namespace DP
 			
 		});
 		
-		_instancingNodes->Enumerate<RN::InstancingNode>([&](RN::InstancingNode *node, size_t index, bool &stop) {
+		_instancingNodes->Enumerate<RN::InstancingNode>([&](RN::InstancingNode *node, bool &stop) {
 			
 			node->SetPivot(newCamera);
 			

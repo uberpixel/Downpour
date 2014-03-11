@@ -31,14 +31,13 @@ namespace DP
 		void UpdateCamera(RN::Camera *newCamera);
 		
 		RN::Camera *GetMainCamera() const { return _mainCamera; };
-		RN::Array *GetLights() const { return _lights; }
 		
-	private:
+	private:		
 		RN::Camera *_mainCamera;
-		RN::Array *_cameras;
 		
-		RN::Array *_lights;
-		RN::Array *_instancingNodes;
+		RN::Set *_cameras;
+		RN::Set *_lights;
+		RN::Set *_instancingNodes;
 		
 		uint32 _maxFPS;
 	};
