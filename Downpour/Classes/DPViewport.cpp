@@ -45,15 +45,7 @@ namespace DP
 			_camera->SetRenderGroups(_sourceCamera->GetRenderGroups());
 			_camera->SetSky(_sourceCamera->GetSky());
 			
-			RN::Array *lights = Workspace::GetSharedInstance()->GetSavedState()->GetLights();
-			lights->Enumerate<RN::Light>([&](RN::Light *light, size_t index, bool &stop) {
-					
-				RN::ShadowParameter paramter = light->GetShadowParameters();
-				paramter.shadowTarget = _camera;
-				
-				light->UpdateShadowParameters(paramter);
-				
-			});
+			Workspace::GetSharedInstance()->GetSavedState()->UpdateCamera(_camera);
 		}
 		
 		// Post processing chain to alter editor content when occluded

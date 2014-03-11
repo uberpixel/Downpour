@@ -30,13 +30,16 @@ namespace DP
 	SavedState::SavedState() :
 		_mainCamera(nullptr),
 		_cameras(new RN::Array()),
-		_lights(new RN::Array())
+		_lights(new RN::Array()),
+		_instancingNodes(new RN::Array())
 	{
 		RN::Array *sceneGraph = RN::World::GetActiveWorld()->GetSceneNodes();
 		
 		RN::MetaClassBase *cameraClass = RN::Camera::MetaClass();
 		RN::MetaClassBase *lightClass  = RN::Light::MetaClass();
+		RN::MetaClassBase *instancingClass  = RN::InstancingNode::MetaClass();
 		
+		// Disable all cameras to prevent them from flushing onto the screen while the editor is active
 		sceneGraph->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
 			
 			if(node->IsKindOfClass(cameraClass))
@@ -86,6 +89,14 @@ namespace DP
 						_lights->AddObject(light);
 				}
 				
+				if(node->IsKindOfClass(instancingClass))
+				{
+					RN::InstancingNode *inode = static_cast<RN::InstancingNode *>(node);
+					
+					if(inode->GetPivot() == _mainCamera)
+						_instancingNodes->AddObject(inode);
+				}
+				
 			});
 		}
 		
@@ -105,20 +116,34 @@ namespace DP
 		
 		if(_mainCamera)
 		{
-			_lights->Enumerate<RN::Light>([&](RN::Light *light, size_t index, bool &stop) {
-				
-				RN::ShadowParameter parameter = light->GetShadowParameters();
-				parameter.shadowTarget = _mainCamera;
-				
-				light->UpdateShadowParameters(parameter);
-				
-			});
+			UpdateCamera(_mainCamera);
 			
 			_mainCamera->SceneNode::SetFlags(_mainCamera->SceneNode::GetFlags() & ~RN::SceneNode::Flags::LockedInEditor);
 		}
+		
 		_lights->Release();
+		_instancingNodes->Release();
 		
 		RN::Kernel::GetSharedInstance()->SetMaxFPS(_maxFPS);
 		RN::World::GetActiveWorld()->SetMode(RN::World::Mode::Play);
+	}
+	
+	
+	void SavedState::UpdateCamera(RN::Camera *newCamera)
+	{
+		_lights->Enumerate<RN::Light>([&](RN::Light *light, size_t index, bool &stop) {
+			
+			RN::ShadowParameter paramter = light->GetShadowParameters();
+			paramter.shadowTarget = newCamera;
+			
+			light->UpdateShadowParameters(paramter);
+			
+		});
+		
+		_instancingNodes->Enumerate<RN::InstancingNode>([&](RN::InstancingNode *node, size_t index, bool &stop) {
+			
+			node->SetPivot(newCamera);
+			
+		});
 	}
 }
