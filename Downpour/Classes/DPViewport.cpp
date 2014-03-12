@@ -103,6 +103,18 @@ namespace DP
 		_postProcessCamera->SetFrame(rect);
 	}
 	
+	void Viewport::UpdateSourceCamera(RN::Camera *source)
+	{
+		_sourceCamera = source;
+		
+		if(_sourceCamera)
+		{
+			_camera->SetRenderGroups(_sourceCamera->GetRenderGroups());
+			_camera->SetSky(_sourceCamera->GetSky());
+		}
+	}
+	
+	
 	RN::Vector3 Viewport::GetDirectionForPoint(const RN::Vector2 &tpoint)
 	{
 		RN::Vector2 point = tpoint / _camera->GetFrame().Size();

@@ -17,6 +17,7 @@
 
 #include "DPSavedState.h"
 #include "DPWorldAttachment.h"
+#include "DPWorkspace.h"
 
 /* ------------------
  
@@ -128,8 +129,11 @@ namespace DP
 				return;
 			}
 			
-			// XXX: Todo: What about the main camera?
-			// Removing it should work, but that also requires the viewport to play nicely
+			if(node == _mainCamera)
+			{
+				_mainCamera = nullptr;
+				Workspace::GetSharedInstance()->GetViewport()->UpdateSourceCamera(nullptr);
+			}
 			
 		}, this);
 	}
@@ -145,11 +149,9 @@ namespace DP
 		_cameras->Release();
 		
 		if(_mainCamera)
-		{
-			UpdateCamera(_mainCamera);
-			
 			_mainCamera->SceneNode::SetFlags(_mainCamera->SceneNode::GetFlags() & ~RN::SceneNode::Flags::LockedInEditor);
-		}
+		
+		UpdateCamera(_mainCamera);
 		
 		_lights->Release();
 		_instancingNodes->Release();

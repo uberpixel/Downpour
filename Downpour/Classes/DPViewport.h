@@ -36,6 +36,8 @@ namespace DP
 		bool AcceptsDropOfObject(RN::Object *object) final;
 		void HandleDropOfObject(RN::Object *object, const RN::Vector2 &position) final;
 		
+		void UpdateSourceCamera(RN::Camera *source);
+		
 		RN::Camera *GetCamera() const { return _camera; }
 		RN::Camera *GetEditorCamera() const { return _editorCamera; }
 		
