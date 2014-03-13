@@ -32,6 +32,8 @@ namespace DP
 	
 	void DeactivateDownpour()
 	{
+		RN::MessageCenter::GetSharedInstance()->PostMessage(RNCSTR("DPClose"), nullptr, nullptr);
+		
 		__workspace->Close();
 		__workspace->Release();
 	}

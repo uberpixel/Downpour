@@ -40,7 +40,18 @@ namespace DP
 		
 		if(node->IsKindOfClass(RN::Camera::MetaClass()))
 			SetIcon("camera.png");
+		
+		RN::MessageCenter::GetSharedInstance()->AddObserver(RNCSTR("DPClose"), [this](RN::Message *message) {
+			_shadowed->RemoveAssociatedOject(kDPEditorIconAssociationKey);
+			Release();
+		}, this);
 	}
+	
+	EditorIcon::~EditorIcon()
+	{
+		RN::MessageCenter::GetSharedInstance()->RemoveObserver(this, RNCSTR("DPClose"));
+	}
+	
 	
 	void EditorIcon::SetIcon(const std::string &name)
 	{

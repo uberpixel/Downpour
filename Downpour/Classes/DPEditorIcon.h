@@ -26,6 +26,7 @@ namespace DP
 	{
 	public:
 		EditorIcon(RN::SceneNode *node);
+		~EditorIcon();
 		
 		void UpdateEditMode(float delta) override;
 		RN::SceneNode *GetSceneNode() const { return _shadowed; }
