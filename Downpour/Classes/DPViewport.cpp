@@ -84,8 +84,13 @@ namespace DP
 	
 	Viewport::~Viewport()
 	{
+		_camera->RemoveFromWorld();
 		_camera->Release();
+		
+		_editorCamera->RemoveFromWorld();
 		_editorCamera->Release();
+		
+		_postProcessCamera->RemoveFromWorld();
 		_postProcessCamera->Release();
 		
 		_renderView->Release();

@@ -43,7 +43,7 @@ namespace DP
 		
 		RN::MessageCenter::GetSharedInstance()->AddObserver(RNCSTR("DPClose"), [this](RN::Message *message) {
 			_shadowed->RemoveAssociatedOject(kDPEditorIconAssociationKey);
-			Release();
+			RemoveFromWorld();
 		}, this);
 	}
 	
