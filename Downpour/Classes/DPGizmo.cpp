@@ -121,42 +121,20 @@ namespace DP
 		RN_ASSERT(_selection, "Gizmo needs a selection to move!");
 		
 		RN::Vector3 direction;
-		
-		if(_mode == Mode::Rotate)
+		switch(_selectedMesh)
 		{
-			switch(_selectedMesh)
-			{
-				case 0:
-					direction = RN::Vector3(0.0f, 0.0f, 1.0f);
-					break;
-				case 1:
-					direction = RN::Vector3(1.0f, 0.0f, 0.0f);
-					break;
-				case 2:
-					direction = RN::Vector3(0.0f, 1.0f, 0.0f);
-					break;
-				case 3:
-					direction = RN::Vector3(1.0f, 1.0f, 1.0f);
-					break;
-			}
-		}
-		else
-		{
-			switch(_selectedMesh)
-			{
-				case 0:
-					direction = RN::Vector3(1.0f, 0.0f, 0.0f);
-					break;
-				case 1:
-					direction = RN::Vector3(0.0f, 1.0f, 0.0f);
-					break;
-				case 2:
-					direction = RN::Vector3(0.0f, 0.0f, 1.0f);
-					break;
-				case 3:
-					direction = RN::Vector3(1.0f, 1.0f, 1.0f);
-					break;
-			}
+			case 0:
+				direction = RN::Vector3(1.0f, 0.0f, 0.0f);
+				break;
+			case 1:
+				direction = RN::Vector3(0.0f, 1.0f, 0.0f);
+				break;
+			case 2:
+				direction = RN::Vector3(0.0f, 0.0f, 1.0f);
+				break;
+			case 3:
+				direction = RN::Vector3(1.0f, 1.0f, 1.0f);
+				break;
 		}
 		
 		float dist = (_camera->GetPosition()-GetPosition()).GetLength();
@@ -177,6 +155,8 @@ namespace DP
 		
 		delta -= _camera->ToWorld(RN::Vector3(temp, dist));
 		
+		delta *= direction;
+		
 		
 		switch(_mode)
 		{
@@ -192,7 +172,7 @@ namespace DP
 			case Mode::Scale:
 			{
 				_selection->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
-					(_selectedMesh == 3) ? node->Scale(direction * delta.GetLength() * 0.1f * (delta.x < 0.0f ? - 1.0f : 1.0f)) : node->Scale(direction * 0.1f);
+					(_selectedMesh == 3) ? node->Scale(direction * delta.GetLength() * 0.1f * (delta.x < 0.0f ? - 1.0f : 1.0f)) : node->Scale(direction * delta * 0.1f);
 				});
 				
 				break;

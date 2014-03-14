@@ -85,6 +85,7 @@ namespace DP
 		_inspectors->Release();
 		_hierarchy->Release();
 		
+		_gizmo->RemoveFromWorld();
 		_gizmo->Release();
 		_worldAttachment->Release();
 		
