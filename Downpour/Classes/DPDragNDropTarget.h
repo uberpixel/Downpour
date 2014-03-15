@@ -28,7 +28,7 @@ namespace DP
 		virtual bool AcceptsDropOfObject(RN::Object *object) = 0;
 		virtual void HandleDropOfObject(RN::Object *object, const RN::Vector2 &position) = 0;
 		
-		RNDeclareMeta(DragNDropTarget, RN::UI::View)
+		RNDeclareMeta(DragNDropTarget)
 	};
 }
 

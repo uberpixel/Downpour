@@ -22,13 +22,13 @@
 
 namespace DP
 {
-	RNDefineMeta(PropertyView)
-	RNDefineMeta(ObservablePropertyView)
-	RNDefineMeta(ScalarPropertyView)
-	RNDefineMeta(ComponentPropertyView)
-	RNDefineMeta(Vector3PropertyView)
-	RNDefineMeta(QuaternionPropertyView)
-	RNDefineMeta(ColorPropertyView)
+	RNDefineMeta(PropertyView, RN::UI::View)
+	RNDefineMeta(ObservablePropertyView, PropertyView)
+	RNDefineMeta(ScalarPropertyView, ObservablePropertyView)
+	RNDefineMeta(ComponentPropertyView, ObservablePropertyView)
+	RNDefineMeta(Vector3PropertyView, ComponentPropertyView)
+	RNDefineMeta(QuaternionPropertyView, ComponentPropertyView)
+	RNDefineMeta(ColorPropertyView, ComponentPropertyView)
 	
 	// -----------------------
 	// MARK: -

@@ -47,7 +47,7 @@ namespace DP
 		
 		Layout _layout;
 		
-		RNDeclareMeta(PropertyView, RN::UI::View)
+		RNDeclareMeta(PropertyView)
 	};
 	
 	class ObservablePropertyView : public PropertyView
@@ -61,7 +61,7 @@ namespace DP
 	protected:
 		RN::ObservableProperty *_observable;
 		
-		RNDeclareMeta(ObservablePropertyView, PropertyView)
+		RNDeclareMeta(ObservablePropertyView)
 	};
 	
 	class ScalarPropertyView : public ObservablePropertyView, RN::UI::TextFieldDelegate
@@ -75,7 +75,7 @@ namespace DP
 		
 		RN::UI::TextField *_valueField;
 		
-		RNDeclareMeta(ScalarPropertyView, ObservablePropertyView)
+		RNDeclareMeta(ScalarPropertyView)
 	};
 	
 	class ComponentPropertyView : public ObservablePropertyView, RN::UI::TextFieldDelegate
@@ -97,7 +97,7 @@ namespace DP
 		
 		std::vector<std::pair<RN::UI::Label *, RN::UI::TextField *>> _components;
 		
-		RNDeclareMeta(ComponentPropertyView, ObservablePropertyView)
+		RNDeclareMeta(ComponentPropertyView)
 	};
 	
 	class Vector3PropertyView : public ComponentPropertyView
@@ -109,7 +109,7 @@ namespace DP
 		void ValueDidChange(RN::Object *newValue) override;
 		
 	private:
-		RNDeclareMeta(Vector3PropertyView, ComponentPropertyView)
+		RNDeclareMeta(Vector3PropertyView)
 	};
 	
 	class QuaternionPropertyView : public ComponentPropertyView
@@ -121,7 +121,7 @@ namespace DP
 		void ValueDidChange(RN::Object *newValue) override;
 		
 	private:
-		RNDeclareMeta(QuaternionPropertyView, ComponentPropertyView)
+		RNDeclareMeta(QuaternionPropertyView)
 	};
 	
 	class ColorPropertyView : public ComponentPropertyView
@@ -133,7 +133,7 @@ namespace DP
 		void ValueDidChange(RN::Object *newValue) override;
 		
 	private:
-		RNDeclareMeta(ColorPropertyView, ComponentPropertyView)
+		RNDeclareMeta(ColorPropertyView)
 	};
 }
 

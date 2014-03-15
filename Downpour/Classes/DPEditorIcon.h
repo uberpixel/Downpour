@@ -40,7 +40,7 @@ namespace DP
 		RN::SceneNode *_shadowed;
 		RN::Camera *_camera;
 		
-		RNDeclareMeta(EditorIcon, RN::Billboard)
+		RNDeclareMeta(EditorIcon)
 	};
 }
 

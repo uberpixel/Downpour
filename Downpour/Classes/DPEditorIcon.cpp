@@ -22,7 +22,7 @@
 
 namespace DP
 {
-	RNDefineMeta(EditorIcon)
+	RNDefineMeta(EditorIcon, RN::Billboard)
 	
 	EditorIcon::EditorIcon(RN::SceneNode *node) :
 		_shadowed(node)

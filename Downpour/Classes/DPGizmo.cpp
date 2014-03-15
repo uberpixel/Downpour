@@ -20,7 +20,7 @@
 
 namespace DP
 {
-	RNDefineMeta(Gizmo)
+	RNDefineMeta(Gizmo, RN::Entity)
 	
 	Gizmo::Gizmo(RN::Camera *camera) :
 		_camera(camera),

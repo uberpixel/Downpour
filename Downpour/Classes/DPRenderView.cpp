@@ -19,7 +19,7 @@
 
 namespace DP
 {
-	RNDefineMeta(RenderView)
+	RNDefineMeta(RenderView, RN::UI::View)
 	
 	RenderView::RenderView() :
 		_materials(new RN::Array()),

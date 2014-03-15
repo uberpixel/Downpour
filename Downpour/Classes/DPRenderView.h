@@ -39,7 +39,7 @@ namespace DP
 		RN::Mesh  *_mesh;
 		RN::Array *_materials;
 		
-		RNDeclareMeta(RenderView, RN::UI::View)
+		RNDeclareMeta(RenderView)
 	};
 }
 

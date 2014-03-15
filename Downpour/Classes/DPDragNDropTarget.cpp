@@ -19,5 +19,5 @@
 
 namespace DP
 {
-	RNDefineMeta(DragNDropTarget)
+	RNDefineMeta(DragNDropTarget, RN::UI::View)
 }

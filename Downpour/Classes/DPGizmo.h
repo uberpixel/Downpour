@@ -59,7 +59,7 @@ namespace DP
 		uint32 _selectedMesh;
 		RN::Vector2 _previousMouse;
 		
-		RNDeclareMeta(Gizmo, RN::Entity)
+		RNDeclareMeta(Gizmo)
 	};
 }
 
