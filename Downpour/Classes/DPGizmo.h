@@ -27,7 +27,7 @@ namespace DP
 	public:
 		enum class Mode
 		{
-			Move = 0,
+			Translate = 0,
 			Scale = 1,
 			Rotate = 2
 		};
@@ -49,9 +49,16 @@ namespace DP
 		
 	private:
 		RN::Vector3 CameraToWorld(const RN::Vector3 &dir);
+		void DoTranslation(RN::Vector3 delta);
+		void DoScale(RN::Vector3 delta);
+		void DoRotation(RN::Vector3 delta);
 		
 		RN::Camera *_camera;
 		RN::Array  *_selection;
+		
+		RN::Model *_modelTranslation;
+		RN::Model *_modelScaling;
+		RN::Model *_modelRotation;
 		
 		Mode _mode;
 		
