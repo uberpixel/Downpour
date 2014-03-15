@@ -50,6 +50,8 @@ namespace DP
 		SetSelection(nullptr);
 		SetFlags(GetFlags() | RN::SceneNode::Flags::HideInEditor);
 		
+		_scaleFactor = RN::Settings::GetSharedInstance()->GetFloatForKey(RNCSTR("DPGizmoScale"), 1.0f);
+		
 		RN::MessageCenter::GetSharedInstance()->AddObserver(kDPWorkspaceSelectionChanged, [this](RN::Message *message) {
 			SetSelection(static_cast<RN::Array *>(message->GetObject()));
 		}, this);
@@ -120,7 +122,7 @@ namespace DP
 			});
 			
 			SetPosition(center / _selection->GetCount());
-			SetScale(RN::Vector3((_camera->GetPosition()-GetPosition()).GetLength()) * 0.08f);
+			SetScale(RN::Vector3((_camera->GetPosition()-GetPosition()).GetLength()) * 0.08f * _scaleFactor);
 		}
 	}
 	

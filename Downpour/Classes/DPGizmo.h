@@ -59,6 +59,7 @@ namespace DP
 		RN::Model *_modelTranslation;
 		RN::Model *_modelScaling;
 		RN::Model *_modelRotation;
+		float _scaleFactor;
 		
 		Mode _mode;
 		

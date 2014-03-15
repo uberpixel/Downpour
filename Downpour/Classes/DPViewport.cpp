@@ -80,6 +80,8 @@ namespace DP
 		_renderView->AddTexture(_postProcessCamera->GetRenderTarget());
 		
 		AddSubview(_renderView);
+		
+		_resolutionFactor = RN::Settings::GetSharedInstance()->GetFloatForKey(RNCSTR("DPResolutionFactor"), 1.0f);
 	}
 	
 	Viewport::~Viewport()
@@ -101,7 +103,7 @@ namespace DP
 	{
 		RN::UI::View::SetFrame(frame);
 		
-		RN::Rect rect = RN::Rect(RN::Vector2(), frame.Size());
+		RN::Rect rect = RN::Rect(RN::Vector2(), frame.Size() * _resolutionFactor);
 		
 		_camera->SetFrame(rect);
 		_editorCamera->SetFrame(rect);
@@ -119,6 +121,10 @@ namespace DP
 		}
 	}
 	
+	RN::Vector2 Viewport::ConvertPointToViewport(const RN::Vector2 &point)
+	{
+		return ConvertPointFromBase(point)*_resolutionFactor;
+	}
 	
 	RN::Vector3 Viewport::GetDirectionForPoint(const RN::Vector2 &tpoint)
 	{
@@ -169,7 +175,7 @@ namespace DP
 		
 		if(event->GetButton() == 0)
 		{
-			RN::Vector3 direction = GetDirectionForPoint(ConvertPointFromBase(event->GetMousePosition()));
+			RN::Vector3 direction = GetDirectionForPoint(ConvertPointToViewport(event->GetMousePosition()));
 			RN::Hit hit;
 			
 			Workspace *workspace = Workspace::GetSharedInstance();
@@ -180,7 +186,7 @@ namespace DP
 			
 			if(hit.node == gizmo)
 			{
-				gizmo->BeginMove(hit.meshid, ConvertPointFromBase(event->GetMousePosition()));
+				gizmo->BeginMove(hit.meshid, ConvertPointToViewport(event->GetMousePosition()));
 				return;
 			}
 			
@@ -196,7 +202,7 @@ namespace DP
 			Gizmo *gizmo = Workspace::GetSharedInstance()->GetGizmo();
 			if(gizmo->IsActive())
 			{
-				RN::Vector2 mouse = ConvertPointFromBase(event->GetMousePosition());
+				RN::Vector2 mouse = ConvertPointToViewport(event->GetMousePosition());
 				gizmo->ContinueMove(mouse);
 			}
 		}

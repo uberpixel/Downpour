@@ -41,6 +41,8 @@ namespace DP
 		RN::Camera *GetCamera() const { return _camera; }
 		RN::Camera *GetEditorCamera() const { return _editorCamera; }
 		
+		RN::Vector2 ConvertPointToViewport(const RN::Vector2 &point);
+		
 	private:
 		RN::Vector3 GetDirectionForPoint(const RN::Vector2 &point);
 		bool CanBecomeFirstResponder() override;
@@ -52,6 +54,8 @@ namespace DP
 		RN::Camera *_camera;
 		RN::Camera *_editorCamera;
 		RN::Camera *_postProcessCamera;
+		
+		float _resolutionFactor;
 		
 		RN::Camera *_sourceCamera;
 		
