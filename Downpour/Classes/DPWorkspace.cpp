@@ -92,6 +92,8 @@ namespace DP
 		
 		// Restore the old state
 		delete _state;
+		
+		ResignShared();
 	}
 	
 	void Workspace::CreateToolbar()
