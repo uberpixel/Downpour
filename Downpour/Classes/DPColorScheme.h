@@ -34,6 +34,7 @@ namespace DP
 		};
 		
 		const RN::Color &GetColor(Type type);
+		RN::UI::Color *GetUIColor(Type type);
 	}
 	
 	class OutlineViewCell : public RN::UI::OutlineViewCell

@@ -75,6 +75,7 @@ namespace DP
 		
 		RN::UI::View *_toolbar;
 		RN::UI::SegmentView *_gizmoTool;
+		RN::UI::Button *_gizmoSpace;
 		
 		Gizmo *_gizmo;
 		

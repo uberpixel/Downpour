@@ -21,14 +21,14 @@ namespace DP
 {
 	namespace ColorScheme
 	{
-		static std::unordered_map<uint32, RN::Color> __colorTable;
+		static std::unordered_map<uint32, RN::UI::Color *> __colorTable;
 		
 		void LoadColor(Type type, const char *name)
 		{
 			RN::String *key = RNSTR("downpour.colors.%s", name);
 			RN::UI::Color *color = RN::UI::Style::GetSharedInstance()->GetColorWithKeyPath(key);
 			
-			__colorTable[static_cast<uint32>(type)] = color->GetRNColor();
+			__colorTable[static_cast<uint32>(type)] = color->Retain();
 		}
 		
 		const RN::Color &GetColor(Type type)
@@ -46,6 +46,12 @@ namespace DP
 				
 			});
 			
+			return __colorTable[static_cast<uint32>(type)]->GetRNColor();;
+		}
+		
+		RN::UI::Color *GetUIColor(Type type)
+		{
+			GetColor(type);
 			return __colorTable[static_cast<uint32>(type)];
 		}
 	}

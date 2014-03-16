@@ -129,9 +129,25 @@ namespace DP
 			
 		}, this);
 		
-		_toolbar->AddSubview(_gizmoTool);
 		
-		GetContentView()->AddSubview(_toolbar);
+		_gizmoSpace = new RN::UI::Button(RN::UI::Button::Type::Bezel);
+		_gizmoSpace->SetFrame(RN::Rect(210.0f, 5.0f, 80.0f, 30.0f));
+		_gizmoSpace->SetBehavior(RN::UI::Button::Behavior::Switch);
+		_gizmoSpace->SetTitleForState(RNCSTR("Local"), RN::UI::Control::Normal);
+		_gizmoSpace->SetTitleForState(RNCSTR("Global"), RN::UI::Control::Selected);
+		_gizmoSpace->SetTitleColorForState(ColorScheme::GetUIColor(ColorScheme::Type::FileTree_Text), RN::UI::Control::Normal);
+		_gizmoSpace->SetFontForState(RN::UI::Style::GetSharedInstance()->GetFont(RN::UI::Style::FontStyle::DefaultFontBold), RN::UI::Control::Normal);
+		_gizmoSpace->AddListener(RN::UI::Control::EventType::MouseUpInside, [this](RN::UI::Control *control, RN::UI::Control::EventType event) {
+			
+			Gizmo::Space space = (control->IsSelected()) ? Gizmo::Space::Global : Gizmo::Space::Local;
+			_gizmo->SetSpace(space);
+			
+		}, this);
+		
+		_toolbar->AddSubview(_gizmoTool->Autorelease());
+		_toolbar->AddSubview(_gizmoSpace->Autorelease());
+		
+		GetContentView()->AddSubview(_toolbar->Autorelease());
 	}
 	
 	
