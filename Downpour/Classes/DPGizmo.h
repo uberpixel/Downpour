@@ -32,13 +32,21 @@ namespace DP
 			Rotate = 2
 		};
 		
+		enum class Space
+		{
+			Local = 0,
+			Global = 1
+		};
+		
 		Gizmo(RN::Camera *camera);
 		~Gizmo();
 		
 		void SetSelection(RN::Array *selection);
 		void SetMode(Mode mode);
+		void SetSpace(Space space);
 		
 		Mode GetMode() const { return _mode; }
+		Space GetSpace() const { return _space; }
 		
 		void UpdateEditMode(float delta) override;
 		bool IsActive() const { return _active; }
@@ -51,9 +59,12 @@ namespace DP
 		
 	private:
 		RN::Vector3 CameraToWorld(const RN::Vector3 &dir);
-		void DoTranslation(RN::Vector3 delta);
-		void DoScale(RN::Vector3 delta);
-		void DoRotation(RN::Vector3 delta);
+		RN::Vector3 GetMouseMovement(const RN::Plane &plane, RN::Vector2 from, RN::Vector2 to);
+		RN::Vector3 GetMousePosition(const RN::Plane &plane, RN::Vector2 mouse);
+		
+		void DoTranslation(const RN::Vector2 &mousePos);
+		void DoScale(RN::Vector2 mousePos);
+		void DoRotation(RN::Vector2 mousePos);
 		
 		RN::Camera *_camera;
 		RN::Array  *_selection;
@@ -64,6 +75,7 @@ namespace DP
 		float _scaleFactor;
 		
 		Mode _mode;
+		Space _space;
 		
 		bool _active;
 		uint32 _selectedMesh;

@@ -26,6 +26,7 @@ namespace DP
 		_camera(camera),
 		_selection(nullptr),
 		_mode(Mode::Translate),
+		_space(Space::Local),
 		_active(false),
 		_selectedMesh(-1)
 	{
@@ -69,6 +70,7 @@ namespace DP
 	void Gizmo::SetMode(Mode mode)
 	{
 		_mode = mode;
+		SetHighlight(-1);
 		
 		switch(_mode)
 		{
@@ -90,6 +92,11 @@ namespace DP
 				break;
 			}
 		}
+	}
+	
+	void Gizmo::SetSpace(Space space)
+	{
+		_space = space;
 	}
 	
 	void Gizmo::SetSelection(RN::Array *selection)
@@ -124,6 +131,15 @@ namespace DP
 			
 			SetPosition(center / _selection->GetCount());
 			SetScale(RN::Vector3((_camera->GetPosition()-GetPosition()).GetLength()) * 0.08f * _scaleFactor);
+			
+			if(_space == Space::Local && _selection->GetCount() == 1)
+			{
+				SetRotation(_selection->GetObjectAtIndex<SceneNode>(0)->GetWorldRotation());
+			}
+			else
+			{
+				SetRotation(RN::Quaternion());
+			}
 		}
 	}
 	
@@ -165,6 +181,24 @@ namespace DP
 		return RN::Vector3(temp);
 	}
 	
+	RN::Vector3 Gizmo::GetMousePosition(const RN::Plane &plane, RN::Vector2 mouse)
+	{
+		mouse /= _camera->GetFrame().Size();
+		mouse.y = 1.0 - mouse.y;
+		mouse *= 2.0f;
+		mouse -= 1.0f;
+		RN::Vector3 camPos = _camera->GetWorldPosition();
+		RN::Vector3 dir = _camera->ToWorld(RN::Vector3(mouse, 10.0f))-camPos;
+		return plane.CastRay(camPos, dir).position;
+	}
+	
+	RN::Vector3 Gizmo::GetMouseMovement(const RN::Plane &plane, RN::Vector2 from, RN::Vector2 to)
+	{
+		RN::Vector3 diff = GetMousePosition(plane, to);
+		diff -= GetMousePosition(plane, from);
+		return diff;
+	}
+	
 	void Gizmo::BeginMove(uint32 selection, const RN::Vector2 &mousePos)
 	{
 		_active = true;
@@ -178,41 +212,23 @@ namespace DP
 		RN_ASSERT(_active, "Gizmo needs to be activated before moving!");
 		RN_ASSERT(_selection, "Gizmo needs a selection to move!");
 		
-		float dist = (_camera->GetPosition()-GetPosition()).GetLength();
-		RN::Vector2 temp = mousePos;
-		
-		temp /= _camera->GetFrame().Size();
-		temp.y = 1.0f - temp.y;
-		temp *= 2.0f;
-		temp -= 1.0f;
-		
-		RN::Vector3 delta = _camera->ToWorld(RN::Vector3(temp, dist));
-		
-		temp = _previousMouse;
-		temp /= _camera->GetFrame().Size();
-		temp.y = 1.0f - temp.y;
-		temp *= 2.0f;
-		temp -= 1.0f;
-		
-		delta -= _camera->ToWorld(RN::Vector3(temp, dist));
-		
 		switch(_mode)
 		{
 			case Mode::Translate:
 			{
-				DoTranslation(delta);
+				DoTranslation(mousePos);
 				break;
 			}
 				
 			case Mode::Scale:
 			{
-				DoScale(delta);
+				DoScale(mousePos);
 				break;
 			}
 				
 			case Mode::Rotate:
 			{
-				DoRotation(delta);
+				DoRotation(mousePos);
 				break;
 			}
 		}
@@ -226,108 +242,180 @@ namespace DP
 		SetHighlight(-1);
 	}
 	
-	void Gizmo::DoTranslation(RN::Vector3 delta)
+	void Gizmo::DoTranslation(const RN::Vector2 &mousePos)
 	{
 		RN_ASSERT(_selectedMesh <= 6, "Invalid mesh selection!");
 		
+		//Initialize for the selected gizmo part
 		RN::Vector3 direction;
-		
+		RN::Vector3 normal;
+		bool singleAxis = false;
 		switch(_selectedMesh)
 		{
 			case 0:
 				direction = RN::Vector3(1.0f, 0.0f, 1.0f);
+				normal = RN::Vector3(0.0, 1.0, 0.0);
 				break;
 			case 1:
 				direction = RN::Vector3(0.0f, 1.0f, 1.0f);
+				normal = RN::Vector3(1.0, 0.0, 0.0);
 				break;
 			case 2:
 				direction = RN::Vector3(1.0f, 1.0f, 0.0f);
+				normal = RN::Vector3(0.0, 0.0, 1.0);
 				break;
 			case 3:
 				direction = RN::Vector3(1.0f, 0.0f, 0.0f);
+				normal = RN::Vector3(0.0, 1.0, 0.0);
+				singleAxis = true;
 				break;
 			case 4:
 				direction = RN::Vector3(0.0f, 1.0f, 0.0f);
+				normal = RN::Vector3(1.0, 0.0, 0.0);
+				singleAxis = true;
 				break;
 			case 5:
 				direction = RN::Vector3(0.0f, 0.0f, 1.0f);
+				normal = RN::Vector3(0.0, 1.0, 0.0);
+				singleAxis = true;
 				break;
 			case 6:
 				direction = RN::Vector3(1.0f, 1.0f, 1.0f);
+				normal = -_camera->GetForward();
 				break;
 		}
 		
+		//Transform to local space if needed
+		if(_space == Space::Local)
+		{
+			direction = GetWorldRotation().GetRotatedVector(direction);
+			normal = GetWorldRotation().GetRotatedVector(normal);
+		}
+		
+		//Create a plane for the selected gizmo part
+		RN::Plane plane = RN::Plane::WithPositionNormal(GetWorldPosition(), normal);
+		
+		//Project mouse movement on the plane and get the difference in world coordinates
+		RN::Vector3 translation = GetMouseMovement(plane, _previousMouse, mousePos);
+		
+		//Restrict movement to one axis
+		if(singleAxis)
+		{
+			translation = direction * translation.GetDotProduct(direction);
+		}
+		
+		//Apply the translation to all selected scene nodes
 		_selection->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop)
 		{
-			node->Translate(direction * delta);
+			node->Translate(translation);
 		});
 	}
 	
-	void Gizmo::DoScale(RN::Vector3 delta)
+	void Gizmo::DoScale(RN::Vector2 mousePos)
 	{
 		RN_ASSERT(_selectedMesh <= 6, "Invalid mesh selection!");
 		
 		RN::Vector3 direction;
-		
+		RN::Vector3 normal;
 		switch(_selectedMesh)
 		{
 			case 0:
 				direction = RN::Vector3(0.0f, 1.0f, 1.0f);
+				normal = RN::Vector3(1.0, 0.0, 0.0);
 				break;
 			case 1:
 				direction = RN::Vector3(1.0f, 1.0f, 0.0f);
+				normal = RN::Vector3(0.0, 0.0, 1.0);
 				break;
 			case 2:
 				direction = RN::Vector3(1.0f, 0.0f, 0.0f);
+				normal = RN::Vector3(0.0, 1.0, 0.0);
 				break;
 			case 3:
 				direction = RN::Vector3(0.0f, 1.0f, 0.0f);
+				normal = RN::Vector3(1.0, 0.0, 0.0);
 				break;
 			case 4:
 				direction = RN::Vector3(1.0f, 1.0f, 1.0f);
+				normal = _camera->GetForward();
 				break;
 			case 5:
 				direction = RN::Vector3(0.0f, 0.0f, 1.0f);
+				normal = RN::Vector3(0.0, 1.0, 0.0);
 				break;
 			case 6:
 				direction = RN::Vector3(1.0f, 0.0f, 1.0f);
+				normal = RN::Vector3(0.0, 1.0, 0.0);
 				break;
 		}
 		
+		//Transform to global space if needed
+		if(_space == Space::Global)
+		{
+			RN::Matrix rot = GetWorldRotation().GetRotationMatrix().GetInverse();
+			direction = rot * direction;
+			normal = rot * normal;
+		}
+		
+		//Create a plane for the selected gizmo part
+		RN::Plane plane = RN::Plane::WithPositionNormal(GetWorldPosition(), normal);
+		
+		//Project mouse movement on the plane and get the difference in world coordinates
+		RN::Vector3 scaling = GetMouseMovement(plane, _previousMouse, mousePos);
+		
+		//Restrict movement to one uniform value
+		scaling = direction * scaling.GetDotProduct(direction);
+		
 		_selection->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop)
 		{
-			(_selectedMesh == 4) ? node->Scale(direction * delta.GetLength() * 0.1f * (delta.x < 0.0f ? - 1.0f : 1.0f)) : node->Scale(direction * delta * 0.1f);
+			node->Scale(scaling*0.3f);
 		});
 	}
 	
-	void Gizmo::DoRotation(RN::Vector3 delta)
+	void Gizmo::DoRotation(RN::Vector2 mousePos)
 	{
 		RN_ASSERT(_selectedMesh <= 3, "Invalid mesh selection!");
 		
-		RN::Vector3 rotation;
-		RN::Vector3 direction;
-		
+		RN::Vector3 normal;
 		switch(_selectedMesh)
 		{
 			case 0:
-				rotation = RN::Vector3(0.0f, 0.0f, 1.0f);
-				direction = RN::Vector3(1.0f, 1.0f, 0.0f);
+				normal = RN::Vector3(0.0f, 0.0f, 1.0f);
 				break;
 			case 1:
-				rotation = RN::Vector3(0.0f, 1.0f, 0.0f);
-				direction = RN::Vector3(0.0f, 1.0f, 1.0f);
+				normal = RN::Vector3(1.0f, 0.0f, 0.0f);
 				break;
 			case 2:
-				rotation = RN::Vector3(1.0f, 0.0f, 0.0f);
-				direction = RN::Vector3(1.0f, 0.0f, 1.0f);
+				normal = RN::Vector3(0.0f, 1.0f, 0.0f);
 				break;
 		}
 		
-		float factor = direction.GetDotProduct(delta);
+		RN::Vector3 rotatedNormal = normal;
+		//Transform to local space if needed
+		if(_space == Space::Local)
+		{
+			rotatedNormal = GetWorldRotation().GetRotatedVector(normal);
+		}
 		
+		//Create a plane for the selected gizmo part
+		RN::Plane plane = RN::Plane::WithPositionNormal(GetWorldPosition(), rotatedNormal);
+		
+		//Project mouse position onto the plane
+		RN::Vector3 mouseNew = GetMousePosition(plane, mousePos) - GetWorldPosition();
+		RN::Vector3 mouseOld = GetMousePosition(plane, _previousMouse) - GetWorldPosition();
+		
+		//Create quaternions looking from the gizmo to the mouse positions
+		RN::Quaternion rotTo = RN::Quaternion::WithLookAt(mouseNew, rotatedNormal);
+		RN::Quaternion rotFrom = RN::Quaternion::WithLookAt(mouseOld, rotatedNormal);
+		
+		//Claculate the rotations difference
+		RN::Quaternion rotDiff = (rotTo/rotFrom);
+		rotDiff = RN::Quaternion::WithAxisAngle(RN::Vector4(normal, rotDiff.GetEulerAngle().x));
+		
+		//Rotate scene nodes
 		_selection->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop)
 		{
-			node->Rotate(rotation * factor);
+			node->Rotate(rotDiff);
 		});
 	}
 }
