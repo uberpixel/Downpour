@@ -30,6 +30,13 @@
 
 #define kDPWorkspaceSelectionChanged RNCSTR("kDPWorkspaceSelectionChanged")
 
+#if RN_PLATFORM_MAC_OS
+	#define kDPWorkspaceActionKey RN::KeyCommand
+#endif
+#if RN_PLATFORM_WINDOWS
+	#define kDPWorkspaceActionKey RN::KeyControl
+#endif
+
 namespace DP
 {
 	class Workspace : public RN::UI::Widget, public RN::INonConstructingSingleton<Workspace>

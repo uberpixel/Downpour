@@ -145,7 +145,7 @@ namespace DP
 			RN::Vector3 translation;
 			RN::Input *input = RN::Input::GetSharedInstance();
 			
-			if((input->GetModifierKeys() & ~RN::KeyModifier::KeyShift) == 0)
+			if((input->GetModifierKeys() & ~kDPWorkspaceActionKey) == 0)
 			{
 				translation.x = (input->IsKeyPressed('d') - input->IsKeyPressed('a')) * 16.0f;
 				translation.z = (input->IsKeyPressed('s') - input->IsKeyPressed('w')) * 16.0f;

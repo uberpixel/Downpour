@@ -238,7 +238,7 @@ namespace DP
 	
 	void Workspace::KeyDown(RN::Event *event)
 	{
-		bool ctrlDown = (RN::Input::GetSharedInstance()->GetModifierKeys() & RN::KeyControl);
+		bool actionDown = (RN::Input::GetSharedInstance()->GetModifierKeys() & kDPWorkspaceActionKey);
 		
 		switch(event->GetCode())
 		{
@@ -252,8 +252,7 @@ namespace DP
 						if(node->GetParent())
 							node->RemoveFromParent();
 						
-						node->GetWorld()->RemoveSceneNode(node);
-						node->Autorelease();
+						node->RemoveFromWorld();
 						
 					});
 				}
@@ -276,7 +275,7 @@ namespace DP
 				
 			case 'd':
 			{
-				if(ctrlDown)
+				if(actionDown)
 					DuplicateSelection();
 				
 				break;
