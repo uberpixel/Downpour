@@ -132,7 +132,7 @@ namespace DP
 			SetPosition(center / _selection->GetCount());
 			SetScale(RN::Vector3((_camera->GetPosition()-GetPosition()).GetLength()) * 0.08f * _scaleFactor);
 			
-			if(_space == Space::Local && _selection->GetCount() == 1)
+			if((_space == Space::Local && _selection->GetCount() == 1) || _mode == Mode::Scale)
 			{
 				SetRotation(_selection->GetObjectAtIndex<SceneNode>(0)->GetWorldRotation());
 			}
@@ -285,12 +285,9 @@ namespace DP
 				break;
 		}
 		
-		//Transform to local space if needed
-		if(_space == Space::Local)
-		{
-			direction = GetWorldRotation().GetRotatedVector(direction);
-			normal = GetWorldRotation().GetRotatedVector(normal);
-		}
+		//Transform to gizmo space
+		direction = GetWorldRotation().GetRotatedVector(direction);
+		normal = GetWorldRotation().GetRotatedVector(normal);
 		
 		//Create a plane for the selected gizmo part
 		RN::Plane plane = RN::Plane::WithPositionNormal(GetWorldPosition(), normal);
@@ -349,13 +346,9 @@ namespace DP
 				break;
 		}
 		
-		//Transform to global space if needed
-		if(_space == Space::Global)
-		{
-			RN::Matrix rot = GetWorldRotation().GetRotationMatrix().GetInverse();
-			direction = rot * direction;
-			normal = rot * normal;
-		}
+		//Transform to gizmo space
+		direction = GetWorldRotation().GetRotatedVector(direction);
+		normal = GetWorldRotation().GetRotatedVector(normal);
 		
 		//Create a plane for the selected gizmo part
 		RN::Plane plane = RN::Plane::WithPositionNormal(GetWorldPosition(), normal);
@@ -365,6 +358,8 @@ namespace DP
 		
 		//Restrict movement to one uniform value
 		scaling = direction * scaling.GetDotProduct(direction);
+		
+		scaling = GetWorldRotation().GetConjugated().GetRotatedVector(scaling);
 		
 		_selection->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop)
 		{
@@ -390,12 +385,8 @@ namespace DP
 				break;
 		}
 		
-		RN::Vector3 rotatedNormal = normal;
-		//Transform to local space if needed
-		if(_space == Space::Local)
-		{
-			rotatedNormal = GetWorldRotation().GetRotatedVector(normal);
-		}
+		//Transform to gizmo space
+		RN::Vector3 rotatedNormal = GetWorldRotation().GetRotatedVector(normal);
 		
 		//Create a plane for the selected gizmo part
 		RN::Plane plane = RN::Plane::WithPositionNormal(GetWorldPosition(), rotatedNormal);
@@ -415,7 +406,19 @@ namespace DP
 		//Rotate scene nodes
 		_selection->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop)
 		{
-			node->Rotate(rotDiff);
+			RN::Vector3 posDiff = node->GetWorldPosition() - GetWorldPosition();
+			posDiff = rotDiff.GetRotatedVector(posDiff);
+			node->SetWorldPosition(GetWorldPosition() + posDiff);
+			
+			if(_space == Space::Global)
+			{
+				RN::Quaternion rotTemp = rotDiff*node->GetWorldRotation();
+				node->SetWorldRotation(rotTemp);
+			}
+			else
+			{
+				node->Rotate(rotDiff);
+			}
 		});
 	}
 }
