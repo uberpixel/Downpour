@@ -58,6 +58,7 @@ namespace DP
 		void DuplicateSelection();
 		
 	private:
+		RN::Array *DuplicateSceneNodes(RN::Array *sceneNodes);
 		void SanitizeAndPostSelection();
 		void CreateToolbar();
 		void UpdateSize();
@@ -78,6 +79,8 @@ namespace DP
 		Gizmo *_gizmo;
 		
 		RN::Array *_selection;
+		RN::Array *_pasteBoard;
+		
 		RN::Module *_module;
 		
 		RNDeclareSingleton(Workspace)

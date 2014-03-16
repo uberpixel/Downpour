@@ -27,7 +27,8 @@ namespace DP
 	Workspace::Workspace(RN::Module *module) :
 		RN::UI::Widget(RN::UI::Widget::StyleBorderless, RN::Rect(0.0f, 0.0f, 1024.0f, 768.0f)),
 		_module(module),
-		_selection(nullptr)
+		_selection(nullptr),
+		_pasteBoard(nullptr)
 	{
 		MakeShared();
 		SetWidgetLevel(kRNUIWidgetLevelBackground);
@@ -183,8 +184,21 @@ namespace DP
 	}
 	void Workspace::SetSelection(RN::SceneNode *selection)
 	{
-		RN::SafeRelease(_selection);
-		_selection = RN::Array::WithObjects(selection, nullptr)->Retain();
+		if(RN::Input::GetSharedInstance()->GetModifierKeys() & kDPWorkspaceActionKey)
+		{
+			if(!_selection)
+				_selection = new RN::Array();
+			
+			if(!_selection->ContainsObject(selection))
+				_selection->AddObject(selection);
+			else
+				_selection->RemoveObject(selection);
+		}
+		else
+		{
+			RN::SafeRelease(_selection);
+			_selection = RN::Array::WithObjects(selection, nullptr)->Retain();
+		}
 		
 		SanitizeAndPostSelection();
 	}
@@ -196,12 +210,18 @@ namespace DP
 	
 	void Workspace::DuplicateSelection()
 	{
-		if(!_selection)
-			return;
+		RN::Array *duplicates = DuplicateSceneNodes(_selection);
+		SetSelection(duplicates);
+	}
+	
+	RN::Array *Workspace::DuplicateSceneNodes(RN::Array *sceneNodes)
+	{
+		if(!sceneNodes)
+			return nullptr;
 		
 		RN::Array *duplicates = new RN::Array();
 		
-		_selection->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
+		sceneNodes->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
 			
 			RN::MetaClassBase *meta = node->Class();
 			bool noDirectCopy = false;
@@ -219,8 +239,8 @@ namespace DP
 			{
 				RN::SceneNode *copy = static_cast<RN::SceneNode *>(meta->ConstructWithCopy(node));
 				duplicates->AddObject(copy);
+				
 				if(noDirectCopy)
-					
 					RNDebug("Can't copy %s, copying %s instead (make sure to implement the Copyable meta class trait!", node->Class()->Name().c_str(), meta->Name().c_str());
 			}
 			catch(RN::Exception e)
@@ -228,7 +248,7 @@ namespace DP
 		});
 		
 		RN::World::GetActiveWorld()->ApplyNodes();
-		SetSelection(duplicates);
+		return duplicates->Autorelease();
 	}
 	
 	// -----------------------
@@ -277,6 +297,30 @@ namespace DP
 			{
 				if(actionDown)
 					DuplicateSelection();
+				
+				break;
+			}
+				
+			case 'c':
+			{
+				if(actionDown)
+				{
+					RN::SafeRelease(_pasteBoard);
+					
+					if(_selection)
+						_pasteBoard = _selection->Copy();
+				}
+				
+				break;
+			}
+				
+			case 'v':
+			{
+				if(actionDown)
+				{
+					RN::Array *duplicates = DuplicateSceneNodes(_pasteBoard);
+					SetSelection(duplicates);
+				}
 				
 				break;
 			}
