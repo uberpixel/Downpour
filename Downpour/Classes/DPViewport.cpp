@@ -136,6 +136,16 @@ namespace DP
 		return (_camera->ToWorld(RN::Vector3(point, 1.0f)) - _camera->GetPosition()).Normalize();
 	}
 	
+	RN::Vector3 Viewport::GetPositionForPoint(const RN::Vector2 &tpoint, float dist)
+	{
+		RN::Vector2 point = tpoint / _camera->GetFrame().Size();
+		point.y = 1.0f - point.y;
+		point *= 2.0f;
+		point -= 1.0f;
+		
+		return _camera->ToWorld(RN::Vector3(point, dist));
+	}
+	
 	void Viewport::Update()
 	{
 		RN::UI::View::Update();
@@ -175,14 +185,16 @@ namespace DP
 		
 		if(event->GetButton() == 0)
 		{
-			RN::Vector3 direction = GetDirectionForPoint(ConvertPointToViewport(event->GetMousePosition()));
+			RN::Vector3 rayDirection = GetDirectionForPoint(ConvertPointToViewport(event->GetMousePosition()));
+			RN::Vector3 rayPosition = GetPositionForPoint(ConvertPointToViewport(event->GetMousePosition()), _camera->GetClipNear());
 			RN::Hit hit;
 			
 			Workspace *workspace = Workspace::GetSharedInstance();
 			Gizmo *gizmo = workspace->GetGizmo();
 			
+			
 			if(gizmo->GetCollisionGroup() == 0)
-				hit = std::move(gizmo->CastRay(_camera->GetPosition(), direction));
+				hit = std::move(gizmo->CastRay(rayPosition, rayDirection));
 			
 			if(hit.node == gizmo)
 			{
@@ -190,7 +202,7 @@ namespace DP
 				return;
 			}
 			
-			hit = RN::World::GetActiveWorld()->GetSceneManager()->CastRay(_camera->GetPosition(), direction, 1);
+			hit = RN::World::GetActiveWorld()->GetSceneManager()->CastRay(rayPosition, rayDirection, 1);
 			hit.node ? workspace->SetSelection(hit.node) : workspace->SetSelection(nullptr);
 		}
 	}

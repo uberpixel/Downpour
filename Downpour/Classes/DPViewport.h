@@ -45,6 +45,7 @@ namespace DP
 		
 	private:
 		RN::Vector3 GetDirectionForPoint(const RN::Vector2 &point);
+		RN::Vector3 GetPositionForPoint(const RN::Vector2 &tpoint, float dist);
 		bool CanBecomeFirstResponder() override;
 		
 		void MouseDown(RN::Event *event) override;
