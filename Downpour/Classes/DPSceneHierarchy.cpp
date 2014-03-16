@@ -47,7 +47,7 @@ namespace DP
 			// This is not needed for child nodes since their order is defined
 			
 			std::sort(_data.begin(), _data.end(), [](const SceneNodeProxy *a, const SceneNodeProxy *b) {
-				return (a->node->GetUID() < b->node->GetUID());
+				return (a->node->GetLID() < b->node->GetLID());
 			});
 		}
 			
