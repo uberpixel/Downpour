@@ -30,8 +30,6 @@ namespace DP
 		_selection(nullptr),
 		_inspectors(new RN::Array())
 	{
-		SetBackgroundColor(ColorScheme::GetColor(ColorScheme::Type::Background));
-		
 		RN::MessageCenter::GetSharedInstance()->AddObserver(kDPWorkspaceSelectionChanged, [this](RN::Message *message) {
 			
 			SetSelection(message->GetObject());

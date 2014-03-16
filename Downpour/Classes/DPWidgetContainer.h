@@ -47,6 +47,7 @@ namespace DP
 			
 			_content = new T(std::forward<Args>(args)...);
 			_content->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleWidth);
+			_content->SetBackgroundColor(ColorScheme::GetColor(ColorScheme::Type::Background));
 			
 			_container = new RN::UI::View();
 			_container->AddSubview(_content);

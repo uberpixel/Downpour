@@ -59,7 +59,6 @@ namespace DP
 		_tree->ReloadData();
 		
 		AddSubview(_tree);
-		SetBackgroundColor(ColorScheme::GetColor(ColorScheme::Type::Background));
 		
 		RN::MessageCenter::GetSharedInstance()->AddObserver(kDPWorkspaceSelectionChanged, [this](RN::Message *message) {
 			
