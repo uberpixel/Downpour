@@ -49,7 +49,7 @@ namespace DP
 		SetModel(_modelTranslation);
 		SetRenderGroup(31);
 		SetSelection(nullptr);
-		SetFlags(GetFlags() | RN::SceneNode::Flags::HideInEditor);
+		SetFlags(GetFlags() | RN::SceneNode::Flags::HideInEditor | RN::SceneNode::Flags::NoSave);
 		
 		_scaleFactor = RN::Settings::GetSharedInstance()->GetFloatForKey(RNCSTR("DPGizmoScale"), 1.0f);
 		

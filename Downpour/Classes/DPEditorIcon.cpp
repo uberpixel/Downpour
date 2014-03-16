@@ -30,7 +30,7 @@ namespace DP
 		_camera = Workspace::GetSharedInstance()->GetViewport()->GetCamera();
 		_shadowed->SetAssociatedObject(kDPEditorIconAssociationKey, this, RN::Object::MemoryPolicy::Retain);
 		
-		SetFlags(GetFlags() | RN::SceneNode::Flags::HideInEditor);
+		SetFlags(GetFlags() | RN::SceneNode::Flags::HideInEditor | RN::SceneNode::Flags::NoSave);
 		SetRenderGroup(31);
 		GetMaterial()->SetDiscard(true);
 		
