@@ -26,7 +26,8 @@ namespace DP
 		_camera(camera),
 		_selection(nullptr),
 		_mode(Mode::Translate),
-		_active(false)
+		_active(false),
+		_selectedMesh(-1)
 	{
 		std::string translationPath = RN::PathManager::Join(Workspace::GetSharedInstance()->GetResourcePath(), "gizmo_trans.sgm");
 		std::string scalingPath = RN::PathManager::Join(Workspace::GetSharedInstance()->GetResourcePath(), "gizmo_scal.sgm");
@@ -126,7 +127,28 @@ namespace DP
 		}
 	}
 	
-	
+	void Gizmo::SetHighlight(uint32 selection, float factor)
+	{
+		if(_selectedMesh != selection)
+		{
+			if(_selectedMesh != -1)
+			{
+				RN::Material *mat = GetModel()->GetMaterialAtIndex(0, _selectedMesh);
+				mat->SetDiffuseColor(_highlightOldColor);
+			}
+			
+			if(selection != -1)
+			{
+				RN::Material *mat = GetModel()->GetMaterialAtIndex(0, selection);
+				_highlightOldColor = mat->GetDiffuseColor();
+				RN::Color newcolor = _highlightOldColor * factor;
+				newcolor.a = _highlightOldColor.a;
+				mat->SetDiffuseColor(newcolor);
+			}
+			
+			_selectedMesh = selection;
+		}
+	}
 	
 	RN::Vector3 Gizmo::CameraToWorld(const RN::Vector3 &dir)
 	{
@@ -146,7 +168,8 @@ namespace DP
 	void Gizmo::BeginMove(uint32 selection, const RN::Vector2 &mousePos)
 	{
 		_active = true;
-		_selectedMesh = selection;
+		SetHighlight(-1);
+		SetHighlight(selection, 3.0f);
 		_previousMouse = mousePos;
 	}
 	
@@ -200,6 +223,7 @@ namespace DP
 	void Gizmo::EndMove()
 	{
 		_active = false;
+		SetHighlight(-1);
 	}
 	
 	void Gizmo::DoTranslation(RN::Vector3 delta)

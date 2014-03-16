@@ -50,6 +50,7 @@ namespace DP
 		void MouseDown(RN::Event *event) override;
 		void MouseDragged(RN::Event *event) override;
 		void MouseUp(RN::Event *event) override;
+		void MouseMoved(RN::Event *event) override;
 		
 		RN::Camera *_camera;
 		RN::Camera *_editorCamera;

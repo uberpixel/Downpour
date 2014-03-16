@@ -216,9 +216,29 @@ namespace DP
 		}
 	}
 	
+	void Viewport::MouseMoved(RN::Event *event)
+	{
+		Gizmo *gizmo = Workspace::GetSharedInstance()->GetGizmo();
+
+		RN::Vector3 direction = GetDirectionForPoint(ConvertPointToViewport(event->GetMousePosition()));
+		RN::Hit hit;
+		if(gizmo->GetCollisionGroup() == 0)
+			hit = std::move(gizmo->CastRay(_camera->GetPosition(), direction));
+			
+		if(hit.node == gizmo)
+		{
+			gizmo->SetHighlight(hit.meshid);
+		}
+		else
+		{
+			gizmo->SetHighlight(-1);
+		}
+	}
+	
 	void Viewport::MouseUp(RN::Event *event)
 	{
 		Workspace::GetSharedInstance()->GetGizmo()->EndMove();
+		MouseMoved(event);
 	}
 	
 	

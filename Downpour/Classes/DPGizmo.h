@@ -43,6 +43,8 @@ namespace DP
 		void UpdateEditMode(float delta) override;
 		bool IsActive() const { return _active; }
 		
+		void SetHighlight(uint32 selection, float factor=2.0f);
+		
 		void BeginMove(uint32 selection, const RN::Vector2 &mousePos);
 		void ContinueMove(const RN::Vector2 &mousePos);
 		void EndMove();
@@ -65,6 +67,7 @@ namespace DP
 		
 		bool _active;
 		uint32 _selectedMesh;
+		RN::Color _highlightOldColor;
 		RN::Vector2 _previousMouse;
 		
 		RNDeclareMeta(Gizmo)
