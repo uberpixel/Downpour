@@ -16,6 +16,8 @@
 		E947605C188E4C790068D2E6 /* DPMain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E947605B188E4C790068D2E6 /* DPMain.cpp */; };
 		E95892FF18C90CED009F3F6D /* DPSavedState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E95892FD18C90CED009F3F6D /* DPSavedState.cpp */; };
 		E958930018C90CED009F3F6D /* DPSavedState.h in Headers */ = {isa = PBXBuildFile; fileRef = E95892FE18C90CED009F3F6D /* DPSavedState.h */; };
+		E971168C18D650B500EF4179 /* DPDraggableOutlineView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E971168A18D650B500EF4179 /* DPDraggableOutlineView.cpp */; };
+		E971168D18D650B500EF4179 /* DPDraggableOutlineView.h in Headers */ = {isa = PBXBuildFile; fileRef = E971168B18D650B500EF4179 /* DPDraggableOutlineView.h */; };
 		E97B529F18C74BF500C65F57 /* DPColorScheme.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E97B529D18C74BF500C65F57 /* DPColorScheme.cpp */; };
 		E97B52A018C74BF500C65F57 /* DPColorScheme.h in Headers */ = {isa = PBXBuildFile; fileRef = E97B529E18C74BF500C65F57 /* DPColorScheme.h */; };
 		E97B52A718C8E2DD00C65F57 /* DPViewport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E97B52A518C8E2DD00C65F57 /* DPViewport.cpp */; };
@@ -48,6 +50,8 @@
 		E947605B188E4C790068D2E6 /* DPMain.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = DPMain.cpp; path = Classes/DPMain.cpp; sourceTree = "<group>"; };
 		E95892FD18C90CED009F3F6D /* DPSavedState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPSavedState.cpp; path = Classes/DPSavedState.cpp; sourceTree = "<group>"; };
 		E95892FE18C90CED009F3F6D /* DPSavedState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPSavedState.h; path = Classes/DPSavedState.h; sourceTree = "<group>"; };
+		E971168A18D650B500EF4179 /* DPDraggableOutlineView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPDraggableOutlineView.cpp; path = Classes/DPDraggableOutlineView.cpp; sourceTree = "<group>"; };
+		E971168B18D650B500EF4179 /* DPDraggableOutlineView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPDraggableOutlineView.h; path = Classes/DPDraggableOutlineView.h; sourceTree = "<group>"; };
 		E97B529D18C74BF500C65F57 /* DPColorScheme.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPColorScheme.cpp; path = Classes/DPColorScheme.cpp; sourceTree = "<group>"; };
 		E97B529E18C74BF500C65F57 /* DPColorScheme.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPColorScheme.h; path = Classes/DPColorScheme.h; sourceTree = "<group>"; };
 		E97B52A518C8E2DD00C65F57 /* DPViewport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPViewport.cpp; path = Classes/DPViewport.cpp; sourceTree = "<group>"; };
@@ -101,6 +105,8 @@
 			children = (
 				E97B529D18C74BF500C65F57 /* DPColorScheme.cpp */,
 				E97B529E18C74BF500C65F57 /* DPColorScheme.h */,
+				E971168A18D650B500EF4179 /* DPDraggableOutlineView.cpp */,
+				E971168B18D650B500EF4179 /* DPDraggableOutlineView.h */,
 				E9FB738018CBC47400726541 /* DPDragNDropTarget.cpp */,
 				E9FB738118CBC47400726541 /* DPDragNDropTarget.h */,
 				E9FB738418CC9E9B00726541 /* DPEditorIcon.cpp */,
@@ -145,6 +151,7 @@
 				E915663818C73FCB005033FC /* DPFileTree.h in Headers */,
 				E97B52A018C74BF500C65F57 /* DPColorScheme.h in Headers */,
 				E958930018C90CED009F3F6D /* DPSavedState.h in Headers */,
+				E971168D18D650B500EF4179 /* DPDraggableOutlineView.h in Headers */,
 				D5126C7918C944FC00F91F80 /* DPRenderView.h in Headers */,
 				E9FB737B18CAB36600726541 /* DPWidgetContainer.h in Headers */,
 				E9C2243318C8FD0A00626302 /* DPWorldAttachment.h in Headers */,
@@ -211,6 +218,7 @@
 				D5126C7A18C944FC00F91F80 /* DPRenderView.cpp in Sources */,
 				E97B52A718C8E2DD00C65F57 /* DPViewport.cpp in Sources */,
 				E947605C188E4C790068D2E6 /* DPMain.cpp in Sources */,
+				E971168C18D650B500EF4179 /* DPDraggableOutlineView.cpp in Sources */,
 				E939D7B518C73A620008D4A5 /* DPWorkspace.cpp in Sources */,
 				E9C2243218C8FD0A00626302 /* DPWorldAttachment.cpp in Sources */,
 				E97B529F18C74BF500C65F57 /* DPColorScheme.cpp in Sources */,

@@ -19,18 +19,18 @@
 #define __DPFILETREE_H__
 
 #include <Rayne/Rayne.h>
+#include "DPDraggableOutlineView.h"
 
 namespace DP
 {
-	class FileTree : public RN::UI::View, RN::UI::OutlineViewDataSource, RN::UI::OutlineViewDelegate
+	class FileTree : public RN::UI::View, RN::UI::OutlineViewDataSource, DraggableOutlineView::Delegate
 	{
 	public:
 		FileTree();
 		~FileTree() override;
 		
-		void MouseDownOnCell(RN::UI::OutlineViewCell *cell, RN::Event *event);
-		void MouseDraggedOnCell(RN::UI::OutlineViewCell *cell, RN::Event *event);
-		void MouseUpOnCell(RN::UI::OutlineViewCell *cell, RN::Event *event);
+		bool CanDragItemAtRow(DraggableOutlineView *outlineView, void *item, size_t row);
+		RN::Object *GetObjectForDraggedItem(DraggableOutlineView *outlineView, void *item);
 		
 	private:
 		RN::Array *GetFilteredDirectoryProxy(RN::DirectoryProxy *proxy);
@@ -39,14 +39,9 @@ namespace DP
 		size_t OutlineViewGetNumberOfChildrenForItem(RN::UI::OutlineView *outlineView, void *item) override;
 		void *OutlineViewGetChildOfItem(RN::UI::OutlineView *outlineView, void *item, size_t child) override;
 		RN::UI::OutlineViewCell *OutlineViewGetCellForItem(RN::UI::OutlineView *outlineView, void *item) override;
-		void OutlineViewDidSelectItem(RN::UI::OutlineView *outlineView, void *item) override;
 		
 		RN::Array *_data;
-		RN::UI::OutlineView *_tree;
-		
-		RN::FileProxy *_draggedNode;
-		RN::Object *_draggedData;
-		size_t _draggedRow;
+		DraggableOutlineView *_tree;
 	};
 }
 

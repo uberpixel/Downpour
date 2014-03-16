@@ -26,52 +26,14 @@ namespace DP
 {
 	// -----------------------
 	// MARK: -
-	// MARK: FileTreeCell
-	// -----------------------
-	
-	class FileTreeCell : public OutlineViewCell
-	{
-	public:
-		FileTreeCell(FileTree *tree, RN::String *identifier) :
-			OutlineViewCell(identifier),
-			_tree(tree)
-		{}
-		
-		
-		// Drag & Drop
-		void MouseDown(RN::Event *event) override
-		{
-			OutlineViewCell::MouseDown(event);
-			_tree->MouseDownOnCell(this, event);
-		}
-		
-		void MouseDragged(RN::Event *event) override
-		{
-			OutlineViewCell::MouseDragged(event);
-			_tree->MouseDraggedOnCell(this, event);
-		}
-		
-		void MouseUp(RN::Event *event) override
-		{
-			OutlineViewCell::MouseUp(event);
-			_tree->MouseUpOnCell(this, event);
-		}
-		
-	private:
-		FileTree *_tree;
-	};
-	
-	// -----------------------
-	// MARK: -
 	// MARK: FileTree
 	// -----------------------
 	
-	FileTree::FileTree() :
-		_draggedNode(nullptr)
+	FileTree::FileTree()
 	{
 		_data = RN::FileManager::GetSharedInstance()->GetSearchPaths()->Retain();
 		
-		_tree = new RN::UI::OutlineView();
+		_tree = new DraggableOutlineView();
 		_tree->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleWidth);
 		_tree->SetDataSource(this);
 		_tree->SetDelegate(this);
@@ -81,7 +43,6 @@ namespace DP
 		_tree->ExpandItem(nullptr, false);
 		
 		AddSubview(_tree);
-		SetBackgroundColor(ColorScheme::GetColor(ColorScheme::Type::Background));
 	}
 	
 	FileTree::~FileTree()
@@ -96,80 +57,26 @@ namespace DP
 	// MARK: Drag & Drop
 	// -----------------------
 	
-	void FileTree::MouseDownOnCell(RN::UI::OutlineViewCell *cell, RN::Event *event)
+	bool FileTree::CanDragItemAtRow(DraggableOutlineView *outlineView, void *item, size_t row)
 	{
-		RN::Range range = _tree->GetVisibleRange();
-		size_t row = kRNNotFound;
-		
-		for(size_t i = 0; i < range.length; i ++)
-		{
-			RN::UI::TableViewCell *temp = _tree->GetCellForRow(i + range.origin);
-			if(temp == cell)
-			{
-				row = i + range.origin;
-				break;
-			}
-		}
-		
-		if(row != kRNNotFound)
-		{
-			RN::FileSystemNode *node = static_cast<RN::FileSystemNode *>(_tree->GetItemForRow(row));
-			
-			if(node->IsKindOfClass(RN::FileProxy::MetaClass()))
-			{
-				_draggedNode = static_cast<RN::FileProxy *>(node);
-				_draggedData = nullptr;
-				
-				_draggedRow = row;
-			};
-		}
+		RN::FileSystemNode *node = static_cast<RN::FileSystemNode *>(item);
+		return node->IsKindOfClass(RN::FileProxy::MetaClass());
 	}
 	
-	void FileTree::MouseDraggedOnCell(RN::UI::OutlineViewCell *cell, RN::Event *event)
+	RN::Object *FileTree::GetObjectForDraggedItem(DraggableOutlineView *outlineView, void *item)
 	{
-		if(_draggedNode && !_draggedData)
+		try
 		{
-			try
-			{
-				RN::IndexSet *selection = (new RN::IndexSet(_draggedRow))->Autorelease();
-				std::string path = RN::FileManager::GetSharedInstance()->GetNormalizedPathFromFullpath(_draggedNode->GetPath());
-				
-				_draggedData = RN::ResourceCoordinator::GetSharedInstance()->GetResourceWithName<RN::Object>(RNSTR(path.c_str()), nullptr);
-				_draggedData->Retain();
-				
-				_tree->SetSelection(selection);
-			}
-			catch(RN::Exception &e)
-			{
-				_draggedData = nullptr;
-				_draggedNode = nullptr;
-			}
+			RN::FileSystemNode *node = static_cast<RN::FileSystemNode *>(item);
+			std::string path = RN::FileManager::GetSharedInstance()->GetNormalizedPathFromFullpath(node->GetPath());
+			
+			RN::Object *object = RN::ResourceCoordinator::GetSharedInstance()->GetResourceWithName<RN::Object>(RNSTR(path.c_str()), nullptr);
+			return object;
 		}
-	}
-	
-	void FileTree::MouseUpOnCell(RN::UI::OutlineViewCell *cell, RN::Event *event)
-	{
-		if(_draggedNode && _draggedData)
+		catch(RN::Exception &e)
 		{
-			RN::UI::View *base = GetWidget()->GetContentView();
-			RN::UI::View *hit  = base->HitTest(base->ConvertPointFromBase(event->GetMousePosition()), event);
-			
-			if(hit->IsKindOfClass(DragNDropTarget::MetaClass()))
-			{
-				DragNDropTarget *target = static_cast<DragNDropTarget *>(hit);
-				
-				if(target->AcceptsDropOfObject(_draggedData))
-				{
-					RN::Vector2 position = target->ConvertPointFromBase(event->GetMousePosition());
-					target->HandleDropOfObject(_draggedData, position);
-				}
-			}
-			
-			_draggedData->Release();
+			return nullptr;
 		}
-		
-		_draggedData = nullptr;
-		_draggedNode = nullptr;
 	}
 	
 	// -----------------------
@@ -217,11 +124,11 @@ namespace DP
 	RN::UI::OutlineViewCell *FileTree::OutlineViewGetCellForItem(RN::UI::OutlineView *outlineView, void *item)
 	{
 		RN::String *identifier = RNCSTR("Cell");
-		FileTreeCell *cell = static_cast<FileTreeCell *>(outlineView->DequeCellWithIdentifier(identifier));
+		DraggableOutlineViewCell *cell = static_cast<DraggableOutlineViewCell *>(outlineView->DequeCellWithIdentifier(identifier));
 		
 		if(!cell)
 		{
-			cell = new FileTreeCell(this, identifier);
+			cell = new DraggableOutlineViewCell(_tree, identifier);
 			cell->Autorelease();
 		}
 		
@@ -230,21 +137,5 @@ namespace DP
 		cell->GetTextLabel()->SetText(RNSTR(node->GetName().c_str()));
 		
 		return cell;
-	}
-	
-	
-	// -----------------------
-	// MARK: -
-	// MARK: RN::UI::OutlineViewDelegate
-	// -----------------------
-	
-	void FileTree::OutlineViewDidSelectItem(RN::UI::OutlineView *outlineView, void *item)
-	{
-		RN::FileSystemNode *file =  static_cast<RN::FileSystemNode*>(item);
-		
-		if(!file->IsFile())
-			return;
-		
-		// TODO: Functionality for drag and drop of files
 	}
 }
