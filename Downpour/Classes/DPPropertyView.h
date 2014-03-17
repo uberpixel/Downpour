@@ -64,6 +64,21 @@ namespace DP
 		RNDeclareMeta(ObservablePropertyView)
 	};
 	
+	class BooleanPropertyView : public ObservablePropertyView
+	{
+	public:
+		BooleanPropertyView(RN::ObservableProperty *observable, RN::String *title);
+		
+		void ValueDidChange(RN::Object *value) override;
+		
+	private:
+		void ButtonClicked();
+		
+		RN::UI::Button *_valueButton;
+		
+		RNDeclareMeta(ObservablePropertyView)
+	};
+	
 	class ScalarPropertyView : public ObservablePropertyView, RN::UI::TextFieldDelegate
 	{
 	public:

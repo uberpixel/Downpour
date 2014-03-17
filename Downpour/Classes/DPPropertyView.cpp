@@ -24,6 +24,7 @@ namespace DP
 {
 	RNDefineMeta(PropertyView, RN::UI::View)
 	RNDefineMeta(ObservablePropertyView, PropertyView)
+	RNDefineMeta(BooleanPropertyView, ObservablePropertyView)
 	RNDefineMeta(ScalarPropertyView, ObservablePropertyView)
 	RNDefineMeta(ComponentPropertyView, ObservablePropertyView)
 	RNDefineMeta(Vector2PropertyView, ComponentPropertyView)
@@ -114,6 +115,12 @@ namespace DP
 	{
 		switch(observable->GetType())
 		{
+			case RN::TypeTranslator<bool>::value:
+			{
+				BooleanPropertyView *view = new BooleanPropertyView(observable, title);
+				return view->Autorelease();
+			}
+				
 			case RN::TypeTranslator<int8>::value:
 			case RN::TypeTranslator<int16>::value:
 			case RN::TypeTranslator<int32>::value:
@@ -181,6 +188,44 @@ namespace DP
 	{
 		RN::Object *object = _observable->GetObject();
 		object->RemoveObserver(_observable->GetName(), this);
+	}
+	
+	// -----------------------
+	// MARK: -
+	// MARK: BooleanPropertyView
+	// -----------------------
+	
+	BooleanPropertyView::BooleanPropertyView(RN::ObservableProperty *observable, RN::String *title) :
+		ObservablePropertyView(observable, title, PropertyView::Layout::TitleLeft)
+	{
+		_valueButton = RN::UI::Button::WithType(RN::UI::Button::Type::CheckBox);
+		_valueButton->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleWidth);
+		_valueButton->AddListener(RN::UI::Control::EventType::MouseUpInside, std::bind(&BooleanPropertyView::ButtonClicked, this), this);
+		_valueButton->SetFrame([&]() -> RN::Rect {
+			
+			RN::Rect frame = _valueButton->GetFrame();
+			frame.height = 20.0f;
+			frame.width  = GetContentView()->GetBounds().width;
+			
+			return frame;
+			
+		}());
+		
+		GetContentView()->AddSubview(_valueButton);
+		SetPreferredHeight(20.0f);
+		
+		ValueDidChange(_observable->GetValue());
+	}
+	
+	void BooleanPropertyView::ButtonClicked()
+	{
+		_observable->SetValue(RN::Number::WithBool(_valueButton->IsSelected()));
+	}
+	
+	void BooleanPropertyView::ValueDidChange(RN::Object *value)
+	{
+		RN::Number *number = static_cast<RN::Number *>(value);
+		_valueButton->SetSelected(number->GetBoolValue());
 	}
 	
 	// -----------------------
