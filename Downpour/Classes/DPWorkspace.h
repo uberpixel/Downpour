@@ -56,15 +56,27 @@ namespace DP
 		void SetSelection(RN::Array *selection);
 		void SetSelection(RN::SceneNode *selection);
 		void SetSelection(std::nullptr_t null);
-		void DuplicateSelection();
+		
+		void OpenLevel();
+		void Save();
+		void SaveAs();
+		
+		void Duplicate();
+		void Delete();
+		
+		void Copy();
+		void Paste();
+		void Cut();
 		
 	private:
 		RN::Array *DuplicateSceneNodes(RN::Array *sceneNodes);
 		void SanitizeAndPostSelection();
 		void CreateToolbar();
+		void CreateMainMenu();
 		void UpdateSize();
 		
 		void KeyDown(RN::Event *event) override;
+		void DuplicateSelection();
 		
 		SavedState *_state;
 		WorldAttachment *_worldAttachment;

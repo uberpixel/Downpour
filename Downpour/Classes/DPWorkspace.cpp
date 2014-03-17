@@ -17,6 +17,7 @@
 
 #include "DPWorkspace.h"
 #include "DPEditorIcon.h"
+#include "DPInfoPanel.h"
 
 #define kDPWorkspaceToolbarHeight 40.0f
 
@@ -78,7 +79,9 @@ namespace DP
 		
 		_gizmo = new Gizmo(_viewport->GetContent()->GetCamera());
 		
+		CreateMainMenu();
 		UpdateSize();
+		
 		RN::MessageCenter::GetSharedInstance()->AddObserver(kRNUIServerDidResizeMessage, std::bind(&Workspace::UpdateSize, this), this);
 	}
 	
@@ -159,6 +162,224 @@ namespace DP
 		GetContentView()->AddSubview(_toolbar->Autorelease());
 	}
 	
+	void Workspace::CreateMainMenu()
+	{
+		RN::UI::Menu *menu = new RN::UI::Menu();
+		
+		// File menu
+		RN::UI::Menu *fileMenu = new RN::UI::Menu();
+		RN::UI::MenuItem *fileItem = RN::UI::MenuItem::WithTitle(RNCSTR("File"));
+		fileItem->SetSubMenu(fileMenu->Autorelease());
+		
+		fileMenu->AddItem(RN::UI::MenuItem::WithTitle(RNCSTR("New Level")));
+		fileMenu->AddItem(RN::UI::MenuItem::WithTitleAndKeyEquivalent(RNCSTR("Open Level..."), std::bind(&Workspace::OpenLevel, this), RNCSTR("o")));
+		fileMenu->AddItem(RN::UI::MenuItem::SeparatorItem());
+		fileMenu->AddItem(RN::UI::MenuItem::WithTitleAndKeyEquivalent(RNCSTR("Save Level"), std::bind(&Workspace::Save, this), RNCSTR("s")));
+		fileMenu->AddItem([&]() -> RN::UI::MenuItem *{
+			
+			RN::UI::MenuItem *item = RN::UI::MenuItem::WithTitleAndKeyEquivalent(RNCSTR("Save Level as.."), std::bind(&Workspace::SaveAs, this), RNCSTR("s"));
+			item->SetKeyEquivalentModifierMask(RN::KeyModifier::KeyAction | RN::KeyModifier::KeyShift);
+			
+			return item;
+			
+		}());
+		
+		// Edit menu
+		RN::UI::Menu *editMenu = new RN::UI::Menu();
+		RN::UI::MenuItem *editItem = RN::UI::MenuItem::WithTitle(RNCSTR("Edit"));
+		editItem->SetSubMenu(editMenu->Autorelease());
+		
+		editMenu->AddItem(RN::UI::MenuItem::WithTitleAndKeyEquivalent(RNCSTR("Cut"), std::bind(&Workspace::Cut, this), RNCSTR("x")));
+		editMenu->AddItem(RN::UI::MenuItem::WithTitleAndKeyEquivalent(RNCSTR("Copy"), std::bind(&Workspace::Copy, this), RNCSTR("c")));
+		editMenu->AddItem(RN::UI::MenuItem::WithTitleAndKeyEquivalent(RNCSTR("Paste"), std::bind(&Workspace::Paste, this), RNCSTR("v")));
+		editMenu->AddItem(RN::UI::MenuItem::SeparatorItem());
+		editMenu->AddItem(RN::UI::MenuItem::WithTitleAndKeyEquivalent(RNCSTR("Duplicate"), std::bind(&Workspace::Duplicate, this), RNCSTR("d")));
+		editMenu->AddItem(RN::UI::MenuItem::WithTitleAndKeyEquivalent(RNCSTR("Delete"), std::bind(&Workspace::Delete, this), RNCSTR("\b")));
+		
+		// Scene node menu
+		RN::UI::Menu *nodeMenu = new RN::UI::Menu();
+		RN::UI::MenuItem *nodeItem = RN::UI::MenuItem::WithTitle(RNCSTR("Scene Node"));
+		nodeItem->SetSubMenu(nodeMenu->Autorelease());
+		
+		nodeMenu->AddItem(RN::UI::MenuItem::WithTitle(RNCSTR("Create Scene Node")));
+		nodeMenu->AddItem([&]() -> RN::UI::MenuItem * {
+			
+			RN::UI::Menu *createMenu = new RN::UI::Menu();
+			RN::UI::MenuItem *createItem = RN::UI::MenuItem::WithTitle(RNCSTR("Create..."));
+			createItem->SetSubMenu(createMenu->Autorelease());
+			
+			createMenu->AddItem(RN::UI::MenuItem::WithTitle(RNCSTR("Entity")));
+			createMenu->AddItem(RN::UI::MenuItem::WithTitle(RNCSTR("Billboard")));
+			createMenu->AddItem(RN::UI::MenuItem::WithTitle(RNCSTR("Decal")));
+			createMenu->AddItem(RN::UI::MenuItem::SeparatorItem());
+			createMenu->AddItem(RN::UI::MenuItem::WithTitle(RNCSTR("Point Light")));
+			createMenu->AddItem(RN::UI::MenuItem::WithTitle(RNCSTR("Spot Light")));
+			createMenu->AddItem(RN::UI::MenuItem::WithTitle(RNCSTR("Directional Light")));
+			
+			return createItem;
+			
+		}());
+		
+		menu->AddItem(fileItem);
+		menu->AddItem(editItem);
+		menu->AddItem(nodeItem);
+		
+		RN::UI::Server::GetSharedInstance()->SetMainMenu(menu->Autorelease());
+	}
+	
+	
+	// -----------------------
+	// MARK: -
+	// MARK: Responder stuff
+	// -----------------------
+	
+	extern void ActivateDownpour();
+	extern void DeactivateDownpour();
+	
+	static const char *__DPCookie = "__DPCookie";
+	
+	void Workspace::OpenLevel()
+	{
+		RN::OpenPanel *panel = new RN::OpenPanel();
+		panel->SetTitle("Open Level");
+		panel->SetCanCreateDirectories(true);
+		
+		panel->Show([&](bool result, const std::vector<std::string> &paths) {
+			
+			if(result)
+			{
+				std::string path = paths.front();
+				
+				RN::Kernel::GetSharedInstance()->ScheduleFunction([path]() {
+					
+					{
+						RN::AutoreleasePool pool;
+						DeactivateDownpour();
+					}
+						
+					// Behold, it's getting ugly!
+					// The problem is that we need to re-activate Downpour at some point when the level is finished loading...
+					
+					RN::Progress *progress = RN::WorldCoordinator::GetSharedInstance()->LoadWorld(path);
+					RN::Timer *timer = RN::Timer::ScheduledTimerWithDuration(std::chrono::milliseconds(50), [progress]() {
+						
+						if(progress->IsComplete())
+						{
+							RN::Timer *timer = static_cast<RN::Timer *>(progress->GetAssociatedObject(__DPCookie));
+							timer->Invalidate();
+							progress->Release();
+							
+							RN::Kernel::GetSharedInstance()->ScheduleFunction([]() {
+								ActivateDownpour();
+							});
+						}
+						
+					}, true);
+					
+					progress->SetAssociatedObject(__DPCookie, timer, RN::Object::MemoryPolicy::Assign);
+					progress->Retain();
+					
+				});
+			}
+			
+		});
+		
+		panel->Release();
+	}
+	
+	void Workspace::Save()
+	{
+		std::string path = RN::WorldCoordinator::GetSharedInstance()->GetWorldFile();
+		if(path.empty())
+		{
+			SaveAs();
+			return;
+		}
+		
+		try
+		{
+			RN::WorldCoordinator::GetSharedInstance()->SaveWorld(path);
+			RNInfo("Downpour: Saved world succesfully to %s", path.c_str());
+		}
+		catch(RN::Exception e)
+		{
+			ExceptionPanel *exceptionPanel = new ExceptionPanel(e);
+			exceptionPanel->Open();
+			exceptionPanel->Release();
+		}
+	}
+	
+	void Workspace::SaveAs()
+	{
+		RN::SavePanel *panel = new RN::SavePanel();
+		panel->SetTitle("Save as...");
+		panel->SetCanCreateDirectories(true);
+		
+		panel->Show([&](bool result, const std::string &path) {
+			
+			if(result)
+			{
+				try
+				{
+					RN::WorldCoordinator::GetSharedInstance()->SaveWorld(path);
+					RNInfo("Downpour: Saved world succesfully to %s", path.c_str());
+				}
+				catch(RN::Exception e)
+				{
+					ExceptionPanel *exceptionPanel = new ExceptionPanel(e);
+					exceptionPanel->Open();
+					exceptionPanel->Release();
+				}
+			}
+			
+		});
+		
+		panel->Release();
+	}
+	
+	
+	void Workspace::Duplicate()
+	{
+		DuplicateSelection();
+	}
+	
+	void Workspace::Delete()
+	{
+		RN::Array *selection = Workspace::GetSharedInstance()->GetSelection();
+		if(selection)
+		{
+			selection->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
+				
+				if(node->GetParent())
+					node->RemoveFromParent();
+				
+				node->RemoveFromWorld();
+				
+			});
+		}
+		
+		SetSelection(nullptr);
+	}
+	
+	void Workspace::Copy()
+	{
+		RN::SafeRelease(_pasteBoard);
+		
+		if(_selection)
+			_pasteBoard = _selection->Copy();
+	}
+	
+	void Workspace::Paste()
+	{
+		RN::Array *duplicates = DuplicateSceneNodes(_pasteBoard);
+		SetSelection(duplicates);
+	}
+	
+	void Workspace::Cut()
+	{
+		Copy();
+		Delete();
+	}
 	
 	// -----------------------
 	// MARK: -
@@ -283,29 +504,8 @@ namespace DP
 	
 	void Workspace::KeyDown(RN::Event *event)
 	{
-		bool actionDown = (RN::Input::GetSharedInstance()->GetModifierKeys() & kDPWorkspaceActionKey);
-		
 		switch(event->GetCode())
 		{
-			case RN::KeyDelete:
-			{
-				RN::Array *selection = Workspace::GetSharedInstance()->GetSelection();
-				if(selection)
-				{
-					selection->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
-						
-						if(node->GetParent())
-							node->RemoveFromParent();
-						
-						node->RemoveFromWorld();
-						
-					});
-				}
-				
-				SetSelection(nullptr);
-				break;
-			}
-			
 			case RN::KeyESC:
 			{
 				if(_selection)
@@ -315,38 +515,6 @@ namespace DP
 				}
 				
 				RN::MessageCenter::GetSharedInstance()->PostMessage(RNCSTR("DPToggle"), nullptr, nullptr);
-				break;
-			}
-				
-			case 'd':
-			{
-				if(actionDown)
-					DuplicateSelection();
-				
-				break;
-			}
-				
-			case 'c':
-			{
-				if(actionDown)
-				{
-					RN::SafeRelease(_pasteBoard);
-					
-					if(_selection)
-						_pasteBoard = _selection->Copy();
-				}
-				
-				break;
-			}
-				
-			case 'v':
-			{
-				if(actionDown)
-				{
-					RN::Array *duplicates = DuplicateSceneNodes(_pasteBoard);
-					SetSelection(duplicates);
-				}
-				
 				break;
 			}
 		}
