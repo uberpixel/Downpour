@@ -261,7 +261,7 @@ namespace DP
 	
 	bool Viewport::AcceptsDropOfObject(RN::Object *object)
 	{
-		return (object->IsKindOfClass(RN::Model::MetaClass()));
+		return (object->IsKindOfClass(RN::Model::MetaClass()) || object->IsKindOfClass(RN::Value::MetaClass()));
 	}
 	
 	void Viewport::HandleDropOfObject(RN::Object *object, const RN::Vector2 &position)
@@ -279,12 +279,35 @@ namespace DP
 		gizmo->SetCollisionGroup(group);
 		
 		
-		// Place the model
-		RN::Model *model = static_cast<RN::Model *>(object);
-		RN::Entity *entity = new RN::Entity(model, _camera->GetPosition() + direction * distance);
-	
-		// Get the world to register the new entity immediately
-		RN::World::GetActiveWorld()->ApplyNodes();
-		Workspace::GetSharedInstance()->SetSelection(entity);
+		if(object->IsKindOfClass(RN::Model::MetaClass()))
+		{
+			// Place the model
+			RN::Model *model = static_cast<RN::Model *>(object);
+			RN::Entity *entity = new RN::Entity(model, _camera->GetPosition() + direction * distance);
+		
+			// Get the world to register the new entity immediately
+			RN::World::GetActiveWorld()->ApplyNodes();
+			Workspace::GetSharedInstance()->SetSelection(entity);
+		}
+		
+		if(object->IsKindOfClass(RN::Value::MetaClass()))
+		{
+			RN::Value *value = static_cast<RN::Value *>(object);
+			
+			try
+			{
+				RN::MetaClassBase *meta = value->GetValue<RN::MetaClassBase *>();
+				if(meta && meta->InheritsFromClass(RN::SceneNode::MetaClass()))
+				{
+					RN::SceneNode *node = static_cast<RN::SceneNode *>(meta->Construct());
+					node->SetPosition(_camera->GetPosition() + direction * distance);
+					
+					RN::World::GetActiveWorld()->ApplyNodes();
+					Workspace::GetSharedInstance()->SetSelection(node);
+				}
+			}
+			catch(RN::Exception e)
+			{} // Meh...
+		}
 	}
 }

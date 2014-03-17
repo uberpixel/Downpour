@@ -22,6 +22,7 @@
 #include "DPSavedState.h"
 #include "DPWidgetContainer.h"
 #include "DPFileTree.h"
+#include "DPNodeClassPicker.h"
 #include "DPViewport.h"
 #include "DPInspectorView.h"
 #include "DPSceneHierarchy.h"
@@ -69,6 +70,7 @@ namespace DP
 		WorldAttachment *_worldAttachment;
 		
 		WidgetContainer<FileTree> *_fileTree;
+		WidgetContainer<NodeClassPicker> *_nodePicker;
 		WidgetContainer<Viewport> *_viewport;
 		WidgetContainer<InspectorViewContainer> *_inspectors;
 		WidgetContainer<SceneHierarchy> *_hierarchy;

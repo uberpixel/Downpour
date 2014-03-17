@@ -38,8 +38,13 @@ namespace DP
 		
 		// File tree
 		_fileTree = new WidgetContainer<FileTree>(RNCSTR("Project"));
-		_fileTree->SetFrame(RN::Rect(0.0f, kDPWorkspaceToolbarHeight, 230.0f, 768.0f - kDPWorkspaceToolbarHeight));
-		_fileTree->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight);
+		_fileTree->SetFrame(RN::Rect(0.0f, kDPWorkspaceToolbarHeight, 230.0f, 512.0f - kDPWorkspaceToolbarHeight));
+		_fileTree->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleRightMargin | RN::UI::View::AutoresizingFlexibleBottomMargin);
+		
+		// Node picker
+		_nodePicker = new WidgetContainer<NodeClassPicker>(RNCSTR("Node Class"));
+		_nodePicker->SetFrame(RN::Rect(0.0f, 512.0f, 230.0f, 256.0f));
+		_nodePicker->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleRightMargin | RN::UI::View::AutoresizingFlexibleTopMargin);
 		
 		// Viewport
 		_viewport = new WidgetContainer<Viewport>(RNCSTR("Scene"));
@@ -60,6 +65,7 @@ namespace DP
 		CreateToolbar();
 		
 		GetContentView()->AddSubview(_fileTree);
+		GetContentView()->AddSubview(_nodePicker);
 		GetContentView()->AddSubview(_viewport);
 		GetContentView()->AddSubview(_inspectors);
 		GetContentView()->AddSubview(_hierarchy);
@@ -83,6 +89,7 @@ namespace DP
 		
 		_viewport->Release();
 		_fileTree->Release();
+		_nodePicker->Release();
 		_inspectors->Release();
 		_hierarchy->Release();
 		
