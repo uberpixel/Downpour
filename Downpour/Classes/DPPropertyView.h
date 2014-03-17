@@ -100,6 +100,18 @@ namespace DP
 		RNDeclareMeta(ComponentPropertyView)
 	};
 	
+	class Vector2PropertyView : public ComponentPropertyView
+	{
+	public:
+		Vector2PropertyView(RN::ObservableProperty *observable, RN::String *title);
+		
+		void ValueAtIndexChanged(size_t index) override;
+		void ValueDidChange(RN::Object *newValue) override;
+		
+	private:
+		RNDeclareMeta(Vector2PropertyView)
+	};
+	
 	class Vector3PropertyView : public ComponentPropertyView
 	{
 	public:

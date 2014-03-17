@@ -26,6 +26,7 @@ namespace DP
 	RNDefineMeta(ObservablePropertyView, PropertyView)
 	RNDefineMeta(ScalarPropertyView, ObservablePropertyView)
 	RNDefineMeta(ComponentPropertyView, ObservablePropertyView)
+	RNDefineMeta(Vector2PropertyView, ComponentPropertyView)
 	RNDefineMeta(Vector3PropertyView, ComponentPropertyView)
 	RNDefineMeta(QuaternionPropertyView, ComponentPropertyView)
 	RNDefineMeta(ColorPropertyView, ComponentPropertyView)
@@ -131,6 +132,12 @@ namespace DP
 			case RN::TypeTranslator<RN::Vector3>::value:
 			{
 				Vector3PropertyView *view = new Vector3PropertyView(observable, title);
+				return view->Autorelease();
+			}
+				
+			case RN::TypeTranslator<RN::Vector2>::value:
+			{
+				Vector2PropertyView *view = new Vector2PropertyView(observable, title);
 				return view->Autorelease();
 			}
 				
@@ -295,6 +302,39 @@ namespace DP
 		
 		label->SetFrame(RN::Rect(offset, 2.0f, labelWidth, 18.0f));
 		value->SetFrame(RN::Rect(offset + labelWidth + 2.0f, 0.0f, size - labelWidth - 2.0f, 20.0f));
+	}
+	
+	// -----------------------
+	// MARK: -
+	// MARK: Vector2ComponentView
+	// -----------------------
+	
+	Vector2PropertyView::Vector2PropertyView(RN::ObservableProperty *observable, RN::String *title) :
+		ComponentPropertyView(observable, title, 2)
+	{
+		SetTitle(RNCSTR("X"), 0);
+		SetTitle(RNCSTR("Y"), 1);
+		
+		ValueDidChange(_observable->GetValue());
+	}
+	
+	void Vector2PropertyView::ValueAtIndexChanged(size_t index)
+	{
+		RN::Vector2 vector;
+		
+		vector.x = GetValue(0)->Downcast<RN::Number>()->GetFloatValue();
+		vector.y = GetValue(1)->Downcast<RN::Number>()->GetFloatValue();
+		
+		_observable->SetValue(RN::Value::WithVector2(vector));
+	}
+	
+	void Vector2PropertyView::ValueDidChange(RN::Object *newValue)
+	{
+		RN::Value *value = newValue->Downcast<RN::Value>();
+		RN::Vector2 vector = value->GetValue<RN::Vector2>();
+		
+		SetValue(RN::Number::WithFloat(vector.x), 0);
+		SetValue(RN::Number::WithFloat(vector.y), 1);
 	}
 	
 	// -----------------------
