@@ -51,6 +51,7 @@ namespace DP
 			
 			_container = new RN::UI::View();
 			_container->AddSubview(_content);
+			_container->SetClipSubviews(true);
 			
 			AddSubview(_tab);
 			AddSubview(_container);
