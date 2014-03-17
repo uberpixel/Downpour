@@ -28,13 +28,13 @@ namespace DP
 		
 		_camera = new RN::Camera(RN::Vector2(32.0f), RN::Texture::Format::RGB16F, flags);
 		_camera->GetStorage()->SetDepthTarget(RN::Texture::Format::DepthStencil);
-		_camera->SceneNode::SetFlags(_camera->SceneNode::GetFlags() | RN::SceneNode::Flags::HideInEditor);
+		_camera->SceneNode::SetFlags(_camera->SceneNode::GetFlags() | RN::SceneNode::Flags::HideInEditor | RN::SceneNode::Flags::NoSave);
 		
 		_editorCamera = new RN::Camera(RN::Vector2(32.0f), RN::Texture::Format::RGBA16F, flags);
 		_editorCamera->GetStorage()->SetDepthTarget(RN::Texture::Format::DepthStencil);
 		_editorCamera->SetRenderGroups((1 << 31));
 		_editorCamera->SetClearColor(RN::Color::ClearColor());
-		_editorCamera->SceneNode::SetFlags(_editorCamera->SceneNode::GetFlags() | RN::SceneNode::Flags::HideInEditor);
+		_editorCamera->SceneNode::SetFlags(_editorCamera->SceneNode::GetFlags() | RN::SceneNode::Flags::HideInEditor | RN::SceneNode::Flags::NoSave);
 		
 		_sourceCamera = Workspace::GetSharedInstance()->GetSavedState()->GetMainCamera();
 		if(_sourceCamera)
@@ -63,7 +63,7 @@ namespace DP
 			_postProcessCamera = new RN::Camera(RN::Vector2(32.0f), RN::Texture::Format::RGBA16F, RN::Camera::Flags::UpdateStorageFrame, RN::RenderStorage::BufferFormatColor);
 			_postProcessCamera->SetClearColor(RN::Color::ClearColor());
 			_postProcessCamera->SetMaterial(material->Autorelease());
-			_postProcessCamera->SceneNode::SetFlags(_editorCamera->SceneNode::GetFlags() | RN::SceneNode::Flags::HideInEditor);
+			_postProcessCamera->SceneNode::SetFlags(_editorCamera->SceneNode::GetFlags() | RN::SceneNode::Flags::HideInEditor | RN::SceneNode::Flags::NoSave);
 			
 			RN::PostProcessingPipeline *pipeline = _editorCamera->AddPostProcessingPipeline("pipeline", 3);
 			pipeline->AddStage(_postProcessCamera, RN::RenderStage::Mode::ReUsePreviousStage);
