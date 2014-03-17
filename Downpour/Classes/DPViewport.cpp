@@ -160,9 +160,13 @@ namespace DP
 				translation.x = (input->IsKeyPressed('d') - input->IsKeyPressed('a')) * 16.0f;
 				translation.z = (input->IsKeyPressed('s') - input->IsKeyPressed('w')) * 16.0f;
 				
+				float vertical = (input->IsKeyPressed('e') - input->IsKeyPressed('q')) * 16.0f;
+				
 				translation *= (input->GetModifierKeys() & RN::KeyModifier::KeyShift) ? 2.0f : 1.0f;
 				
 				_camera->TranslateLocal(translation * RN::Kernel::GetSharedInstance()->GetDelta());
+				_camera->Translate(RN::Vector3(0.0f, vertical, 0.0f) * RN::Kernel::GetSharedInstance()->GetDelta());
+				
 				_editorCamera->SetPosition(_camera->GetWorldPosition());
 			}
 		}
