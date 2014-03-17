@@ -151,7 +151,7 @@ namespace DP
 		else
 		{
 			SceneNodeProxy *proxy = FindProxyForNode(parent);
-			if(proxy)
+			if(proxy && !proxy->ContainsProyForNode(node))
 			{
 				proxy->children.emplace_back(new SceneNodeProxy(node));
 				_tree->ReloadItem(proxy, true);

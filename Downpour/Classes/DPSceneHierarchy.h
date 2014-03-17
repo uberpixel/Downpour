@@ -88,6 +88,17 @@ namespace DP
 			return false;
 		}
 		
+		bool ContainsProyForNode(RN::SceneNode *node)
+		{
+			for(SceneNodeProxy *proxy : children)
+			{
+				if(proxy->node == node)
+					return true;
+			}
+			
+			return false;
+		}
+		
 		bool IsExpandable() const { return !children.empty(); }
 		
 		RN::SceneNode *node;
