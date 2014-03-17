@@ -416,11 +416,12 @@ namespace DP
 	// -----------------------
 	
 	ColorPropertyView::ColorPropertyView(RN::ObservableProperty *observable, RN::String *title) :
-		ComponentPropertyView(observable, title, 3)
+		ComponentPropertyView(observable, title, 4)
 	{
 		SetTitle(RNCSTR("R"), 0);
 		SetTitle(RNCSTR("G"), 1);
 		SetTitle(RNCSTR("B"), 2);
+		SetTitle(RNCSTR("A"), 3);
 		
 		ValueDidChange(_observable->GetValue());
 	}
@@ -432,7 +433,7 @@ namespace DP
 		color.r = GetValue(0)->Downcast<RN::Number>()->GetFloatValue();
 		color.g = GetValue(1)->Downcast<RN::Number>()->GetFloatValue();
 		color.b = GetValue(2)->Downcast<RN::Number>()->GetFloatValue();
-		color.a = 1.0f;
+		color.a = GetValue(3)->Downcast<RN::Number>()->GetFloatValue();
 		
 		_observable->SetValue(RN::Value::WithColor(color));
 	}
@@ -445,5 +446,6 @@ namespace DP
 		SetValue(RN::Number::WithFloat(color.r), 0);
 		SetValue(RN::Number::WithFloat(color.g), 1);
 		SetValue(RN::Number::WithFloat(color.b), 2);
+		SetValue(RN::Number::WithFloat(color.a), 3);
 	}
 }
