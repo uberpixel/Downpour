@@ -113,6 +113,8 @@ namespace DP
 			yoffset += frame.height;
 			
 		});
+		
+		SetContentSize(RN::Vector2(GetBounds().width, yoffset));
 	}
 	
 	// -----------------------

@@ -23,7 +23,7 @@
 
 namespace DP
 {
-	class InspectorViewContainer : public RN::UI::View
+	class InspectorViewContainer : public RN::UI::ScrollView
 	{
 	public:
 		InspectorViewContainer();
