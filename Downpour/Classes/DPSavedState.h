@@ -34,6 +34,7 @@ namespace DP
 		
 	private:		
 		RN::Camera *_mainCamera;
+		RN::UI::Menu *_menu;
 		
 		RN::Set *_cameras;
 		RN::Set *_lights;

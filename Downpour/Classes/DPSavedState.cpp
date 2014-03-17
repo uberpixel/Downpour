@@ -104,6 +104,8 @@ namespace DP
 		
 		// Misc
 		_maxFPS = RN::Kernel::GetSharedInstance()->GetMaxFPS();
+		_menu   = SafeRetain(RN::UI::Server::GetSharedInstance()->GetMainMenu());
+		
 		RN::Kernel::GetSharedInstance()->SetMaxFPS(20);
 		RN::World::GetActiveWorld()->SetMode(RN::World::Mode::Edit);
 		
@@ -157,6 +159,9 @@ namespace DP
 		_instancingNodes->Release();
 		
 		RN::Kernel::GetSharedInstance()->SetMaxFPS(_maxFPS);
+		RN::UI::Server::GetSharedInstance()->SetMainMenu(_menu);
+		
+		RN::SafeRelease(_menu);
 		RN::World::GetActiveWorld()->SetMode(RN::World::Mode::Play);
 	}
 	
