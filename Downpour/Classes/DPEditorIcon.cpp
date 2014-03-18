@@ -32,6 +32,7 @@ namespace DP
 		
 		SetFlags(GetFlags() | RN::SceneNode::Flags::HideInEditor | RN::SceneNode::Flags::NoSave);
 		SetRenderGroup(31);
+		SetCollisionGroup(31);
 		GetMaterial()->SetDiscard(true);
 		
 		

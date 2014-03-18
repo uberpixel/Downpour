@@ -206,7 +206,7 @@ namespace DP
 				return;
 			}
 			
-			hit = RN::World::GetActiveWorld()->GetSceneManager()->CastRay(rayPosition, rayDirection, 1);
+			hit = RN::World::GetActiveWorld()->GetSceneManager()->CastRay(rayPosition, rayDirection, (1 << 0) | (1 << 31));
 			hit.node ? workspace->SetSelection(hit.node) : workspace->SetSelection(nullptr);
 		}
 	}
@@ -276,8 +276,9 @@ namespace DP
 		uint8 group = gizmo->GetCollisionGroup();
 		gizmo->SetCollisionGroup(1);
 		
-		RN::Vector3 direction = GetDirectionForPoint(position);
-		RN::Hit hit = RN::World::GetActiveWorld()->GetSceneManager()->CastRay(_camera->GetPosition(), direction, 1);
+		RN::Vector3 rayDirection = GetDirectionForPoint(position*_resolutionFactor);
+		RN::Vector3 rayPosition = GetPositionForPoint(position*_resolutionFactor, _camera->GetClipNear());
+		RN::Hit hit = RN::World::GetActiveWorld()->GetSceneManager()->CastRay(rayPosition, rayDirection, 1);
 		float distance = hit.node ? hit.distance : 15.0f;
 		
 		gizmo->SetCollisionGroup(group);
@@ -287,7 +288,7 @@ namespace DP
 		{
 			// Place the model
 			RN::Model *model = static_cast<RN::Model *>(object);
-			RN::Entity *entity = new RN::Entity(model, _camera->GetPosition() + direction * distance);
+			RN::Entity *entity = new RN::Entity(model, rayPosition + rayDirection * distance);
 		
 			// Get the world to register the new entity immediately
 			RN::World::GetActiveWorld()->ApplyNodes();
@@ -304,7 +305,7 @@ namespace DP
 				if(meta && meta->InheritsFromClass(RN::SceneNode::MetaClass()))
 				{
 					RN::SceneNode *node = static_cast<RN::SceneNode *>(meta->Construct());
-					node->SetPosition(_camera->GetPosition() + direction * distance);
+					node->SetPosition(rayPosition + rayDirection * distance);
 					
 					RN::World::GetActiveWorld()->ApplyNodes();
 					Workspace::GetSharedInstance()->SetSelection(node);
