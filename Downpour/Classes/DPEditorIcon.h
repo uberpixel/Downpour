@@ -28,11 +28,14 @@ namespace DP
 		EditorIcon(RN::SceneNode *node);
 		~EditorIcon();
 		
+		void Detach();
 		void UpdateEditMode(float delta) override;
 		RN::SceneNode *GetSceneNode() const { return _shadowed; }
 		
 		static bool SupportsSceneNodeClass(RN::SceneNode *node);
+		
 		static EditorIcon *WithSceneNode(RN::SceneNode *node);
+		static EditorIcon *GetIconForSceneNode(RN::SceneNode *node);
 		
 	private:
 		void SetIcon(const std::string &name);

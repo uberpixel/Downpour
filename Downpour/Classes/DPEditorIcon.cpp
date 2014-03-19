@@ -54,6 +54,12 @@ namespace DP
 	}
 	
 	
+	void EditorIcon::Detach()
+	{
+		_shadowed->RemoveAssociatedOject(kDPEditorIconAssociationKey);
+		RemoveFromWorld();
+	}
+	
 	void EditorIcon::SetIcon(const std::string &name)
 	{
 		std::string resources = Workspace::GetSharedInstance()->GetResourcePath();
@@ -73,6 +79,12 @@ namespace DP
 		SetWorldRotation(_camera->GetWorldRotation());
 	}
 	
+	
+	EditorIcon *EditorIcon::GetIconForSceneNode(RN::SceneNode *node)
+	{
+		EditorIcon *icon = static_cast<EditorIcon *>(node->GetAssociatedObject(kDPEditorIconAssociationKey));
+		return icon;
+	}
 	
 	EditorIcon *EditorIcon::WithSceneNode(RN::SceneNode *node)
 	{

@@ -166,6 +166,10 @@ namespace DP
 		if(node->GetFlags() & RN::SceneNode::Flags::HideInEditor)
 			return;
 		
+		EditorIcon *icon = EditorIcon::GetIconForSceneNode(node);
+		if(icon)
+			icon->Detach();
+		
 		RN::SceneNode *parent = node->GetParent();
 		if(parent)
 		{
