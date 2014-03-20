@@ -19,6 +19,7 @@
 #define __DPPROPERTYVIEW_H__
 
 #include <Rayne/Rayne.h>
+#include "DPDragNDropTarget.h"
 
 namespace DP
 {
@@ -161,6 +162,25 @@ namespace DP
 		
 	private:
 		RNDeclareMeta(ColorPropertyView)
+	};
+	
+	class ModelPropertyView : public ObservablePropertyView, DelegatingDragNDropTarget::Delegate
+	{
+	public:
+		ModelPropertyView(RN::ObservableProperty *observable, RN::String *title);
+		
+		void ValueDidChange(RN::Object *value) override;
+		
+		bool DragNDropTargetAcceptsDropOfObject(DelegatingDragNDropTarget *target, RN::Object *object) override;
+		void DragNDropTargetHandleDropOfObject(DelegatingDragNDropTarget *target, RN::Object *object, const RN::Vector2 &position) override;
+		
+	private:
+		RN::UI::Label *_fileLabel;
+		RN::UI::Label *_infoLabel;
+		
+		DelegatingDragNDropTarget *_dragTarget;
+		
+		RNDeclareMeta(ModelPropertyView)
 	};
 }
 

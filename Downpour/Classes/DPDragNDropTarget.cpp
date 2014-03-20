@@ -20,4 +20,19 @@
 namespace DP
 {
 	RNDefineMeta(DragNDropTarget, RN::UI::View)
+	RNDefineMeta(DelegatingDragNDropTarget, DragNDropTarget)
+	
+	DelegatingDragNDropTarget::DelegatingDragNDropTarget(Delegate *delegate) :
+		_delegate(delegate)
+	{}
+	
+	bool DelegatingDragNDropTarget::AcceptsDropOfObject(RN::Object *object)
+	{
+		return _delegate->DragNDropTargetAcceptsDropOfObject(this, object);
+	}
+	
+	void DelegatingDragNDropTarget::HandleDropOfObject(RN::Object *object, const RN::Vector2 &position)
+	{
+		_delegate->DragNDropTargetHandleDropOfObject(this, object, position);
+	}
 }

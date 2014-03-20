@@ -30,6 +30,26 @@ namespace DP
 		
 		RNDeclareMeta(DragNDropTarget)
 	};
+	
+	class DelegatingDragNDropTarget : public DragNDropTarget
+	{
+	public:
+		struct Delegate
+		{
+			virtual bool DragNDropTargetAcceptsDropOfObject(DelegatingDragNDropTarget *target, RN::Object *object) = 0;
+			virtual void DragNDropTargetHandleDropOfObject(DelegatingDragNDropTarget *target, RN::Object *object, const RN::Vector2 &position) = 0;
+		};
+		
+		DelegatingDragNDropTarget(Delegate *delegate);
+		
+		bool AcceptsDropOfObject(RN::Object *object) override;
+		void HandleDropOfObject(RN::Object *object, const RN::Vector2 &position) override;
+		
+	private:
+		Delegate *_delegate;
+		
+		RNDeclareMeta(DelegatingDragNDropTarget)
+	};
 }
 
 #endif /* __DPDRAGNDROPTARGET_H__ */
