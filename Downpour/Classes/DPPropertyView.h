@@ -175,7 +175,6 @@ namespace DP
 		void DragNDropTargetHandleDropOfObject(DelegatingDragNDropTarget *target, RN::Object *object, const RN::Vector2 &position) override;
 		
 	private:
-		RN::UI::Label *_fileLabel;
 		RN::UI::Label *_infoLabel;
 		
 		DelegatingDragNDropTarget *_dragTarget;

@@ -30,7 +30,6 @@ namespace DP
 		~InspectorViewContainer();
 		
 		void SetSelection(RN::Object *object);
-		
 		void LayoutSubviews() override;
 		
 	private:
@@ -43,6 +42,8 @@ namespace DP
 	public:
 		~InspectorView();
 		
+		virtual void Initialize(RN::Object *object, RN::MetaClassBase *meta, RN::String *title);
+		
 		RN::Object *GetObject() const { return _object; }
 		RN::MetaClassBase *GetMetaClassBase() const { return _meta; }
 		
@@ -50,8 +51,10 @@ namespace DP
 		
 		void LayoutSubviews() override;
 		
+		static void RegisterInspectorViewForClass(RN::MetaClassBase *inspectorClass, RN::MetaClassBase *predicate);
+		
 	protected:
-		InspectorView(RN::Object *object, RN::MetaClassBase *meta, RN::String *title);
+		InspectorView();
 		
 		void AddPropertyView(PropertyView *view);
 		
@@ -61,12 +64,20 @@ namespace DP
 		
 		RN::UI::Label *_titleLabel;
 		RN::Array *_propertyViews;
+		
+		RNDeclareMeta(InspectorView)
 	};
 	
 	class GenericInspectorView : public InspectorView
 	{
 	public:
-		GenericInspectorView(RN::Object *object, RN::MetaClassBase *meta, RN::String *title);
+		GenericInspectorView();
+		
+		void Initialize(RN::Object *object, RN::MetaClassBase *meta, RN::String *title) override;
+		
+		static void InitialWakeUp(RN::MetaClassBase *meta);
+		
+		RNDeclareMeta(GenericInspectorView)
 	};
 }
 

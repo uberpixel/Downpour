@@ -21,6 +21,11 @@
 
 namespace DP
 {
+	static std::vector<std::pair<RN::MetaClassBase *, RN::MetaClassBase *>> _registeredInspectorViews;
+	
+	RNDefineMeta(InspectorView, RN::UI::View)
+	RNDefineMeta(GenericInspectorView, InspectorView)
+	
 	// -----------------------
 	// MARK: -
 	// MARK: InspectorViewContainer
@@ -31,9 +36,7 @@ namespace DP
 		_inspectors(new RN::Array())
 	{
 		RN::MessageCenter::GetSharedInstance()->AddObserver(kDPWorkspaceSelectionChanged, [this](RN::Message *message) {
-			
 			SetSelection(message->GetObject());
-			
 		}, this);
 	}
 	
@@ -90,11 +93,43 @@ namespace DP
 		{
 			meta = *i;
 			
-			InspectorView *temp = new GenericInspectorView(_selection, meta, RNSTR(meta->Name().c_str()));
-			temp->SizeToFit();
+			RN::MetaClassBase *match = nullptr;
+			size_t matchDistance = static_cast<size_t>(-1);
 			
-			_inspectors->AddObject(temp->Autorelease());
-			AddSubview(temp);
+			for(auto &pair : _registeredInspectorViews)
+			{
+				size_t distance = 0;
+				RN::MetaClassBase *temp = meta;
+				
+				while(temp != pair.second)
+				{
+					temp = temp->SuperClass();
+					distance ++;
+					
+					if(!temp)
+					{
+						distance = static_cast<size_t>(-1);
+						break;
+					}
+				}
+				
+				if(distance < matchDistance)
+				{
+					matchDistance = distance;
+					match = pair.first;
+				}
+			}
+			
+			if(match)
+			{
+				InspectorView *inspectorView = static_cast<InspectorView *>(match->Construct());
+				
+				inspectorView->Initialize(_selection, meta, RNSTR(meta->Name().c_str()));
+				inspectorView->SizeToFit();
+				
+				_inspectors->AddObject(inspectorView->Autorelease());
+				AddSubview(inspectorView);
+			}
 		}
 	}
 	
@@ -122,16 +157,22 @@ namespace DP
 	// MARK: InspectorView
 	// -----------------------
 	
-	InspectorView::InspectorView(RN::Object *object, RN::MetaClassBase *meta, RN::String *title) :
-		_object(object),
-		_meta(meta),
+	void InspectorView::RegisterInspectorViewForClass(RN::MetaClassBase *inspectorClass, RN::MetaClassBase *predicate)
+	{
+		RN_ASSERT(inspectorClass->InheritsFromClass(InspectorView::MetaClass()), "Inspector class must inherit from InspectorView");
+		
+		_registeredInspectorViews.emplace_back(std::make_pair(inspectorClass, predicate));
+	}
+	
+	
+	InspectorView::InspectorView() :
+		_object(nullptr),
+		_meta(nullptr),
 		_propertyViews(new RN::Array())
 	{
 		_titleLabel = new RN::UI::Label();
-		_titleLabel->SetText(title);
 		_titleLabel->SetTextColor(ColorScheme::GetColor(ColorScheme::Type::FileTree_Text));
 		_titleLabel->SetFont(RN::UI::Style::GetSharedInstance()->GetFont(RN::UI::Style::FontStyle::DefaultFontBold));
-		_titleLabel->SizeToFit();
 		_titleLabel->SetFrame([&]() -> RN::Rect {
 			RN::Rect rect = _titleLabel->GetFrame();
 			rect.x = 5.0f;
@@ -147,6 +188,15 @@ namespace DP
 	{
 		_titleLabel->Release();
 		_propertyViews->Release();
+	}
+	
+	void InspectorView::Initialize(RN::Object *object, RN::MetaClassBase *meta, RN::String *title)
+	{
+		_object = object;
+		_meta   = meta;
+		
+		_titleLabel->SetText(title);
+		_titleLabel->SizeToFit();
 	}
 	
 	
@@ -201,9 +251,13 @@ namespace DP
 	// MARK: InspectorView
 	// -----------------------
 	
-	GenericInspectorView::GenericInspectorView(RN::Object *object, RN::MetaClassBase *meta, RN::String *title) :
-		InspectorView(object, meta, title)
+	GenericInspectorView::GenericInspectorView()
+	{}
+	
+	void GenericInspectorView::Initialize(RN::Object *object, RN::MetaClassBase *meta, RN::String *title)
 	{
+		InspectorView::Initialize(object, meta, title);
+		
 		std::vector<RN::ObservableProperty *> properties = object->GetPropertiesForClass(meta);
 		
 		for(RN::ObservableProperty *property : properties)
@@ -212,6 +266,14 @@ namespace DP
 			name->Capitalize();
 			
 			AddPropertyView(PropertyView::WithObservable(property, name));
+		}
+	}
+	
+	void GenericInspectorView::InitialWakeUp(RN::MetaClassBase *meta)
+	{
+		if(meta == GenericInspectorView::MetaClass())
+		{
+			RegisterInspectorViewForClass(meta, RN::Object::MetaClass());
 		}
 	}
 }

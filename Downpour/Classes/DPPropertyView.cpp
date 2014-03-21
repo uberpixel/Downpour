@@ -518,27 +518,14 @@ namespace DP
 		ObservablePropertyView(observable, title, PropertyView::Layout::TitleTop)
 	{
 		
-		_fileLabel = new RN::UI::Label();
-		_fileLabel->SetTextColor(ColorScheme::GetColor(ColorScheme::Type::FileTree_Text));
-		_fileLabel->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleWidth);
-		_fileLabel->SetFrame([&]() -> RN::Rect {
-			
-			RN::Rect frame = _fileLabel->GetFrame();
-			frame.height = 20.0f;
-			frame.width  = GetContentView()->GetBounds().width;
-			
-			return frame;
-			
-		}());
-		
 		_infoLabel = new RN::UI::Label();
 		_infoLabel->SetTextColor(ColorScheme::GetColor(ColorScheme::Type::FileTree_Text));
 		_infoLabel->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleWidth);
+		_infoLabel->SetNumberOfLines(0);
 		_infoLabel->SetFrame([&]() -> RN::Rect {
 			
-			RN::Rect frame = _fileLabel->GetFrame();
-			frame.y = 20.0f;
-			frame.height = 20.0f;
+			RN::Rect frame = _infoLabel->GetFrame();
+			frame.height = 40.0f;
 			frame.width  = GetContentView()->GetBounds().width;
 			
 			return frame;
@@ -549,7 +536,6 @@ namespace DP
 		_dragTarget->SetFrame(GetContentView()->GetBounds());
 		_dragTarget->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleWidth | RN::UI::View::AutoresizingFlexibleHeight);
 		
-		GetContentView()->AddSubview(_fileLabel);
 		GetContentView()->AddSubview(_infoLabel);
 		GetContentView()->AddSubview(_dragTarget);
 		
@@ -561,9 +547,6 @@ namespace DP
 	void ModelPropertyView::ValueDidChange(RN::Object *value)
 	{
 		RN::Model *model = static_cast<RN::Model *>(value);
-		RN::String *file = model ? RNSTR(model->GetName().c_str()) : RNCSTR("");
-		
-		_fileLabel->SetText(file);
 		
 		if(model)
 		{
@@ -578,7 +561,7 @@ namespace DP
 				indices  += model->GetMeshAtIndex(0, i)->GetIndicesCount();
 			}
 			
-			_infoLabel->SetText(RNSTR("%u vertices, %u indices", static_cast<uint32>(vertices), static_cast<uint32>(indices)));
+			_infoLabel->SetText(RNSTR("%s\n%u vertices, %u indices", model->GetName().c_str(), static_cast<uint32>(vertices), static_cast<uint32>(indices)));
 		}
 		else
 		{
