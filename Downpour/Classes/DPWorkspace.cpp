@@ -256,32 +256,21 @@ namespace DP
 						RN::AutoreleasePool pool;
 						DeactivateDownpour();
 					}
-						
-					// Behold, it's getting ugly!
-					// The problem is that we need to re-activate Downpour at some point when the level is finished loading...
 					
-					RN::Progress *progress = RN::WorldCoordinator::GetSharedInstance()->LoadWorld(path);
-					RN::Timer *timer = RN::Timer::ScheduledTimerWithDuration(std::chrono::milliseconds(50), [progress]() {
-						
-						if(progress->IsComplete())
-						{
-							RN::Timer *timer = static_cast<RN::Timer *>(progress->GetAssociatedObject(__DPCookie));
-							timer->Invalidate();
-							progress->Release();
+					RN::Kernel::GetSharedInstance()->ScheduleFunction([path]() {
+					
+						RN::MessageCenter::GetSharedInstance()->AddObserver(kRNWorldCoordinatorDidFinishLoadingMessage, [](RN::Message *message) {
 							
-							RN::Kernel::GetSharedInstance()->ScheduleFunction([]() {
-								ActivateDownpour();
-							});
-						}
+							ActivateDownpour();
+							RN::MessageCenter::GetSharedInstance()->RemoveObserver(const_cast<char *>(__DPCookie));
+							
+						}, const_cast<char *>(__DPCookie));
 						
-					}, true);
-					
-					progress->SetAssociatedObject(__DPCookie, timer, RN::Object::MemoryPolicy::Assign);
-					progress->Retain();
-					
+						RN::WorldCoordinator::GetSharedInstance()->LoadWorld(path);
+						
+					});
 				});
 			}
-			
 		});
 		
 		panel->Release();
