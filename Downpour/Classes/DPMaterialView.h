@@ -1,5 +1,5 @@
 //
-//  DPInspectorView.h
+//  DPMaterialView.h
 //  Downpour
 //
 //  Copyright 2014 by Überpixel. All rights reserved.
@@ -15,70 +15,44 @@
 //  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#ifndef __DPINSPECTORVIEW_H__
-#define __DPINSPECTORVIEW_H__
+#ifndef __DPMATERIALVIEW_H__
+#define __DPMATERIALVIEW_H__
 
 #include <Rayne/Rayne.h>
-#include "DPPropertyView.h"
 
 namespace DP
 {
-	class InspectorViewContainer : public RN::UI::ScrollView
+	class MaterialView : public RN::UI::View
 	{
 	public:
-		InspectorViewContainer();
-		~InspectorViewContainer();
+		MaterialView(RN::Material *material);
+		~MaterialView();
 		
-		void SetSelection(RN::Object *object);
 		void LayoutSubviews() override;
-		
-	private:
-		RN::Object *_selection;
-		RN::Array *_inspectors;
-	};
-	
-	class InspectorView : public RN::UI::View
-	{
-	public:
-		~InspectorView();
-		
-		virtual void Initialize(RN::Object *object, RN::MetaClassBase *meta, RN::String *title);
-		
-		RN::Object *GetObject() const { return _object; }
-		RN::MetaClassBase *GetMetaClassBase() const { return _meta; }
-		
 		RN::Vector2 GetSizeThatFits() override;
 		
-		void LayoutSubviews() override;
-				
-		static void RegisterInspectorViewForClass(RN::MetaClassBase *inspectorClass, RN::MetaClassBase *predicate);
-		
-	protected:
-		InspectorView();
-		
-		void AddPropertyView(PropertyView *view);
-		
 	private:
-		RN::Object *_object;
-		RN::MetaClassBase *_meta;
+		void InsertTexture(RN::Texture *texture);
+		void InsertBooleanWithTitle(RN::String *title, std::function<void (bool)> &&setter, bool state);
+		void InsertFloatWithTitle(RN::String *title, std::function<void (float)> &&setter, float value);
+		void InsertViewWithTitle(RN::String *title, RN::UI::View *view);
 		
-		RN::UI::Label *_titleLabel;
-		RN::Array *_propertyViews;
+		RN::Material *_material;
 		
-		RNDeclareMeta(InspectorView)
+		RN::Array *_textureViews;
+		RN::Array *_views;
+		
+		RNDeclareMeta(MaterialView)
 	};
 	
-	class GenericInspectorView : public InspectorView
+	class MaterialWidget : public RN::UI::Widget
 	{
 	public:
-		GenericInspectorView();
+		MaterialWidget(RN::Material *material);
 		
-		void Initialize(RN::Object *object, RN::MetaClassBase *meta, RN::String *title) override;
-		
-		static void InitialWakeUp(RN::MetaClassBase *meta);
-		
-		RNDeclareMeta(GenericInspectorView)
+	private:
+		RNDeclareMeta(MaterialWidget)
 	};
 }
 
-#endif /* __DPINSPECTORVIEW_H__ */
+#endif /* __DPMATERIALVIEW_H__ */

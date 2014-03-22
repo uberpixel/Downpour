@@ -26,6 +26,8 @@
 		E97B52A018C74BF500C65F57 /* DPColorScheme.h in Headers */ = {isa = PBXBuildFile; fileRef = E97B529E18C74BF500C65F57 /* DPColorScheme.h */; };
 		E97B52A718C8E2DD00C65F57 /* DPViewport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E97B52A518C8E2DD00C65F57 /* DPViewport.cpp */; };
 		E97B52A818C8E2DD00C65F57 /* DPViewport.h in Headers */ = {isa = PBXBuildFile; fileRef = E97B52A618C8E2DD00C65F57 /* DPViewport.h */; };
+		E9A1DBF918DD1B7600D117AC /* DPMaterialView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E9A1DBF718DD1B7600D117AC /* DPMaterialView.cpp */; };
+		E9A1DBFA18DD1B7600D117AC /* DPMaterialView.h in Headers */ = {isa = PBXBuildFile; fileRef = E9A1DBF818DD1B7600D117AC /* DPMaterialView.h */; };
 		E9C2243218C8FD0A00626302 /* DPWorldAttachment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E9C2243018C8FD0A00626302 /* DPWorldAttachment.cpp */; };
 		E9C2243318C8FD0A00626302 /* DPWorldAttachment.h in Headers */ = {isa = PBXBuildFile; fileRef = E9C2243118C8FD0A00626302 /* DPWorldAttachment.h */; };
 		E9FB736A18C938AE00726541 /* DPSceneHierarchy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E9FB736818C938AE00726541 /* DPSceneHierarchy.cpp */; };
@@ -64,6 +66,8 @@
 		E97B529E18C74BF500C65F57 /* DPColorScheme.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPColorScheme.h; path = Classes/DPColorScheme.h; sourceTree = "<group>"; };
 		E97B52A518C8E2DD00C65F57 /* DPViewport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPViewport.cpp; path = Classes/DPViewport.cpp; sourceTree = "<group>"; };
 		E97B52A618C8E2DD00C65F57 /* DPViewport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPViewport.h; path = Classes/DPViewport.h; sourceTree = "<group>"; };
+		E9A1DBF718DD1B7600D117AC /* DPMaterialView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPMaterialView.cpp; path = Classes/DPMaterialView.cpp; sourceTree = "<group>"; };
+		E9A1DBF818DD1B7600D117AC /* DPMaterialView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPMaterialView.h; path = Classes/DPMaterialView.h; sourceTree = "<group>"; };
 		E9C2243018C8FD0A00626302 /* DPWorldAttachment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPWorldAttachment.cpp; path = Classes/DPWorldAttachment.cpp; sourceTree = "<group>"; };
 		E9C2243118C8FD0A00626302 /* DPWorldAttachment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPWorldAttachment.h; path = Classes/DPWorldAttachment.h; sourceTree = "<group>"; };
 		E9FB736818C938AE00726541 /* DPSceneHierarchy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPSceneHierarchy.cpp; path = Classes/DPSceneHierarchy.cpp; sourceTree = "<group>"; };
@@ -127,6 +131,8 @@
 				E971169418D6A94300EF4179 /* DPInfoPanel.h */,
 				E9FB736C18C959AD00726541 /* DPInspectorView.cpp */,
 				E9FB736D18C959AD00726541 /* DPInspectorView.h */,
+				E9A1DBF718DD1B7600D117AC /* DPMaterialView.cpp */,
+				E9A1DBF818DD1B7600D117AC /* DPMaterialView.h */,
 				E947605B188E4C790068D2E6 /* DPMain.cpp */,
 				E971168E18D67B2200EF4179 /* DPNodeClassPicker.cpp */,
 				E971168F18D67B2200EF4179 /* DPNodeClassPicker.h */,
@@ -171,6 +177,7 @@
 				E9FB736F18C959AD00726541 /* DPInspectorView.h in Headers */,
 				E9FB737F18CB757800726541 /* DPGizmo.h in Headers */,
 				E97B52A818C8E2DD00C65F57 /* DPViewport.h in Headers */,
+				E9A1DBFA18DD1B7600D117AC /* DPMaterialView.h in Headers */,
 				E971169118D67B2200EF4179 /* DPNodeClassPicker.h in Headers */,
 				E971169618D6A94300EF4179 /* DPInfoPanel.h in Headers */,
 				E939D7B618C73A620008D4A5 /* DPWorkspace.h in Headers */,
@@ -232,6 +239,7 @@
 				D5126C7A18C944FC00F91F80 /* DPRenderView.cpp in Sources */,
 				E97B52A718C8E2DD00C65F57 /* DPViewport.cpp in Sources */,
 				E947605C188E4C790068D2E6 /* DPMain.cpp in Sources */,
+				E9A1DBF918DD1B7600D117AC /* DPMaterialView.cpp in Sources */,
 				E971168C18D650B500EF4179 /* DPDraggableOutlineView.cpp in Sources */,
 				E939D7B518C73A620008D4A5 /* DPWorkspace.cpp in Sources */,
 				E9C2243218C8FD0A00626302 /* DPWorldAttachment.cpp in Sources */,

@@ -26,6 +26,8 @@ namespace DP
 	class PropertyView : public RN::UI::View
 	{
 	public:
+		friend class InspectorView;
+		
 		enum class Layout
 		{
 			TitleTop,
@@ -43,10 +45,13 @@ namespace DP
 		static PropertyView *WithObservable(RN::ObservableProperty *observable, RN::String *title);
 		
 	private:
+		void LayoutContentView();
+		
 		RN::UI::Label *_titleLabel;
 		RN::UI::View *_contentView;
 		
 		Layout _layout;
+		float _preferredHeight;
 		
 		RNDeclareMeta(PropertyView)
 	};
@@ -168,14 +173,17 @@ namespace DP
 	{
 	public:
 		ModelPropertyView(RN::ObservableProperty *observable, RN::String *title);
+		~ModelPropertyView();
 		
 		void ValueDidChange(RN::Object *value) override;
+		void LayoutSubviews() override;
 		
 		bool DragNDropTargetAcceptsDropOfObject(DelegatingDragNDropTarget *target, RN::Object *object) override;
 		void DragNDropTargetHandleDropOfObject(DelegatingDragNDropTarget *target, RN::Object *object, const RN::Vector2 &position) override;
 		
 	private:
 		RN::UI::Label *_infoLabel;
+		RN::Array *_meshes;
 		
 		DelegatingDragNDropTarget *_dragTarget;
 		

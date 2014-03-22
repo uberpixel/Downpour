@@ -17,6 +17,7 @@
 
 #include "DPPropertyView.h"
 #include "DPColorScheme.h"
+#include "DPMaterialView.h"
 
 #define kDPPropertyViewLayoutLeftTitleLength 65.0f
 
@@ -74,7 +75,12 @@ namespace DP
 	
 	void PropertyView::SetPreferredHeight(float height)
 	{
-		RN::Rect frame = GetBounds();
+		if(height == _preferredHeight)
+			return;
+		
+		_preferredHeight = height;
+			
+		RN::Rect frame = GetFrame();
 		
 		if(_layout == Layout::TitleTop)
 		{
@@ -88,12 +94,20 @@ namespace DP
 		}
 		
 		SetFrame(frame);
+		LayoutContentView();
+		
+		if(GetWidget())
+			GetWidget()->GetContentView()->SetNeedsLayoutUpdate();
 	}
 	
 	void PropertyView::LayoutSubviews()
 	{
 		RN::UI::View::LayoutSubviews();
-		
+		LayoutContentView();
+	}
+	
+	void PropertyView::LayoutContentView()
+	{
 		RN::Rect frame = GetBounds();
 		frame.Inset(5.0f, 2.0f);
 		
@@ -515,38 +529,38 @@ namespace DP
 	// -----------------------
 	
 	ModelPropertyView::ModelPropertyView(RN::ObservableProperty *observable, RN::String *title) :
-		ObservablePropertyView(observable, title, PropertyView::Layout::TitleTop)
+		ObservablePropertyView(observable, title, PropertyView::Layout::TitleTop),
+		_meshes(new RN::Array())
 	{
-		
 		_infoLabel = new RN::UI::Label();
 		_infoLabel->SetTextColor(ColorScheme::GetColor(ColorScheme::Type::FileTree_Text));
-		_infoLabel->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleWidth);
 		_infoLabel->SetNumberOfLines(0);
-		_infoLabel->SetFrame([&]() -> RN::Rect {
-			
-			RN::Rect frame = _infoLabel->GetFrame();
-			frame.height = 40.0f;
-			frame.width  = GetContentView()->GetBounds().width;
-			
-			return frame;
-			
-		}());
 		
 		_dragTarget = new DelegatingDragNDropTarget(this);
-		_dragTarget->SetFrame(GetContentView()->GetBounds());
-		_dragTarget->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleWidth | RN::UI::View::AutoresizingFlexibleHeight);
 		
 		GetContentView()->AddSubview(_infoLabel);
 		GetContentView()->AddSubview(_dragTarget);
 		
-		SetPreferredHeight(40.0f);
-		
 		ValueDidChange(observable->GetValue());
+		SetPreferredHeight(50.0);
+	}
+	
+	ModelPropertyView::~ModelPropertyView()
+	{
+		_meshes->Release();
+		
+		_infoLabel->Release();
+		_dragTarget->Release();
 	}
 	
 	void ModelPropertyView::ValueDidChange(RN::Object *value)
 	{
 		RN::Model *model = static_cast<RN::Model *>(value);
+		
+		_meshes->Enumerate<RN::UI::View>([&](RN::UI::View *view, size_t index, bool &stop) {
+			view->RemoveFromSuperview();
+		});
+		_meshes->RemoveAllObjects();
 		
 		if(model)
 		{
@@ -559,6 +573,22 @@ namespace DP
 			{
 				vertices += model->GetMeshAtIndex(0, i)->GetVerticesCount();
 				indices  += model->GetMeshAtIndex(0, i)->GetIndicesCount();
+				
+				RN::Material *material = model->GetMaterialAtIndex(0, i);
+				RN::UI::Button *button = RN::UI::Button::WithType(RN::UI::Button::Type::Bezel);
+				
+				button->SetImageForState(RN::UI::Image::WithTexture(material->GetTextures()->GetObjectAtIndex<RN::Texture>(0)), RN::UI::Control::Normal);
+				button->SetClipSubviews(true);
+				button->AddListener(RN::UI::Control::EventType::MouseUpInside, [material](RN::UI::Control *control, RN::UI::Control::EventType type) {
+					
+					MaterialWidget *widget = new MaterialWidget(material);
+					widget->Open();
+					widget->Release();
+					
+				}, nullptr);
+				
+				GetContentView()->AddSubview(button);
+				_meshes->AddObject(button);
 			}
 			
 			_infoLabel->SetText(RNSTR("%s\n%u vertices, %u indices", model->GetName().c_str(), static_cast<uint32>(vertices), static_cast<uint32>(indices)));
@@ -567,6 +597,34 @@ namespace DP
 		{
 			_infoLabel->SetText(RNCSTR(""));
 		}
+	}
+	
+	void ModelPropertyView::LayoutSubviews()
+	{
+		ObservablePropertyView::LayoutSubviews();
+		
+		float yoffset = 40.0f;
+		float xoffset = 0.0f;
+		
+		float width = GetContentView()->GetBounds().width;
+		
+		_meshes->Enumerate<RN::UI::View>([&](RN::UI::View *view, size_t index, bool &stop) {
+			
+			view->SetFrame(RN::Rect(xoffset, yoffset, 40.0f, 40.0f));
+			xoffset += 42.0f;
+			
+			if(xoffset + 40.0f >= width)
+			{
+				xoffset = 0.0f;
+				yoffset += 42.0f;
+			}
+			
+		});
+		
+		_infoLabel->SetFrame(RN::Rect(0.0f, 0.0f, width, 40.0f));
+		_dragTarget->SetFrame(_infoLabel->GetFrame());
+		
+		SetPreferredHeight(yoffset + 42.0f);
 	}
 	
 	bool ModelPropertyView::DragNDropTargetAcceptsDropOfObject(DelegatingDragNDropTarget *target, RN::Object *object)
