@@ -41,7 +41,8 @@ namespace DP
 	// -----------------------
 	
 	PropertyView::PropertyView(RN::String *title, Layout layout) :
-		_layout(layout)
+		_layout(layout),
+		_preferredHeight(0.0f)
 	{
 		_titleLabel = new RN::UI::Label();
 		_titleLabel->SetText(title);
