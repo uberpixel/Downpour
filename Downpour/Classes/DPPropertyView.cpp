@@ -229,7 +229,7 @@ namespace DP
 		ObservablePropertyView(observable, title, PropertyView::Layout::TitleLeft)
 	{
 		_valueButton = RN::UI::Button::WithType(RN::UI::Button::Type::CheckBox);
-		_valueButton->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleWidth);
+		_valueButton->SetAutoresizingMask(RN::UI::View::AutoresizingMask::FlexibleWidth);
 		_valueButton->AddListener(RN::UI::Control::EventType::MouseUpInside, std::bind(&BooleanPropertyView::ButtonClicked, this), this);
 		_valueButton->SetFrame([&]() -> RN::Rect {
 			
@@ -268,7 +268,7 @@ namespace DP
 	{
 		_valueField = RN::UI::TextField::WithType(RN::UI::TextField::Type::Bezel)->Retain();
 		_valueField->SetFormatter((new RN::NumberFormatter())->Autorelease());
-		_valueField->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleWidth);
+		_valueField->SetAutoresizingMask(RN::UI::View::AutoresizingMask::FlexibleWidth);
 		_valueField->SetDelegate(this);
 		_valueField->SetValue(observable->GetValue());
 		_valueField->SetFrame([&]() -> RN::Rect {
@@ -578,7 +578,7 @@ namespace DP
 				RN::Material *material = model->GetMaterialAtIndex(0, i);
 				RN::UI::Button *button = RN::UI::Button::WithType(RN::UI::Button::Type::Bezel);
 				
-				button->SetImageForState(RN::UI::Image::WithTexture(material->GetTextures()->GetObjectAtIndex<RN::Texture>(0)), RN::UI::Control::Normal);
+				button->SetImageForState(RN::UI::Image::WithTexture(material->GetTextures()->GetObjectAtIndex<RN::Texture>(0)), RN::UI::Control::State::Normal);
 				button->SetClipSubviews(true);
 				button->AddListener(RN::UI::Control::EventType::MouseUpInside, [material](RN::UI::Control *control, RN::UI::Control::EventType type) {
 					

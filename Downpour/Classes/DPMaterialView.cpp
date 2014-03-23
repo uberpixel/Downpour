@@ -172,7 +172,7 @@ namespace DP
 	
 	
 	MaterialWidget::MaterialWidget(RN::Material *material) :
-		RN::UI::Widget(RN::UI::Widget::StyleTitled | RN::UI::Widget::StyleClosable, RN::Rect(0.0f, 0.0f, 300.0f, 580.0f))
+		RN::UI::Widget(RN::UI::Widget::Style::Titled | RN::UI::Widget::Style::Closable, RN::Rect(0.0f, 0.0f, 300.0f, 580.0f))
 	{
 		SetTitle(RNCSTR("Material editor"));
 		

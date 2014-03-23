@@ -34,7 +34,7 @@ namespace DP
 		_data = RN::FileManager::GetSharedInstance()->GetSearchPaths()->Retain();
 		
 		_tree = new DraggableOutlineView();
-		_tree->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleWidth);
+		_tree->SetAutoresizingMask(RN::UI::View::AutoresizingMask::FlexibleHeight | RN::UI::View::AutoresizingMask::FlexibleWidth);
 		_tree->SetDataSource(this);
 		_tree->SetDelegate(this);
 		

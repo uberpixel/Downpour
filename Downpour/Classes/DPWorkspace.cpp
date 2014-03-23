@@ -26,7 +26,7 @@ namespace DP
 	RNDefineSingleton(Workspace)
 	
 	Workspace::Workspace(RN::Module *module) :
-		RN::UI::Widget(RN::UI::Widget::StyleBorderless, RN::Rect(0.0f, 0.0f, 1024.0f, 768.0f)),
+		RN::UI::Widget(RN::UI::Widget::Style::Borderless, RN::Rect(0.0f, 0.0f, 1024.0f, 768.0f)),
 		_module(module),
 		_selection(nullptr),
 		_pasteBoard(nullptr)
@@ -40,27 +40,27 @@ namespace DP
 		// File tree
 		_fileTree = new WidgetContainer<FileTree>(RNCSTR("Project"));
 		_fileTree->SetFrame(RN::Rect(0.0f, kDPWorkspaceToolbarHeight, 230.0f, 512.0f - kDPWorkspaceToolbarHeight));
-		_fileTree->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleRightMargin | RN::UI::View::AutoresizingFlexibleBottomMargin);
+		_fileTree->SetAutoresizingMask(RN::UI::View::AutoresizingMask::FlexibleHeight | RN::UI::View::AutoresizingMask::FlexibleRightMargin | RN::UI::View::AutoresizingMask::FlexibleBottomMargin);
 		
 		// Node picker
 		_nodePicker = new WidgetContainer<NodeClassPicker>(RNCSTR("Node Class"));
 		_nodePicker->SetFrame(RN::Rect(0.0f, 512.0f, 230.0f, 256.0f));
-		_nodePicker->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleRightMargin | RN::UI::View::AutoresizingFlexibleTopMargin);
+		_nodePicker->SetAutoresizingMask(RN::UI::View::AutoresizingMask::FlexibleHeight | RN::UI::View::AutoresizingMask::FlexibleRightMargin | RN::UI::View::AutoresizingMask::FlexibleTopMargin);
 		
 		// Viewport
 		_viewport = new WidgetContainer<Viewport>(RNCSTR("Scene"));
 		_viewport->SetFrame(RN::Rect(230.0f, kDPWorkspaceToolbarHeight, 534.0f, 768.0f - kDPWorkspaceToolbarHeight));
-		_viewport->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleWidth);
+		_viewport->SetAutoresizingMask(RN::UI::View::AutoresizingMask::FlexibleHeight | RN::UI::View::AutoresizingMask::FlexibleWidth);
 		
 		// Inspector views
 		_inspectors = new WidgetContainer<InspectorViewContainer>(RNCSTR("Inspector"));
 		_inspectors->SetFrame(RN::Rect(764.0f, kDPWorkspaceToolbarHeight, 260.0f, 512.0f - kDPWorkspaceToolbarHeight));
-		_inspectors->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleLeftMargin | RN::UI::View::AutoresizingFlexibleBottomMargin);
+		_inspectors->SetAutoresizingMask(RN::UI::View::AutoresizingMask::FlexibleHeight | RN::UI::View::AutoresizingMask::FlexibleLeftMargin | RN::UI::View::AutoresizingMask::FlexibleBottomMargin);
 		
 		// Hierarchy
 		_hierarchy = new WidgetContainer<SceneHierarchy>(RNCSTR("Hierarchy"));
 		_hierarchy->SetFrame(RN::Rect(764.0f, 512.0f, 260.0f, 256.0f));
-		_hierarchy->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleLeftMargin | RN::UI::View::AutoresizingFlexibleTopMargin);
+		_hierarchy->SetAutoresizingMask(RN::UI::View::AutoresizingMask::FlexibleHeight | RN::UI::View::AutoresizingMask::FlexibleLeftMargin | RN::UI::View::AutoresizingMask::FlexibleTopMargin);
 		
 		// Toolbar
 		CreateToolbar();
@@ -110,7 +110,7 @@ namespace DP
 	{
 		_toolbar = new RN::UI::View();
 		_toolbar->SetFrame(RN::Rect(0.0f, 0.0f, 1024.0f, kDPWorkspaceToolbarHeight));
-		_toolbar->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleWidth);
+		_toolbar->SetAutoresizingMask(RN::UI::View::AutoresizingMask::FlexibleWidth);
 		_toolbar->SetBackgroundColor(ColorScheme::GetColor(ColorScheme::Type::Background_Light));
 		
 		_gizmoTool = new RN::UI::SegmentView();
@@ -145,10 +145,10 @@ namespace DP
 		_gizmoSpace = new RN::UI::Button(RN::UI::Button::Type::Bezel);
 		_gizmoSpace->SetFrame(RN::Rect(210.0f, 5.0f, 80.0f, 30.0f));
 		_gizmoSpace->SetBehavior(RN::UI::Button::Behavior::Switch);
-		_gizmoSpace->SetTitleForState(RNCSTR("Local"), RN::UI::Control::Normal);
-		_gizmoSpace->SetTitleForState(RNCSTR("Global"), RN::UI::Control::Selected);
-		_gizmoSpace->SetTitleColorForState(ColorScheme::GetUIColor(ColorScheme::Type::FileTree_Text), RN::UI::Control::Normal);
-		_gizmoSpace->SetFontForState(RN::UI::Style::GetSharedInstance()->GetFont(RN::UI::Style::FontStyle::DefaultFontBold), RN::UI::Control::Normal);
+		_gizmoSpace->SetTitleForState(RNCSTR("Local"), RN::UI::Control::State::Normal);
+		_gizmoSpace->SetTitleForState(RNCSTR("Global"), RN::UI::Control::State::Selected);
+		_gizmoSpace->SetTitleColorForState(ColorScheme::GetUIColor(ColorScheme::Type::FileTree_Text), RN::UI::Control::State::Normal);
+		_gizmoSpace->SetFontForState(RN::UI::Style::GetSharedInstance()->GetFont(RN::UI::Style::FontStyle::DefaultFontBold), RN::UI::Control::State::Normal);
 		_gizmoSpace->AddListener(RN::UI::Control::EventType::MouseUpInside, [this](RN::UI::Control *control, RN::UI::Control::EventType event) {
 			
 			Gizmo::Space space = (control->IsSelected()) ? Gizmo::Space::Global : Gizmo::Space::Local;

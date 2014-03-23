@@ -24,7 +24,7 @@ namespace DP
 		_root(new ClassProxy(RN::SceneNode::MetaClass()))
 	{
 		_tree = new DraggableOutlineView();
-		_tree->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleWidth);
+		_tree->SetAutoresizingMask(RN::UI::View::AutoresizingMask::FlexibleHeight | RN::UI::View::AutoresizingMask::FlexibleWidth);
 		_tree->SetDataSource(this);
 		_tree->SetDelegate(this);
 		_tree->ReloadData();

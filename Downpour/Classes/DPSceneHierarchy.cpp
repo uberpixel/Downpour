@@ -52,7 +52,7 @@ namespace DP
 		}
 			
 		_tree = new RN::UI::OutlineView();
-		_tree->SetAutoresizingMask(RN::UI::View::AutoresizingFlexibleHeight | RN::UI::View::AutoresizingFlexibleWidth);
+		_tree->SetAutoresizingMask(RN::UI::View::AutoresizingMask::FlexibleHeight | RN::UI::View::AutoresizingMask::FlexibleWidth);
 		_tree->SetDataSource(this);
 		_tree->SetDelegate(this);
 		_tree->SetAllowsMultipleSelection(true);
