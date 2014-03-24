@@ -74,7 +74,8 @@ namespace DP
 		
 		MakeFirstResponder(_viewport); // Make the viewport the first responder to allow camera movement
 		
-		_worldAttachment = new WorldAttachment(_viewport->GetContent()->GetEditorCamera());
+		_worldAttachment = WorldAttachment::GetSharedInstance();
+		_worldAttachment->SetCamera(_viewport->GetContent()->GetEditorCamera());
 		RN::WorldCoordinator::GetSharedInstance()->GetWorld()->AddAttachment(_worldAttachment);
 		
 		_gizmo = new Gizmo(_viewport->GetContent()->GetCamera());
@@ -98,7 +99,6 @@ namespace DP
 		
 		_gizmo->RemoveFromWorld();
 		_gizmo->Release();
-		_worldAttachment->Release();
 		
 		// Restore the old state
 		delete _state;
@@ -220,9 +220,19 @@ namespace DP
 			
 		}());
 		
+		// Network menu
+		RN::UI::Menu *networkMenu = new RN::UI::Menu();
+		RN::UI::MenuItem *networkItem = RN::UI::MenuItem::WithTitle(RNCSTR("Network"));
+		networkItem->SetSubMenu(networkMenu->Autorelease());
+		
+		networkMenu->AddItem(RN::UI::MenuItem::WithTitle(RNCSTR("Host Session"), std::bind(&Workspace::HostSession, this)));
+		networkMenu->AddItem(RN::UI::MenuItem::WithTitle(RNCSTR("Connect to Session"), std::bind(&Workspace::ConnectToSession, this)));
+		networkMenu->AddItem(RN::UI::MenuItem::WithTitle(RNCSTR("Disconnect from Session"), std::bind(&Workspace::DisconnectFromSession, this)));
+		
 		menu->AddItem(fileItem);
 		menu->AddItem(editItem);
 		menu->AddItem(nodeItem);
+		menu->AddItem(networkItem);
 		
 		RN::UI::Server::GetSharedInstance()->SetMainMenu(menu->Autorelease());
 	}
@@ -368,6 +378,22 @@ namespace DP
 	{
 		Copy();
 		Delete();
+	}
+	
+	void Workspace::HostSession()
+	{
+		_worldAttachment->CreateServer();
+	}
+	
+	void Workspace::ConnectToSession()
+	{
+		_worldAttachment->CreateClient();
+		_worldAttachment->Connect();
+	}
+	
+	void Workspace::DisconnectFromSession()
+	{
+		_worldAttachment->DestroyHost();
 	}
 	
 	// -----------------------

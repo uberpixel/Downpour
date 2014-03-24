@@ -19,29 +19,81 @@
 #define __DPWORLDATTACHMENT_H__
 
 #include <Rayne/Rayne.h>
+#include <enet/enet.h>
 
 #define kDPWorldAttachmentDidAddSceneNode     RNCSTR("kDPWorldAttachmentDidAddSceneNode")
 #define kDPWorldAttachmentWillRemoveSceneNode RNCSTR("kDPWorldAttachmentWillRemoveSceneNode")
 
 namespace DP
 {
-	class WorldAttachment : public RN::WorldAttachment
+	class WorldAttachment : public RN::WorldAttachment, public RN::ISingleton<WorldAttachment>
 	{
 	public:
-		WorldAttachment(RN::Camera *camera);
+		struct TransformRequest
+		{
+		public:
+			friend bool operator== (const TransformRequest &first, const TransformRequest &second);
+			
+			uint64 lid;
+			RN::Vector3 position;
+			RN::Vector3 scale;
+			RN::Quaternion rotation;
+		};
+		
+		WorldAttachment();
 		~WorldAttachment();
+		
+		void SetCamera(RN::Camera *camera);
 		
 		void DidBeginCamera(RN::Camera *camera) override;
 		
 		void DidAddSceneNode(RN::SceneNode *node) override;
 		void WillRemoveSceneNode(RN::SceneNode *node) override;
 		
+		void SceneNodeDidUpdate(RN::SceneNode *node, RN::SceneNode::ChangeSet changeSet) override;
+		
+		void RequestSceneNode(RN::Object *object, const RN::Vector3 &position);
+		RN::SceneNode *CreateSceneNode(RN::Object *object, const RN::Vector3 &position);
+		void ApplyTransforms(uint64 lid, const RN::Vector3 &position, const RN::Vector3 &scale, const RN::Quaternion &rotation);
+		
+		void SelectSceneNode(RN::SceneNode *node);
+		
+		void StepServer();
+		void StepClient();
+		
+		void CreateServer();
+		void CreateClient();
+		void DestroyHost();
+		
+		void Connect();
+		void Disconnect();
+		
+		void SendDataToServer(const void *data, uint32 length);
+		void SendDataToClient(ENetPeer *peer, const void *data, uint32 length);
+		void SendDataToAll(const void *data, uint32 length);
+		
+		bool IsServer() const { return _isServer; }
+		bool IsConnected() const { return _isConnected; }
+		
 	private:
 		RN::Array *_sceneNodes;
 		RN::Camera *_camera;
 		
+		ENetHost *_host;
+		ENetPeer *_peer;
+		
+		bool _isConnected;
+		bool _isServer;
+		bool _isRemoteChange;
+		
+		std::vector<TransformRequest> _requestedTransforms;
+		
+		RN::RecursiveSpinLock _lock;
+		
 		RN::MetaClassBase *_lightClass;
 		RN::MetaClassBase *_cameraClass;
+		
+		RNDeclareSingleton(WorldAttachment);
 	};
 }
 

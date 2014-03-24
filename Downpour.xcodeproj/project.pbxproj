@@ -339,13 +339,17 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/include/rayne/,
+					/usr/local/include,
 				);
 				LD_DYLIB_INSTALL_NAME = "@rpath/$(EXECUTABLE_PATH)";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/lib/,
 				);
-				OTHER_LDFLAGS = "-lRayne";
+				OTHER_LDFLAGS = (
+					"-lRayne",
+					"-lenet",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -362,13 +366,17 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/include/rayne/,
+					/usr/local/include,
 				);
 				LD_DYLIB_INSTALL_NAME = "@rpath/$(EXECUTABLE_PATH)";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/lib/,
 				);
-				OTHER_LDFLAGS = "-lRayne";
+				OTHER_LDFLAGS = (
+					"-lRayne",
+					"-lenet",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

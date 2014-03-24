@@ -68,6 +68,10 @@ namespace DP
 		void Paste();
 		void Cut();
 		
+		void HostSession();
+		void ConnectToSession();
+		void DisconnectFromSession();
+		
 	private:
 		RN::Array *DuplicateSceneNodes(RN::Array *sceneNodes);
 		void SanitizeAndPostSelection();

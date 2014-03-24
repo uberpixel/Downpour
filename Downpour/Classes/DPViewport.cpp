@@ -280,39 +280,9 @@ namespace DP
 		RN::Vector3 rayPosition = GetPositionForPoint(position*_resolutionFactor, _camera->GetClipNear());
 		RN::Hit hit = RN::World::GetActiveWorld()->GetSceneManager()->CastRay(rayPosition, rayDirection, 1);
 		float distance = hit.node ? hit.distance : 15.0f;
+		RN::Vector3 targetPosition = rayPosition + rayDirection * distance;
 		
 		gizmo->SetCollisionGroup(group);
-		
-		
-		if(object->IsKindOfClass(RN::Model::MetaClass()))
-		{
-			// Place the model
-			RN::Model *model = static_cast<RN::Model *>(object);
-			RN::Entity *entity = new RN::Entity(model, rayPosition + rayDirection * distance);
-		
-			// Get the world to register the new entity immediately
-			RN::World::GetActiveWorld()->ApplyNodes();
-			Workspace::GetSharedInstance()->SetSelection(entity);
-		}
-		
-		if(object->IsKindOfClass(RN::Value::MetaClass()))
-		{
-			RN::Value *value = static_cast<RN::Value *>(object);
-			
-			try
-			{
-				RN::MetaClassBase *meta = value->GetValue<RN::MetaClassBase *>();
-				if(meta && meta->InheritsFromClass(RN::SceneNode::MetaClass()))
-				{
-					RN::SceneNode *node = static_cast<RN::SceneNode *>(meta->Construct());
-					node->SetPosition(rayPosition + rayDirection * distance);
-					
-					RN::World::GetActiveWorld()->ApplyNodes();
-					Workspace::GetSharedInstance()->SetSelection(node);
-				}
-			}
-			catch(RN::Exception e)
-			{} // Meh...
-		}
+		WorldAttachment::GetSharedInstance()->RequestSceneNode(object, targetPosition);
 	}
 }
