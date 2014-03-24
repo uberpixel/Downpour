@@ -118,6 +118,8 @@ namespace DP
 		if(!node)// || !(changeSet & RN::SceneNode::ChangeSet::Position))
 			return;
 		
+		RN::LockGuard<decltype(_lock)> lock(_lock);
+		
 		if(!_isConnected)
 			return;
 		
@@ -181,6 +183,8 @@ namespace DP
 	
 	void WorldAttachment::ApplyTransforms(uint64 lid, const RN::Vector3 &position, const RN::Vector3 &scale, const RN::Quaternion &rotation)
 	{
+		RN::LockGuard<decltype(_lock)> lock(_lock);
+		
 		TransformRequest transformrequest;
 		transformrequest.lid = lid;
 		transformrequest.position = position;
