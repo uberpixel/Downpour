@@ -17,6 +17,7 @@
 
 #include "DPWorldAttachment.h"
 #include "DPWorkspace.h"
+#include "DPEditorIcon.h"
 
 #define kDPNetworkIDAssociationKey "kDPNetworkIDAssociationKey"
 
@@ -134,6 +135,9 @@ namespace DP
 			return;
 		
 		if(node->IsKindOfClass(DP::Gizmo::MetaClass()))
+			return;
+		
+		if(node->IsKindOfClass(DP::EditorIcon::MetaClass()))
 			return;
 		
 		RN::Object *obj = node->GetAssociatedObject(kDPNetworkIDAssociationKey);
@@ -500,8 +504,6 @@ namespace DP
 		/* A specific host address can be specified by   */
 		/* enet_address_set_host (& address, "x.x.x.x"); */
 		address.host = ENET_HOST_ANY;
-		
-		/* Bind the server to port 1234. */
 		address.port = 2003;
 		
 		_host = enet_host_create(&address /* the address to bind the server host to */,
@@ -514,6 +516,14 @@ namespace DP
 		
 		_isServer = true;
 		_isConnected = true;
+		
+		RN::Array *nodes = RN::World::GetActiveWorld()->GetSceneNodes();
+		nodes->Enumerate<RN::SceneNode>([](RN::SceneNode *node, size_t i, bool &stop){
+			if(!node->IsKindOfClass(RN::Camera::MetaClass()))
+			{
+				node->SetAssociatedObject(kDPNetworkIDAssociationKey, RN::Number::WithUint64(node->GetLID()), RN::Object::MemoryPolicy::Retain);
+			}
+		});
 	}
 	
 	void WorldAttachment::CreateClient()
