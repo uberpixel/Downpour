@@ -68,9 +68,9 @@ namespace DP
 		void Connect();
 		void Disconnect();
 		
-		void SendDataToServer(const void *data, uint32 length);
-		void SendDataToClient(ENetPeer *peer, const void *data, uint32 length);
-		void SendDataToAll(const void *data, uint32 length);
+		void SendDataToServer(const void *data, size_t length);
+		void SendDataToClient(ENetPeer *peer, const void *data, size_t length);
+		void SendDataToAll(const void *data, size_t length);
 		
 		bool IsServer() const { return _isServer; }
 		bool IsConnected() const { return _isConnected; }

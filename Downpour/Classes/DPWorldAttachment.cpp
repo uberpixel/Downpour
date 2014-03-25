@@ -18,6 +18,7 @@
 #include "DPWorldAttachment.h"
 #include "DPWorkspace.h"
 
+#define kDPNetworkIDAssociationKey "kDPNetworkIDAssociationKey"
 
 namespace DP
 {
@@ -115,7 +116,7 @@ namespace DP
 	
 	void WorldAttachment::SceneNodeDidUpdate(RN::SceneNode *node, RN::SceneNode::ChangeSet changeSet)
 	{
-		if(!node)// || !(changeSet & RN::SceneNode::ChangeSet::Position))
+		if(!node || !(changeSet & RN::SceneNode::ChangeSet::Position))
 			return;
 		
 		RN::LockGuard<decltype(_lock)> lock(_lock);
@@ -135,30 +136,38 @@ namespace DP
 		if(node->IsKindOfClass(DP::Gizmo::MetaClass()))
 			return;
 		
+		RN::Object *obj = node->GetAssociatedObject(kDPNetworkIDAssociationKey);
+		if(!obj)
+		{
+			return;
+		}
+		
 		if(_isServer)
 		{
-			RN::FlatSerializer serializer;
-			std::string request("answerTransforms");
-			serializer.EncodeString(request);
-			serializer.EncodeInt64(node->GetLID());
-			serializer.EncodeVector3(node->GetWorldPosition());
-			serializer.EncodeVector3(node->GetWorldScale());
-			serializer.EncodeQuarternion(node->GetWorldRotation());
-			SendDataToAll(serializer.GetSerializedData()->GetBytes(), serializer.GetSerializedData()->GetLength());
+			RN::FlatSerializer *serializer = new RN::FlatSerializer();
+			serializer->EncodeString("answerTransforms");
+			serializer->EncodeInt64(obj->Downcast<RN::Number>()->GetInt64Value());
+			serializer->EncodeVector3(node->GetWorldPosition());
+			serializer->EncodeVector3(node->GetWorldScale());
+			serializer->EncodeQuarternion(node->GetWorldRotation());
+			RN::Data *data = serializer->GetSerializedData();
+			SendDataToAll(data->GetBytes(), data->GetLength());
+			serializer->Release();
 		}
 		else
 		{
-			RN::FlatSerializer serializer;
-			std::string request("requestTransforms");
-			serializer.EncodeString(request);
-			serializer.EncodeInt64(node->GetLID());
-			serializer.EncodeVector3(node->GetWorldPosition());
-			serializer.EncodeVector3(node->GetWorldScale());
-			serializer.EncodeQuarternion(node->GetWorldRotation());
-			SendDataToServer(serializer.GetSerializedData()->GetBytes(), serializer.GetSerializedData()->GetLength());
+			RN::FlatSerializer *serializer = new RN::FlatSerializer();
+			serializer->EncodeString("requestTransforms");
+			serializer->EncodeInt64(obj->Downcast<RN::Number>()->GetInt64Value());
+			serializer->EncodeVector3(node->GetWorldPosition());
+			serializer->EncodeVector3(node->GetWorldScale());
+			serializer->EncodeQuarternion(node->GetWorldRotation());
+			RN::Data *data = serializer->GetSerializedData();
+			SendDataToServer(data->GetBytes(), data->GetLength());
+			serializer->Release();
 			
 			TransformRequest transformrequest;
-			transformrequest.lid = node->GetLID();
+			transformrequest.lid = node->GetAssociatedObject(kDPNetworkIDAssociationKey)->Downcast<RN::Number>()->GetInt64Value();
 			transformrequest.position = node->GetWorldPosition();
 			transformrequest.scale = node->GetWorldScale();
 			transformrequest.rotation = node->GetWorldRotation();
@@ -199,7 +208,8 @@ namespace DP
 		
 		RN::Array *nodes = RN::World::GetActiveWorld()->GetSceneNodes();
 		nodes->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, uint32 i, bool &stop){
-			if(node->GetLID() == lid)
+			RN::Object *obj = node->GetAssociatedObject(kDPNetworkIDAssociationKey);
+			if(obj && obj->Downcast<RN::Number>()->GetInt64Value() == lid)
 			{
 				_isRemoteChange = true;
 				node->SetWorldPosition(position);
@@ -218,21 +228,28 @@ namespace DP
 		if(_isServer || !_isConnected)
 		{
 			RN::SceneNode *node = CreateSceneNode(object, position);
-			
-			RN::FlatSerializer serializer;
-			std::string request("answerSceneNode");
-			serializer.EncodeString(request);
-			serializer.EncodeObject(node);
-			SendDataToAll(serializer.GetSerializedData()->GetBytes(), serializer.GetSerializedData()->GetLength());
+			if(node)
+			{
+				node->SetAssociatedObject(kDPNetworkIDAssociationKey, RN::Number::WithUint64(node->GetLID()), RN::Object::MemoryPolicy::Retain);
+				
+				RN::FlatSerializer *serializer = new RN::FlatSerializer();
+				serializer->EncodeString("answerSceneNode");
+				serializer->EncodeObject(node);
+				serializer->EncodeInt64(node->GetLID());
+				RN::Data *data = serializer->GetSerializedData();
+				SendDataToAll(data->GetBytes(), data->GetLength());
+				serializer->Release();
+			}
 		}
 		else
 		{
-			RN::FlatSerializer serializer;
-			std::string request("requestSceneNode");
-			serializer.EncodeString(request);
-			serializer.EncodeObject(object);
-			serializer.EncodeVector3(position);
-			SendDataToServer(serializer.GetSerializedData()->GetBytes(), serializer.GetSerializedData()->GetLength());
+			RN::FlatSerializer *serializer = new RN::FlatSerializer();
+			serializer->EncodeString("requestSceneNode");
+			serializer->EncodeObject(object);
+			serializer->EncodeVector3(position);
+			RN::Data *data = serializer->GetSerializedData();
+			SendDataToServer(data->GetBytes(), data->GetLength());
+			serializer->Release();
 		}
 	}
 	
@@ -304,10 +321,12 @@ namespace DP
 					
 					if(received.compare("requestWorld") == 0)
 					{
-						RN::FlatSerializer serializer;
-						RN::WorldCoordinator::GetSharedInstance()->SaveWorld(&serializer);
+						RN::FlatSerializer *serializer = new RN::FlatSerializer();
+						RN::WorldCoordinator::GetSharedInstance()->SaveWorld(serializer);
 						SendDataToClient(event.peer, "answerWorld", 12);
-						SendDataToClient(event.peer, serializer.GetSerializedData()->GetBytes(), serializer.GetSerializedData()->GetLength());
+						RN::Data *data = serializer->GetSerializedData();
+						SendDataToClient(event.peer, data->GetBytes(), data->GetLength());
+						serializer->Release();
 					}
 					else if(received.compare("requestSceneNode") == 0)
 					{
@@ -317,21 +336,22 @@ namespace DP
 					}
 					else if(received.compare("requestTransforms") == 0)
 					{
-						uint64 lid = deserializer->DecodeInt64();
+						uint64 id = deserializer->DecodeInt64();
 						RN::Vector3 position = deserializer->DecodeVector3();
 						RN::Vector3 scale = deserializer->DecodeVector3();
 						RN::Quaternion rotation = deserializer->DecodeQuaternion();
 						
-						RN::FlatSerializer serializer;
-						std::string request("answerTransforms");
-						serializer.EncodeString(request);
-						serializer.EncodeInt64(lid);
-						serializer.EncodeVector3(position);
-						serializer.EncodeVector3(scale);
-						serializer.EncodeQuarternion(rotation);
-						SendDataToAll(serializer.GetSerializedData()->GetBytes(), serializer.GetSerializedData()->GetLength());
+						RN::FlatSerializer *serializer = new RN::FlatSerializer();
+						serializer->EncodeString("answerTransforms");
+						serializer->EncodeInt64(id);
+						serializer->EncodeVector3(position);
+						serializer->EncodeVector3(scale);
+						serializer->EncodeQuarternion(rotation);
+						RN::Data *data = serializer->GetSerializedData();
+						SendDataToAll(data->GetBytes(), data->GetLength());
+						serializer->Release();
 						
-						ApplyTransforms(lid, position, scale, rotation);
+						ApplyTransforms(id, position, scale, rotation);
 					}
 					
 					deserializer->Release();
@@ -404,6 +424,14 @@ namespace DP
 										
 										RN::MessageCenter::GetSharedInstance()->AddObserver(kRNWorldCoordinatorDidFinishLoadingMessage, [](RN::Message *message) {
 											
+											RN::Array *nodes = RN::World::GetActiveWorld()->GetSceneNodes();
+											nodes->Enumerate<RN::SceneNode>([](RN::SceneNode *node, size_t i, bool &stop){
+												if(!node->IsKindOfClass(RN::Camera::MetaClass()))
+												{
+													node->SetAssociatedObject(kDPNetworkIDAssociationKey, RN::Number::WithUint64(node->GetLID()), RN::Object::MemoryPolicy::Retain);
+												}
+											});
+											
 											ActivateDownpour();
 											RN::MessageCenter::GetSharedInstance()->RemoveObserver(const_cast<char *>(__DPCookie));
 											
@@ -427,16 +455,17 @@ namespace DP
 					
 					if(received.compare("answerSceneNode") == 0)
 					{
-						deserializer->DecodeObject();
+						RN::Object *node = deserializer->DecodeObject();
+						node->SetAssociatedObject(kDPNetworkIDAssociationKey, RN::Number::WithUint64(deserializer->DecodeInt64()), RN::Object::MemoryPolicy::Retain);
 					}
 					else if(received.compare("answerTransforms") == 0)
 					{
-						uint64 lid = deserializer->DecodeInt64();
+						uint64 id = deserializer->DecodeInt64();
 						RN::Vector3 position = deserializer->DecodeVector3();
 						RN::Vector3 scale = deserializer->DecodeVector3();
 						RN::Quaternion rotation = deserializer->DecodeQuaternion();
 						
-						ApplyTransforms(lid, position, scale, rotation);
+						ApplyTransforms(id, position, scale, rotation);
 					}
 					
 					deserializer->Release();
@@ -473,7 +502,7 @@ namespace DP
 		address.host = ENET_HOST_ANY;
 		
 		/* Bind the server to port 1234. */
-		address.port = 5555;
+		address.port = 2003;
 		
 		_host = enet_host_create(&address /* the address to bind the server host to */,
 								 32      /* allow up to 32 clients and/or outgoing connections */,
@@ -527,7 +556,7 @@ namespace DP
 		
 		/* Connect to some.server.net:1234. */
 		enet_address_set_host(&address, "localhost");
-		address.port = 5555;
+		address.port = 2003;
 		
 		/* Initiate the connection, allocating the two channels 0 and 1. */
 		_peer = enet_host_connect(_host, &address, 2, 0);
@@ -539,10 +568,10 @@ namespace DP
 		{
 			_isConnected = true;
 			
-			RN::FlatSerializer serializer;
-			std::string request("requestWorld");
-			serializer.EncodeString(request);
-			SendDataToServer(serializer.GetSerializedData()->GetBytes(), serializer.GetSerializedData()->GetLength());
+			RN::FlatSerializer *serializer = new RN::FlatSerializer();
+			serializer->EncodeString("requestWorld");
+			RN::Data *data = serializer->GetSerializedData();
+			SendDataToServer(data->GetBytes(), data->GetLength());
 		}
 		else
 		{
@@ -591,7 +620,7 @@ namespace DP
 		_peer = nullptr;
 	}
 	
-	void WorldAttachment::SendDataToServer(const void *data, uint32 length)
+	void WorldAttachment::SendDataToServer(const void *data, size_t length)
 	{
 		if(!_isConnected)
 			return;
@@ -602,7 +631,7 @@ namespace DP
 		enet_peer_send(_peer, 0, packet);
 	}
 	
-	void WorldAttachment::SendDataToClient(ENetPeer *peer, const void *data, uint32 length)
+	void WorldAttachment::SendDataToClient(ENetPeer *peer, const void *data, size_t length)
 	{
 		if(!_isConnected)
 			return;
@@ -613,7 +642,7 @@ namespace DP
 		enet_peer_send(peer, 0, packet);
 	}
 	
-	void WorldAttachment::SendDataToAll(const void *data, uint32 length)
+	void WorldAttachment::SendDataToAll(const void *data, size_t length)
 	{
 		if(!_isConnected)
 			return;
