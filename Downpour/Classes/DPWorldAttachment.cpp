@@ -32,7 +32,8 @@ namespace DP
 		_peer(nullptr),
 		_isConnected(false),
 		_isServer(false),
-		_isRemoteChange(false)
+		_isRemoteChange(false),
+		_isLoadingWorld(false)
 	{
 		_lightClass  = RN::Light::MetaClass();
 		_cameraClass = RN::Camera::MetaClass();
@@ -122,7 +123,7 @@ namespace DP
 		
 		RN::LockGuard<decltype(_lock)> lock(_lock);
 		
-		if(!_isConnected)
+		if(!_isConnected || _isLoadingWorld)
 			return;
 		
 		if(_isRemoteChange)
@@ -130,6 +131,9 @@ namespace DP
 			_isRemoteChange = false;
 			return;
 		}
+		
+		if(node->GetFlags() & RN::SceneNode::Flags::NoSave)
+			return;
 		
 		if(node->IsKindOfClass(RN::Camera::MetaClass()))
 			return;
@@ -210,21 +214,16 @@ namespace DP
 			return;
 		}
 		
-		RN::Array *nodes = RN::World::GetActiveWorld()->GetSceneNodes();
-		nodes->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, uint32 i, bool &stop){
-			RN::Object *obj = node->GetAssociatedObject(kDPNetworkIDAssociationKey);
-			if(obj && obj->Downcast<RN::Number>()->GetInt64Value() == lid)
-			{
-				_isRemoteChange = true;
-				node->SetWorldPosition(position);
-				_isRemoteChange = true;
-				node->SetWorldScale(scale);
-				_isRemoteChange = true;
-				node->SetWorldRotation(rotation);
-				
-				stop = true;
-			}
-		});
+		RN::SceneNode *node = _sceneNodeLookup[lid];
+		if(node)
+		{
+			_isRemoteChange = true;
+			node->SetWorldPosition(position);
+			_isRemoteChange = true;
+			node->SetWorldScale(scale);
+			_isRemoteChange = true;
+			node->SetWorldRotation(rotation);
+		}
 	}
 	
 	void WorldAttachment::RequestSceneNode(RN::Object *object, const RN::Vector3 &position)
@@ -234,6 +233,7 @@ namespace DP
 			RN::SceneNode *node = CreateSceneNode(object, position);
 			if(node)
 			{
+				_sceneNodeLookup[node->GetLID()] = node;
 				node->SetAssociatedObject(kDPNetworkIDAssociationKey, RN::Number::WithUint64(node->GetLID()), RN::Object::MemoryPolicy::Retain);
 				
 				RN::FlatSerializer *serializer = new RN::FlatSerializer();
@@ -416,6 +416,8 @@ namespace DP
 								enet_packet_destroy(newevent.packet);
 								data->Release();
 								
+								_isLoadingWorld = true;
+								
 								RN::Kernel::GetSharedInstance()->ScheduleFunction([deserializer]() {
 									
 									{
@@ -428,15 +430,19 @@ namespace DP
 										
 										RN::MessageCenter::GetSharedInstance()->AddObserver(kRNWorldCoordinatorDidFinishLoadingMessage, [](RN::Message *message) {
 											
+											WorldAttachment::GetSharedInstance()->_sceneNodeLookup.clear();
 											RN::Array *nodes = RN::World::GetActiveWorld()->GetSceneNodes();
 											nodes->Enumerate<RN::SceneNode>([](RN::SceneNode *node, size_t i, bool &stop){
 												if(!node->IsKindOfClass(RN::Camera::MetaClass()))
 												{
+													WorldAttachment::GetSharedInstance()->_sceneNodeLookup[node->GetLID()] = node;
 													node->SetAssociatedObject(kDPNetworkIDAssociationKey, RN::Number::WithUint64(node->GetLID()), RN::Object::MemoryPolicy::Retain);
 												}
 											});
 											
 											ActivateDownpour();
+											RN::World::GetActiveWorld()->Update(0.0f);
+											WorldAttachment::GetSharedInstance()->_isLoadingWorld = false;
 											RN::MessageCenter::GetSharedInstance()->RemoveObserver(const_cast<char *>(__DPCookie));
 											
 										}, const_cast<char *>(__DPCookie));
@@ -460,7 +466,9 @@ namespace DP
 					if(received.compare("answerSceneNode") == 0)
 					{
 						RN::Object *node = deserializer->DecodeObject();
-						node->SetAssociatedObject(kDPNetworkIDAssociationKey, RN::Number::WithUint64(deserializer->DecodeInt64()), RN::Object::MemoryPolicy::Retain);
+						uint64 id = deserializer->DecodeInt64();
+						_sceneNodeLookup[id] = node->Downcast<RN::SceneNode>();
+						node->SetAssociatedObject(kDPNetworkIDAssociationKey, RN::Number::WithUint64(id), RN::Object::MemoryPolicy::Retain);
 					}
 					else if(received.compare("answerTransforms") == 0)
 					{
@@ -521,6 +529,7 @@ namespace DP
 		nodes->Enumerate<RN::SceneNode>([](RN::SceneNode *node, size_t i, bool &stop){
 			if(!node->IsKindOfClass(RN::Camera::MetaClass()))
 			{
+				WorldAttachment::GetSharedInstance()->_sceneNodeLookup[node->GetLID()] = node;
 				node->SetAssociatedObject(kDPNetworkIDAssociationKey, RN::Number::WithUint64(node->GetLID()), RN::Object::MemoryPolicy::Retain);
 			}
 		});

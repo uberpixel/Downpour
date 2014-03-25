@@ -85,8 +85,10 @@ namespace DP
 		bool _isConnected;
 		bool _isServer;
 		bool _isRemoteChange;
+		bool _isLoadingWorld;
 		
 		std::vector<TransformRequest> _requestedTransforms;
+		std::unordered_map<uint64, RN::SceneNode*> _sceneNodeLookup;
 		
 		RN::RecursiveSpinLock _lock;
 		
