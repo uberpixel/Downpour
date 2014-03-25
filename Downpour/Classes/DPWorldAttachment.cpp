@@ -18,6 +18,7 @@
 #include "DPWorldAttachment.h"
 #include "DPWorkspace.h"
 #include "DPEditorIcon.h"
+#include "DPInfoPanel.h"
 
 #define kDPNetworkIDAssociationKey "kDPNetworkIDAssociationKey"
 
@@ -39,18 +40,13 @@ namespace DP
 		_cameraClass = RN::Camera::MetaClass();
 		
 		RN::LockGuard<decltype(_lock)> lock(_lock);
-		RN_ASSERT(!enet_initialize(), "Enet could not be initialized!");
+		RN_ASSERT(enet_initialize() == 0, "Enet could not be initialized!");
 		
-		RN::Timer::ScheduledTimerWithDuration(std::chrono::milliseconds(5), [&](){
+		RN::Timer::ScheduledTimerWithDuration(std::chrono::milliseconds(5), [&]() {
 			if(!_isConnected)
-			{
 				return;
-			}
 			
-			if(_isServer)
-				StepServer();
-			else
-				StepClient();
+			_isServer ? StepServer() : StepClient();
 		}, true);
 		
 		RN::MessageCenter::GetSharedInstance()->AddObserver(kDPWorkspaceSelectionChanged, [this](RN::Message *message) {
@@ -563,7 +559,7 @@ namespace DP
 		_isConnected = false;
 	}
 	
-	void WorldAttachment::Connect()
+	void WorldAttachment::Connect(const std::string &ip)
 	{
 		if(!_host || _isServer)
 			return;
@@ -574,30 +570,28 @@ namespace DP
 		ENetEvent event;
 		
 		/* Connect to some.server.net:1234. */
-		enet_address_set_host(&address, "localhost");
+		enet_address_set_host(&address, ip.c_str());
 		address.port = 2003;
 		
 		/* Initiate the connection, allocating the two channels 0 and 1. */
-		_peer = enet_host_connect(_host, &address, 2, 0);
-		RN_ASSERT(_peer, "Enet could not create a peer!");
+		RN_ASSERT((_peer = enet_host_connect(_host, &address, 2, 0)), "Enet couldn't create a peer!");
 		
 		/* Wait up to 5 seconds for the connection attempt to succeed. */
-		if(enet_host_service(_host, &event, 5000) > 0 &&
-		   event.type == ENET_EVENT_TYPE_CONNECT)
+		if(enet_host_service(_host, &event, 5000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT)
 		{
 			_isConnected = true;
 			
 			RN::FlatSerializer *serializer = new RN::FlatSerializer();
 			serializer->EncodeString("requestWorld");
+			serializer->Autorelease();
+			
 			RN::Data *data = serializer->GetSerializedData();
 			SendDataToServer(data->GetBytes(), data->GetLength());
 		}
 		else
 		{
-			/* Either the 5 seconds are up or a disconnect event was */
-			/* received. Reset the peer in the event the 5 seconds   */
-			/* had run out without any significant event.            */
 			_isConnected = false;
+			InfoPanel::WithMessage(RNCSTR("Couldn't connect to server! Ping time out"));
 		}
 	}
 	

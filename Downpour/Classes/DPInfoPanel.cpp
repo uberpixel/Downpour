@@ -20,6 +20,8 @@
 
 namespace DP
 {
+	RNDefineMeta(InfoPanel, RN::UI::Widget)
+	
 	InfoPanel::InfoPanel() :
 		RN::UI::Widget(RN::UI::Widget::Style::Titled | RN::UI::Widget::Style::Closable, RN::Rect(0.0f, 0.0f, 500.0f, 380.0f)),
 		_message(nullptr)
@@ -54,6 +56,15 @@ namespace DP
 	void InfoPanel::SetMessage(RN::String *message)
 	{
 		_messageLabel->SetText(message);
+	}
+	
+	InfoPanel *InfoPanel::WithMessage(RN::String *message)
+	{
+		InfoPanel *panel = new InfoPanel();
+		panel->SetMessage(message);
+		panel->Open();
+		
+		return panel->Autorelease();
 	}
 	
 	

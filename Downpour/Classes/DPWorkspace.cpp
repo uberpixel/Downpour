@@ -18,6 +18,7 @@
 #include "DPWorkspace.h"
 #include "DPEditorIcon.h"
 #include "DPInfoPanel.h"
+#include "DPIPPanel.h"
 
 #define kDPWorkspaceToolbarHeight 40.0f
 
@@ -387,8 +388,15 @@ namespace DP
 	
 	void Workspace::ConnectToSession()
 	{
-		_worldAttachment->CreateClient();
-		_worldAttachment->Connect();
+		IPPanel *panel = new IPPanel([this](std::string ip) {
+			
+			_worldAttachment->CreateClient();
+			_worldAttachment->Connect(ip);
+			
+		});
+		
+		panel->Open();
+		panel->Release();
 	}
 	
 	void Workspace::DisconnectFromSession()

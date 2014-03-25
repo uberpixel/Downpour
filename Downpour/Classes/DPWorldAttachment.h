@@ -65,7 +65,7 @@ namespace DP
 		void CreateClient();
 		void DestroyHost();
 		
-		void Connect();
+		void Connect(const std::string &ip);
 		void Disconnect();
 		
 		void SendDataToServer(const void *data, size_t length);

@@ -1,5 +1,5 @@
 //
-//  DPInfoPanel.h
+//  DPIPPanel.h
 //  Downpour
 //
 //  Copyright 2014 by Überpixel. All rights reserved.
@@ -15,37 +15,23 @@
 //  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#ifndef __DPINFOPANEL_H__
-#define __DPINFOPANEL_H__
+#ifndef __DPIPPANEL_H__
+#define __DPIPPANEL_H__
 
 #include <Rayne/Rayne.h>
 
 namespace DP
 {
-	class InfoPanel : public RN::UI::Widget
+	class IPPanel : public RN::UI::Widget
 	{
 	public:
-		InfoPanel();
-		~InfoPanel();
-		
-		void SetMessage(RN::String *message);
-		
-		static InfoPanel *WithMessage(RN::String *message);
+		IPPanel(std::function<void (std::string)> &&callback);
 		
 	private:
-		RN::String *_message;
-		
 		RN::UI::Label *_messageLabel;
-		RN::UI::Button *_okButton;
-		
-		RNDeclareMeta(InfoPanel)
-	};
-	
-	class ExceptionPanel : public InfoPanel
-	{
-	public:
-		ExceptionPanel(RN::Exception &e);
+		RN::UI::TextField *_ipField;
+		RN::UI::Button *_connectButton;
 	};
 }
 
-#endif /* __DPINFOPANEL_H__ */
+#endif /* __DPIPPANEL_H__ */
