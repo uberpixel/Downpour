@@ -39,6 +39,7 @@ namespace DP
 	Packet::Packet(RN::Deserializer *deserializer)
 	{
 		_type = static_cast<Type>(deserializer->DecodeInt32());
+		_data = nullptr;
 		
 		bool hasData = deserializer->DecodeBool();
 		if(hasData)
