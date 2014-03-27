@@ -114,19 +114,13 @@ namespace DP
 	
 	void WorldAttachment::SceneNodeDidUpdate(RN::SceneNode *node, RN::SceneNode::ChangeSet changeSet)
 	{
-		if(!node || !(changeSet & RN::SceneNode::ChangeSet::Position))
+		if(!(changeSet & RN::SceneNode::ChangeSet::Position))
 			return;
 		
 		RN::LockGuard<decltype(_lock)> lock(_lock);
 		
-		if(!_isConnected || _isLoadingWorld)
+		if(!_isConnected || _isLoadingWorld || _isRemoteChange)
 			return;
-		
-		if(_isRemoteChange)
-		{
-			_isRemoteChange = false;
-			return;
-		}
 		
 		if(node->GetFlags() & RN::SceneNode::Flags::NoSave)
 			return;
@@ -142,43 +136,32 @@ namespace DP
 		
 		RN::Object *obj = node->GetAssociatedObject(kDPNetworkIDAssociationKey);
 		if(!obj)
-		{
 			return;
-		}
 		
 		if(_isServer)
 		{
-			RN::FlatSerializer *serializer = new RN::FlatSerializer();
-			serializer->EncodeString("answerTransforms");
-			serializer->EncodeInt64(obj->Downcast<RN::Number>()->GetInt64Value());
-			serializer->EncodeVector3(node->GetWorldPosition());
-			serializer->EncodeVector3(node->GetWorldScale());
-			serializer->EncodeQuarternion(node->GetWorldRotation());
-			RN::Data *data = serializer->GetSerializedData();
-			SendDataToAll(data->GetBytes(), data->GetLength());
-			serializer->Release();
+			TransformRequest request;
+			request.lid      = obj->Downcast<RN::Number>()->GetInt64Value();
+			request.position = node->GetWorldPosition();
+			request.scale    = node->GetWorldScale();
+			request.rotation = node->GetWorldRotation();
+			
+			BroadcastPacket(Packet::WithTypeAndData(Packet::Type::AnswerTransform, &request, sizeof(TransformRequest)));
 		}
 		else
 		{
-			RN::FlatSerializer *serializer = new RN::FlatSerializer();
-			serializer->EncodeString("requestTransforms");
-			serializer->EncodeInt64(obj->Downcast<RN::Number>()->GetInt64Value());
-			serializer->EncodeVector3(node->GetWorldPosition());
-			serializer->EncodeVector3(node->GetWorldScale());
-			serializer->EncodeQuarternion(node->GetWorldRotation());
-			RN::Data *data = serializer->GetSerializedData();
-			SendDataToServer(data->GetBytes(), data->GetLength());
-			serializer->Release();
+			TransformRequest request;
+			request.lid      = obj->Downcast<RN::Number>()->GetInt64Value();
+			request.position = node->GetWorldPosition();
+			request.scale    = node->GetWorldScale();
+			request.rotation = node->GetWorldRotation();
 			
-			TransformRequest transformrequest;
-			transformrequest.lid = node->GetAssociatedObject(kDPNetworkIDAssociationKey)->Downcast<RN::Number>()->GetInt64Value();
-			transformrequest.position = node->GetWorldPosition();
-			transformrequest.scale = node->GetWorldScale();
-			transformrequest.rotation = node->GetWorldRotation();
-			
-			_requestedTransforms.push_back(transformrequest);
+			SendPacketToServer(Packet::WithTypeAndData(Packet::Type::RequestTransform, &request, sizeof(TransformRequest)));
+			_requestedTransforms.push_back(std::move(request));
 		}
 	}
+	
+	
 	
 	bool operator== (const WorldAttachment::TransformRequest &first, const WorldAttachment::TransformRequest &second)
 	{
@@ -194,31 +177,27 @@ namespace DP
 		return true;
 	}
 	
-	void WorldAttachment::ApplyTransforms(uint64 lid, const RN::Vector3 &position, const RN::Vector3 &scale, const RN::Quaternion &rotation)
+	void WorldAttachment::ApplyTransforms(const TransformRequest &request)
 	{
 		RN::LockGuard<decltype(_lock)> lock(_lock);
 		
-		TransformRequest transformrequest;
-		transformrequest.lid = lid;
-		transformrequest.position = position;
-		transformrequest.scale = scale;
-		transformrequest.rotation = rotation;
-		auto it = std::find(_requestedTransforms.begin(), _requestedTransforms.end(), transformrequest);
+		auto it = std::find(_requestedTransforms.begin(), _requestedTransforms.end(), request);
 		if(it != _requestedTransforms.end())
 		{
 			_requestedTransforms.erase(it);
 			return;
 		}
 		
-		RN::SceneNode *node = _sceneNodeLookup[lid];
+		RN::SceneNode *node = _sceneNodeLookup[request.lid];
 		if(node)
 		{
 			_isRemoteChange = true;
-			node->SetWorldPosition(position);
-			_isRemoteChange = true;
-			node->SetWorldScale(scale);
-			_isRemoteChange = true;
-			node->SetWorldRotation(rotation);
+			
+			node->SetWorldPosition(request.position);
+			node->SetWorldScale(request.scale);
+			node->SetWorldRotation(request.rotation);
+			
+			_isRemoteChange = false;
 		}
 	}
 	
@@ -233,22 +212,22 @@ namespace DP
 				node->SetAssociatedObject(kDPNetworkIDAssociationKey, RN::Number::WithUint64(node->GetLID()), RN::Object::MemoryPolicy::Retain);
 				
 				RN::FlatSerializer *serializer = new RN::FlatSerializer();
-				serializer->EncodeString("answerSceneNode");
 				serializer->EncodeObject(node);
 				serializer->EncodeInt64(node->GetLID());
-				RN::Data *data = serializer->GetSerializedData();
-				SendDataToAll(data->GetBytes(), data->GetLength());
+				
+				BroadcastPacket(Packet::WithTypeAndSerializer(Packet::Type::AnswerSceneNode, serializer));
+				
 				serializer->Release();
 			}
 		}
 		else
 		{
 			RN::FlatSerializer *serializer = new RN::FlatSerializer();
-			serializer->EncodeString("requestSceneNode");
 			serializer->EncodeObject(object);
 			serializer->EncodeVector3(position);
-			RN::Data *data = serializer->GetSerializedData();
-			SendDataToServer(data->GetBytes(), data->GetLength());
+			
+			SendPacketToServer(Packet::WithTypeAndSerializer(Packet::Type::RequestSceneNode, serializer));
+			
 			serializer->Release();
 		}
 	}
@@ -292,6 +271,72 @@ namespace DP
 		return nullptr;
 	}
 	
+	void WorldAttachment::DeleteSceneNodes(RN::Array *sceneNodes)
+	{
+		if(!_isConnected || _isServer)
+		{
+			std::vector<uint64> ids;
+			
+			sceneNodes->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
+				
+				RN::Number *id = static_cast<RN::Number *>(node->GetAssociatedObject(kDPNetworkIDAssociationKey));
+				if(id)
+				{
+					uint64 lid = id->GetUint64Value();
+					
+					_sceneNodeLookup.erase(lid);
+					ids.push_back(lid);
+				}
+				
+				if(node->GetParent())
+					node->RemoveFromParent();
+				
+				node->RemoveFromWorld();
+			});
+			
+			if(_isServer && !ids.empty())
+				BroadcastPacket(Packet::WithTypeAndData(Packet::Type::AnswerDeleteSceneNode, ids.data(), ids.size() * sizeof(uint64)));
+		}
+		else
+		{
+			std::vector<uint64> ids;
+			
+			sceneNodes->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
+				
+				RN::Number *id = static_cast<RN::Number *>(node->GetAssociatedObject(kDPNetworkIDAssociationKey));
+				if(id)
+				{
+					uint64 lid = id->GetUint64Value();
+					ids.push_back(lid);
+				}
+				
+			});
+			
+			if(!ids.empty())
+				BroadcastPacket(Packet::WithTypeAndData(Packet::Type::RequestDeleteSceneNode, ids.data(), ids.size() * sizeof(uint64)));
+		}
+	}
+	
+	void WorldAttachment::HandleSceneNodeDeletion(const std::vector<uint64> &ids)
+	{
+		for(uint64 id : ids)
+		{
+			auto iterator = _sceneNodeLookup.find(id);
+			if(iterator != _sceneNodeLookup.end())
+			{
+				RN::SceneNode *node = iterator->second;
+				
+				if(node->GetParent())
+					node->RemoveFromParent();
+				
+				node->RemoveFromWorld();
+				
+				_sceneNodeLookup.erase(iterator);
+			}
+		}
+	}
+	
+	
 	void WorldAttachment::StepServer()
 	{
 		RN::LockGuard<decltype(_lock)> lock(_lock);
@@ -302,72 +347,83 @@ namespace DP
 			{
 				case ENET_EVENT_TYPE_CONNECT:
 				{
-					printf("A new client connected from %x:%u.\n",
-						   event.peer->address.host,
-						   event.peer->address.port);
-					/* Store any relevant client information here. */
-					event.peer->data = new std::string("Client information");
 					break;
 				}
 				
 				case ENET_EVENT_TYPE_RECEIVE:
 				{
-					RN::Data *data = new RN::Data(event.packet->data, event.packet->dataLength);
-					RN::FlatDeserializer *deserializer = new RN::FlatDeserializer(data);
-					enet_packet_destroy(event.packet);
-					data->Release();
-					std::string received(deserializer->DecodeString());
-					printf("%s\n", received.c_str());
+					Packet *packet;
 					
-					if(received.compare("requestWorld") == 0)
 					{
-						RN::FlatSerializer *serializer = new RN::FlatSerializer();
-						RN::WorldCoordinator::GetSharedInstance()->SaveWorld(serializer);
-						SendDataToClient(event.peer, "answerWorld", 12);
-						RN::Data *data = serializer->GetSerializedData();
-						SendDataToClient(event.peer, data->GetBytes(), data->GetLength());
-						serializer->Release();
-					}
-					else if(received.compare("requestSceneNode") == 0)
-					{
-						RN::Object *object = deserializer->DecodeObject();
-						RN::Vector3 position = deserializer->DecodeVector3();
-						RequestSceneNode(object, position);
-					}
-					else if(received.compare("requestTransforms") == 0)
-					{
-						uint64 id = deserializer->DecodeInt64();
-						RN::Vector3 position = deserializer->DecodeVector3();
-						RN::Vector3 scale = deserializer->DecodeVector3();
-						RN::Quaternion rotation = deserializer->DecodeQuaternion();
+						RN::Data *data = new RN::Data(event.packet->data, event.packet->dataLength);
+						RN::FlatDeserializer *deserializer = new RN::FlatDeserializer(data->Autorelease());
 						
-						RN::FlatSerializer *serializer = new RN::FlatSerializer();
-						serializer->EncodeString("answerTransforms");
-						serializer->EncodeInt64(id);
-						serializer->EncodeVector3(position);
-						serializer->EncodeVector3(scale);
-						serializer->EncodeQuarternion(rotation);
-						RN::Data *data = serializer->GetSerializedData();
-						SendDataToAll(data->GetBytes(), data->GetLength());
-						serializer->Release();
+						packet = static_cast<Packet *>(deserializer->DecodeObject());
+						deserializer->Release();
 						
-						ApplyTransforms(id, position, scale, rotation);
+						enet_packet_destroy(event.packet);
 					}
 					
-					deserializer->Release();
+					switch(packet->GetType())
+					{
+						case Packet::Type::RequestWorld:
+						{
+							RN::FlatSerializer *serializer = new RN::FlatSerializer();
+							RN::WorldCoordinator::GetSharedInstance()->SaveWorld(serializer);
+							
+							SendPacketToPeer(event.peer, Packet::WithTypeAndSerializer(Packet::Type::AnswerWorld, serializer));
+							serializer->Release();
+							
+							break;
+						}
+							
+						case Packet::Type::RequestSceneNode:
+						{
+							RN::Deserializer *deserializer = packet->GetDeserializer();
+							
+							RN::Object *object   = deserializer->DecodeObject();
+							RN::Vector3 position = deserializer->DecodeVector3();
+							
+							RequestSceneNode(object, position);
+							break;
+						}
+						
+						case Packet::Type::RequestTransform:
+						{
+							TransformRequest request;
+							packet->GetData(&request);
+							
+							ApplyTransforms(request);
+							BroadcastPacket(Packet::WithTypeAndData(Packet::Type::AnswerTransform, &request, sizeof(TransformRequest)));
+							
+							break;
+						}
+							
+						case Packet::Type::RequestDeleteSceneNode:
+						{
+							size_t count = packet->GetLength() / sizeof(uint64);
+							std::vector<uint64> ids(count);
+							
+							packet->GetData(ids.data());
+							HandleSceneNodeDeletion(ids);
+							
+							BroadcastPacket(Packet::WithTypeAndData(Packet::Type::AnswerDeleteSceneNode, ids.data(), ids.size() * sizeof(uint64)));
+							break;
+						}
+							
+						default:
+							break;
+					}
 					
 					break;
 				}
 					
 				case ENET_EVENT_TYPE_DISCONNECT:
 				{
-					printf("%s disconected.\n", event.peer->data);
-					/* Reset the peer's client information. */
-					event.peer->data = NULL;
 					break;
 				}
 					
-				case ENET_EVENT_TYPE_NONE:
+				default:
 					break;
 			}
 		}
@@ -376,121 +432,119 @@ namespace DP
 	extern void ActivateDownpour();
 	extern void DeactivateDownpour();
 	
-	static const char *__DPCookie = "__DPCookie";
-	
 	void WorldAttachment::StepClient()
 	{
 		RN::LockGuard<decltype(_lock)> lock(_lock);
 		ENetEvent event;
+		
 		while(enet_host_service(_host, &event, 1) > 0)
 		{
 			switch(event.type)
 			{
-				case ENET_EVENT_TYPE_CONNECT:
-				{
-					printf("A new client connected from %x:%u.\n",
-						   event.peer->address.host,
-						   event.peer->address.port);
-					/* Store any relevant client information here. */
-					event.peer->data = new std::string("Client information");
-					break;
-				}
-					
 				case ENET_EVENT_TYPE_RECEIVE:
 				{
-					if(event.packet->dataLength == 12)
+					Packet *packet;
+					
 					{
-						std::string received(reinterpret_cast<const char *>(event.packet->data));
-						if(received.compare("answerWorld") == 0)
+						RN::Data *data = new RN::Data(event.packet->data, event.packet->dataLength);
+						RN::FlatDeserializer *deserializer = new RN::FlatDeserializer(data->Autorelease());
+						
+						packet = static_cast<Packet *>(deserializer->DecodeObject());
+						deserializer->Release();
+						
+						enet_packet_destroy(event.packet);
+					}
+					
+					switch(packet->GetType())
+					{
+						case Packet::Type::AnswerWorld:
 						{
-							printf("%s\n", received.c_str());
-							ENetEvent newevent;
-							if(enet_host_service(_host, &newevent, 20000))
-							{
-								RN::Data *data = new RN::Data(newevent.packet->data, newevent.packet->dataLength);
-								RN::FlatDeserializer *deserializer = new RN::FlatDeserializer(data);
-								enet_packet_destroy(newevent.packet);
-								data->Release();
+							RN::Deserializer *deserializer = packet->GetDeserializer()->Retain();
+							
+							RN::Kernel::GetSharedInstance()->ScheduleFunction([this, deserializer]() {
 								
-								_isLoadingWorld = true;
+								{
+									RN::World::GetActiveWorld()->RemoveAttachment(this);
+									RN::AutoreleasePool pool;
+									DeactivateDownpour();
+								}
 								
-								RN::Kernel::GetSharedInstance()->ScheduleFunction([deserializer]() {
+								RN::Kernel::GetSharedInstance()->ScheduleFunction([this, deserializer]() {
 									
-									{
-										RN::World::GetActiveWorld()->RemoveAttachment(WorldAttachment::GetSharedInstance());
-										RN::AutoreleasePool pool;
-										DeactivateDownpour();
-									}
+									RN::MessageCenter::GetSharedInstance()->AddObserver(kRNWorldCoordinatorDidFinishLoadingMessage, [this](RN::Message *message) {
+										
+										_sceneNodeLookup.clear();
+										
+										RN::Array *nodes = RN::World::GetActiveWorld()->GetSceneNodes();
+										nodes->Enumerate<RN::SceneNode>([](RN::SceneNode *node, size_t i, bool &stop ){
+											if(!node->IsKindOfClass(RN::Camera::MetaClass()))
+											{
+												WorldAttachment::GetSharedInstance()->_sceneNodeLookup[node->GetLID()] = node;
+												node->SetAssociatedObject(kDPNetworkIDAssociationKey, RN::Number::WithUint64(node->GetLID()), RN::Object::MemoryPolicy::Retain);
+											}
+										});
+										
+										ActivateDownpour();
+										
+										RN::World::GetActiveWorld()->Update(0.0f);
+										RN::MessageCenter::GetSharedInstance()->RemoveObserver(this);
+										
+										_isLoadingWorld = false;
+										
+									}, this);
 									
-									RN::Kernel::GetSharedInstance()->ScheduleFunction([deserializer]() {
-										
-										RN::MessageCenter::GetSharedInstance()->AddObserver(kRNWorldCoordinatorDidFinishLoadingMessage, [](RN::Message *message) {
-											
-											WorldAttachment::GetSharedInstance()->_sceneNodeLookup.clear();
-											RN::Array *nodes = RN::World::GetActiveWorld()->GetSceneNodes();
-											nodes->Enumerate<RN::SceneNode>([](RN::SceneNode *node, size_t i, bool &stop){
-												if(!node->IsKindOfClass(RN::Camera::MetaClass()))
-												{
-													WorldAttachment::GetSharedInstance()->_sceneNodeLookup[node->GetLID()] = node;
-													node->SetAssociatedObject(kDPNetworkIDAssociationKey, RN::Number::WithUint64(node->GetLID()), RN::Object::MemoryPolicy::Retain);
-												}
-											});
-											
-											ActivateDownpour();
-											RN::World::GetActiveWorld()->Update(0.0f);
-											WorldAttachment::GetSharedInstance()->_isLoadingWorld = false;
-											RN::MessageCenter::GetSharedInstance()->RemoveObserver(const_cast<char *>(__DPCookie));
-											
-										}, const_cast<char *>(__DPCookie));
-										
-										RN::WorldCoordinator::GetSharedInstance()->LoadWorld(deserializer);
-										deserializer->Release();
-									});
+									RN::WorldCoordinator::GetSharedInstance()->LoadWorld(deserializer);
+									deserializer->Release();
 								});
-							}
+							});
+							
 							break;
 						}
+							
+						case Packet::Type::AnswerSceneNode:
+						{
+							RN::Deserializer *deserializer = packet->GetDeserializer();
+							
+							RN::SceneNode *node = static_cast<RN::SceneNode *>(deserializer->DecodeObject());
+							uint64 id = deserializer->DecodeInt64();
+							
+							_sceneNodeLookup[id] = node;
+							node->SetAssociatedObject(kDPNetworkIDAssociationKey, RN::Number::WithUint64(id), RN::Object::MemoryPolicy::Retain);
+							break;
+						}
+							
+						case Packet::Type::AnswerTransform:
+						{
+							TransformRequest request;
+							packet->GetData(&request);
+							
+							ApplyTransforms(request);
+							break;
+						}
+							
+						case Packet::Type::AnswerDeleteSceneNode:
+						{
+							size_t count = packet->GetLength() / sizeof(uint64);
+							std::vector<uint64> ids(count);
+							
+							packet->GetData(ids.data());
+							HandleSceneNodeDeletion(ids);
+							break;
+						}
+							
+						default:
+							break;
 					}
-					
-					RN::Data *data = new RN::Data(event.packet->data, event.packet->dataLength);
-					RN::FlatDeserializer *deserializer = new RN::FlatDeserializer(data);
-					enet_packet_destroy(event.packet);
-					data->Release();
-					std::string received(deserializer->DecodeString());
-					printf("%s\n", received.c_str());
-					
-					if(received.compare("answerSceneNode") == 0)
-					{
-						RN::Object *node = deserializer->DecodeObject();
-						uint64 id = deserializer->DecodeInt64();
-						_sceneNodeLookup[id] = node->Downcast<RN::SceneNode>();
-						node->SetAssociatedObject(kDPNetworkIDAssociationKey, RN::Number::WithUint64(id), RN::Object::MemoryPolicy::Retain);
-					}
-					else if(received.compare("answerTransforms") == 0)
-					{
-						uint64 id = deserializer->DecodeInt64();
-						RN::Vector3 position = deserializer->DecodeVector3();
-						RN::Vector3 scale = deserializer->DecodeVector3();
-						RN::Quaternion rotation = deserializer->DecodeQuaternion();
-						
-						ApplyTransforms(id, position, scale, rotation);
-					}
-					
-					deserializer->Release();
 					
 					break;
 				}
 					
 				case ENET_EVENT_TYPE_DISCONNECT:
 				{
-					printf("%s disconected.\n", event.peer->data);
-					/* Reset the peer's client information. */
-					event.peer->data = NULL;
 					break;
 				}
 
-					
-				case ENET_EVENT_TYPE_NONE:
+				default:
 					break;
 			}
 		}
@@ -502,27 +556,14 @@ namespace DP
 		RN::LockGuard<decltype(_lock)> lock(_lock);
 		DestroyHost();
 		
-		ENetAddress address;
+		ENetAddress address { .host = ENET_HOST_ANY, .port = 2003 };
+		RN_ASSERT((_host = enet_host_create(&address, 32, 2, 0, 0)), "Enet couldn't create server");
 		
-		/* Bind the server to the default localhost.     */
-		/* A specific host address can be specified by   */
-		/* enet_address_set_host (& address, "x.x.x.x"); */
-		address.host = ENET_HOST_ANY;
-		address.port = 2003;
-		
-		_host = enet_host_create(&address /* the address to bind the server host to */,
-								 32      /* allow up to 32 clients and/or outgoing connections */,
-								 2      /* allow up to 2 channels to be used, 0 and 1 */,
-								 0      /* assume any amount of incoming bandwidth */,
-								 0      /* assume any amount of outgoing bandwidth */);
-		
-		RN_ASSERT(_host, "Enet could not create server!");
-		
-		_isServer = true;
+		_isServer    = true;
 		_isConnected = true;
 		
 		RN::Array *nodes = RN::World::GetActiveWorld()->GetSceneNodes();
-		nodes->Enumerate<RN::SceneNode>([](RN::SceneNode *node, size_t i, bool &stop){
+		nodes->Enumerate<RN::SceneNode>([](RN::SceneNode *node, size_t i, bool &stop) {
 			if(!node->IsKindOfClass(RN::Camera::MetaClass()))
 			{
 				WorldAttachment::GetSharedInstance()->_sceneNodeLookup[node->GetLID()] = node;
@@ -536,14 +577,7 @@ namespace DP
 		RN::LockGuard<decltype(_lock)> lock(_lock);
 		DestroyHost();
 		
-		_host = enet_host_create(NULL /* create a client host */,
-								 1 /* only allow 1 outgoing connection */,
-								 2 /* allow up 2 channels to be used, 0 and 1 */,
-								 0 /* assume any amount of incoming bandwidth */,
-								 0 /* assume any amount of outgoing bandwidth */);
-		
-		RN_ASSERT(_host, "Enet could not create client!");
-		
+		RN_ASSERT((_host = enet_host_create(NULL, 1, 2, 0, 0)), "Enet couldn't create client!");
 		_isServer = false;
 	}
 	
@@ -551,12 +585,12 @@ namespace DP
 	{
 		RN::LockGuard<decltype(_lock)> lock(_lock);
 		Disconnect();
+		
 		if(_host)
 			enet_host_destroy(_host);
 		
 		_host = nullptr;
 		_peer = nullptr;
-		_isConnected = false;
 	}
 	
 	void WorldAttachment::Connect(const std::string &ip)
@@ -580,13 +614,7 @@ namespace DP
 		if(enet_host_service(_host, &event, 5000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT)
 		{
 			_isConnected = true;
-			
-			RN::FlatSerializer *serializer = new RN::FlatSerializer();
-			serializer->EncodeString("requestWorld");
-			serializer->Autorelease();
-			
-			RN::Data *data = serializer->GetSerializedData();
-			SendDataToServer(data->GetBytes(), data->GetLength());
+			SendPacketToServer(Packet::WithType(Packet::Type::RequestWorld));
 		}
 		else
 		{
@@ -601,16 +629,12 @@ namespace DP
 			return;
 		
 		RN::LockGuard<decltype(_lock)> lock(_lock);
-		
 		ENetEvent event;
-		enet_peer_disconnect(_peer, 0);
 		
+		enet_peer_disconnect(_peer, 0);
 		_isConnected = false;
 		
-		/* Allow up to 3 seconds for the disconnect to succeed
-		 * and drop any packets received packets.
-		 */
-		while(enet_host_service(_host, & event, 3000) > 0)
+		while(enet_host_service(_host, &event, 3000) > 0)
 		{
 			switch(event.type)
 			{
@@ -627,43 +651,55 @@ namespace DP
 			}
 		}
 		
-		/* We've arrived here, so the disconnect attempt didn't */
-		/* succeed yet.  Force the connection down.             */
 		enet_peer_reset(_peer);
 		_peer = nullptr;
 	}
 	
-	void WorldAttachment::SendDataToServer(const void *data, size_t length)
+	
+	void WorldAttachment::SendPacketToServer(Packet *packet)
 	{
-		if(!_isConnected)
-			return;
-		
-		RN::LockGuard<decltype(_lock)> lock(_lock);
-		
-		ENetPacket *packet = enet_packet_create(data, length, ENET_PACKET_FLAG_RELIABLE);
-		enet_peer_send(_peer, 0, packet);
+		SendPacketToPeer(_peer, packet);
 	}
 	
-	void WorldAttachment::SendDataToClient(ENetPeer *peer, const void *data, size_t length)
+	void WorldAttachment::SendPacketToPeer(ENetPeer *peer, Packet *packet)
 	{
 		if(!_isConnected)
 			return;
 		
 		RN::LockGuard<decltype(_lock)> lock(_lock);
 		
-		ENetPacket *packet = enet_packet_create(data, length, ENET_PACKET_FLAG_RELIABLE);
-		enet_peer_send(peer, 0, packet);
+		// Encode the packet
+		RN::Data *data;
+		{
+			RN::FlatSerializer *serializer = new RN::FlatSerializer();
+			serializer->EncodeObject(packet);
+			
+			data = serializer->GetSerializedData();
+			serializer->Release();
+		}
+		
+		ENetPacket *enetPacket = enet_packet_create(data->GetBytes(), data->GetLength(), ENET_PACKET_FLAG_RELIABLE);
+		enet_peer_send(peer, 0, enetPacket);
 	}
 	
-	void WorldAttachment::SendDataToAll(const void *data, size_t length)
+	void WorldAttachment::BroadcastPacket(Packet *packet)
 	{
 		if(!_isConnected)
 			return;
 		
 		RN::LockGuard<decltype(_lock)> lock(_lock);
 		
-		ENetPacket *packet = enet_packet_create(data, length, ENET_PACKET_FLAG_RELIABLE);
-		enet_host_broadcast(_host, 0, packet);
+		// Encode the packet
+		RN::Data *data;
+		{
+			RN::FlatSerializer *serializer = new RN::FlatSerializer();
+			serializer->EncodeObject(packet);
+			
+			data = serializer->GetSerializedData();
+			serializer->Release();
+		}
+		
+		ENetPacket *enetPacket = enet_packet_create(data->GetBytes(), data->GetLength(), ENET_PACKET_FLAG_RELIABLE);
+		enet_host_broadcast(_host, 0, enetPacket);
 	}
-
 }

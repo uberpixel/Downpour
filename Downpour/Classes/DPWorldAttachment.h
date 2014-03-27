@@ -20,6 +20,7 @@
 
 #include <Rayne/Rayne.h>
 #include <enet/enet.h>
+#include "DPPacket.h"
 
 #define kDPWorldAttachmentDidAddSceneNode     RNCSTR("kDPWorldAttachmentDidAddSceneNode")
 #define kDPWorldAttachmentWillRemoveSceneNode RNCSTR("kDPWorldAttachmentWillRemoveSceneNode")
@@ -54,7 +55,8 @@ namespace DP
 		
 		void RequestSceneNode(RN::Object *object, const RN::Vector3 &position);
 		RN::SceneNode *CreateSceneNode(RN::Object *object, const RN::Vector3 &position);
-		void ApplyTransforms(uint64 lid, const RN::Vector3 &position, const RN::Vector3 &scale, const RN::Quaternion &rotation);
+		void DeleteSceneNodes(RN::Array *sceneNodes);
+		void ApplyTransforms(const TransformRequest &request);
 		
 		void SelectSceneNode(RN::SceneNode *node);
 		
@@ -68,14 +70,17 @@ namespace DP
 		void Connect(const std::string &ip);
 		void Disconnect();
 		
-		void SendDataToServer(const void *data, size_t length);
-		void SendDataToClient(ENetPeer *peer, const void *data, size_t length);
-		void SendDataToAll(const void *data, size_t length);
+		
+		void SendPacketToServer(Packet *packet);
+		void SendPacketToPeer(ENetPeer *peer, Packet *packet);
+		void BroadcastPacket(Packet *packet);
 		
 		bool IsServer() const { return _isServer; }
 		bool IsConnected() const { return _isConnected; }
 		
 	private:
+		void HandleSceneNodeDeletion(const std::vector<uint64> &ids);
+		
 		RN::Array *_sceneNodes;
 		RN::Camera *_camera;
 		

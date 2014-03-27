@@ -345,17 +345,10 @@ namespace DP
 	
 	void Workspace::Delete()
 	{
-		RN::Array *selection = Workspace::GetSharedInstance()->GetSelection();
+		RN::Array *selection = GetSelection();
 		if(selection)
 		{
-			selection->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
-				
-				if(node->GetParent())
-					node->RemoveFromParent();
-				
-				node->RemoveFromWorld();
-				
-			});
+			_worldAttachment->DeleteSceneNodes(selection);
 		}
 		
 		SetSelection(nullptr);
