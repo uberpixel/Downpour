@@ -80,6 +80,8 @@ namespace DP
 		
 	private:
 		void HandleSceneNodeDeletion(const std::vector<uint64> &ids);
+		void RegisterSceneNodeRecursive(RN::SceneNode *node);
+		void UnregisterSceneNodeRecursive(RN::SceneNode *node);
 		
 		RN::Array *_sceneNodes;
 		RN::Camera *_camera;

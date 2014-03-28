@@ -88,7 +88,7 @@ namespace DP
 			return false;
 		}
 		
-		bool ContainsProyForNode(RN::SceneNode *node)
+		bool ContainsProxyForNode(RN::SceneNode *node)
 		{
 			for(SceneNodeProxy *proxy : children)
 			{

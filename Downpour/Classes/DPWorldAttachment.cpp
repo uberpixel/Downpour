@@ -20,8 +20,6 @@
 #include "DPEditorIcon.h"
 #include "DPInfoPanel.h"
 
-#define kDPNetworkIDAssociationKey "kDPNetworkIDAssociationKey"
-
 namespace DP
 {
 	RNDefineSingleton(WorldAttachment)
@@ -134,27 +132,26 @@ namespace DP
 		if(node->IsKindOfClass(DP::EditorIcon::MetaClass()))
 			return;
 		
-		RN::Object *obj = node->GetAssociatedObject(kDPNetworkIDAssociationKey);
-		if(!obj)
+		if(_sceneNodeLookup.count(node->GetLID()) == 0)
 			return;
 		
 		if(_isServer)
 		{
 			TransformRequest request;
-			request.lid      = obj->Downcast<RN::Number>()->GetInt64Value();
-			request.position = node->GetWorldPosition();
-			request.scale    = node->GetWorldScale();
-			request.rotation = node->GetWorldRotation();
+			request.lid      = node->GetLID();
+			request.position = node->GetPosition();
+			request.scale    = node->GetScale();
+			request.rotation = node->GetRotation();
 			
 			BroadcastPacket(Packet::WithTypeAndData(Packet::Type::AnswerTransform, &request, sizeof(TransformRequest)));
 		}
 		else
 		{
 			TransformRequest request;
-			request.lid      = obj->Downcast<RN::Number>()->GetInt64Value();
-			request.position = node->GetWorldPosition();
-			request.scale    = node->GetWorldScale();
-			request.rotation = node->GetWorldRotation();
+			request.lid      = node->GetLID();
+			request.position = node->GetPosition();
+			request.scale    = node->GetScale();
+			request.rotation = node->GetRotation();
 			
 			SendPacketToServer(Packet::WithTypeAndData(Packet::Type::RequestTransform, &request, sizeof(TransformRequest)));
 			_requestedTransforms.push_back(std::move(request));
@@ -188,14 +185,16 @@ namespace DP
 			return;
 		}
 		
+		RN_ASSERT(_sceneNodeLookup.count(request.lid) > 0, "A transform for a not existing ID has been received!");
+		
 		RN::SceneNode *node = _sceneNodeLookup[request.lid];
 		if(node)
 		{
 			_isRemoteChange = true;
 			
-			node->SetWorldPosition(request.position);
-			node->SetWorldScale(request.scale);
-			node->SetWorldRotation(request.rotation);
+			node->SetPosition(request.position);
+			node->SetScale(request.scale);
+			node->SetRotation(request.rotation);
 			
 			_isRemoteChange = false;
 		}
@@ -208,12 +207,10 @@ namespace DP
 			RN::SceneNode *node = CreateSceneNode(object, position);
 			if(node)
 			{
-				_sceneNodeLookup[node->GetLID()] = node;
-				node->SetAssociatedObject(kDPNetworkIDAssociationKey, RN::Number::WithUint64(node->GetLID()), RN::Object::MemoryPolicy::Retain);
+				RegisterSceneNodeRecursive(node);
 				
 				RN::FlatSerializer *serializer = new RN::FlatSerializer();
 				serializer->EncodeObject(node);
-				serializer->EncodeInt64(node->GetLID());
 				
 				BroadcastPacket(Packet::WithTypeAndSerializer(Packet::Type::AnswerSceneNode, serializer));
 				
@@ -279,13 +276,10 @@ namespace DP
 			
 			sceneNodes->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
 				
-				RN::Number *id = static_cast<RN::Number *>(node->GetAssociatedObject(kDPNetworkIDAssociationKey));
-				if(id)
+				if(_sceneNodeLookup.count(node->GetLID()))
 				{
-					uint64 lid = id->GetUint64Value();
-					
-					_sceneNodeLookup.erase(lid);
-					ids.push_back(lid);
+					UnregisterSceneNodeRecursive(node);
+					ids.push_back(node->GetLID());
 				}
 				
 				if(node->GetParent())
@@ -303,11 +297,9 @@ namespace DP
 			
 			sceneNodes->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
 				
-				RN::Number *id = static_cast<RN::Number *>(node->GetAssociatedObject(kDPNetworkIDAssociationKey));
-				if(id)
+				if(_sceneNodeLookup.count(node->GetLID()))
 				{
-					uint64 lid = id->GetUint64Value();
-					ids.push_back(lid);
+					ids.push_back(node->GetLID());
 				}
 				
 			});
@@ -325,15 +317,33 @@ namespace DP
 			if(iterator != _sceneNodeLookup.end())
 			{
 				RN::SceneNode *node = iterator->second;
+				UnregisterSceneNodeRecursive(node);
 				
 				if(node->GetParent())
 					node->RemoveFromParent();
 				
 				node->RemoveFromWorld();
-				
-				_sceneNodeLookup.erase(iterator);
 			}
 		}
+	}
+	
+	void WorldAttachment::RegisterSceneNodeRecursive(RN::SceneNode *node)
+	{
+		RN::LockGuard<decltype(_lock)> lock(_lock);
+		_sceneNodeLookup[node->GetLID()] = node;
+		node->GetChildren()->Enumerate<RN::SceneNode>([&](RN::SceneNode *n, size_t i, bool &end){RegisterSceneNodeRecursive(n);});
+	}
+	
+	void WorldAttachment::UnregisterSceneNodeRecursive(RN::SceneNode *node)
+	{
+		RN::LockGuard<decltype(_lock)> lock(_lock);
+		auto iterator = _sceneNodeLookup.find(node->GetLID());
+		if(iterator != _sceneNodeLookup.end())
+		{
+			_sceneNodeLookup.erase(iterator);
+		}
+		
+		node->GetChildren()->Enumerate<RN::SceneNode>([&](RN::SceneNode *n, size_t i, bool &end){UnregisterSceneNodeRecursive(n);});
 	}
 	
 	
@@ -480,12 +490,10 @@ namespace DP
 											if(!node->IsKindOfClass(RN::Camera::MetaClass()))
 											{
 												WorldAttachment::GetSharedInstance()->_sceneNodeLookup[node->GetLID()] = node;
-												node->SetAssociatedObject(kDPNetworkIDAssociationKey, RN::Number::WithUint64(node->GetLID()), RN::Object::MemoryPolicy::Retain);
 											}
 										});
 										
 										ActivateDownpour();
-										
 										RN::World::GetActiveWorld()->Update(0.0f);
 										RN::MessageCenter::GetSharedInstance()->RemoveObserver(this);
 										
@@ -506,10 +514,8 @@ namespace DP
 							RN::Deserializer *deserializer = packet->GetDeserializer();
 							
 							RN::SceneNode *node = static_cast<RN::SceneNode *>(deserializer->DecodeObject());
-							uint64 id = deserializer->DecodeInt64();
 							
-							_sceneNodeLookup[id] = node;
-							node->SetAssociatedObject(kDPNetworkIDAssociationKey, RN::Number::WithUint64(id), RN::Object::MemoryPolicy::Retain);
+							RegisterSceneNodeRecursive(node);
 							break;
 						}
 							
@@ -541,6 +547,7 @@ namespace DP
 					
 				case ENET_EVENT_TYPE_DISCONNECT:
 				{
+					//_isConnected = false;
 					break;
 				}
 
@@ -567,7 +574,6 @@ namespace DP
 			if(!node->IsKindOfClass(RN::Camera::MetaClass()))
 			{
 				WorldAttachment::GetSharedInstance()->_sceneNodeLookup[node->GetLID()] = node;
-				node->SetAssociatedObject(kDPNetworkIDAssociationKey, RN::Number::WithUint64(node->GetLID()), RN::Object::MemoryPolicy::Retain);
 			}
 		});
 	}
@@ -625,7 +631,7 @@ namespace DP
 	
 	void WorldAttachment::Disconnect()
 	{
-		if(!_peer || _isConnected)
+		if(!_peer || !_isConnected)
 			return;
 		
 		RN::LockGuard<decltype(_lock)> lock(_lock);
