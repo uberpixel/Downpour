@@ -28,6 +28,7 @@ namespace DP
 	{
 		__workspace = new Workspace(__module);
 		__workspace->Open();
+		__workspace->MakeKeyWidget();
 	}
 	
 	void DeactivateDownpour()
