@@ -44,7 +44,7 @@ namespace DP
 		WorldAttachment();
 		~WorldAttachment();
 		
-		void SetCamera(RN::Camera *camera);
+		void Activate(RN::Camera *camera);
 		
 		void DidBeginCamera(RN::Camera *camera) override;
 		

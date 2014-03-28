@@ -76,7 +76,7 @@ namespace DP
 		MakeFirstResponder(_viewport); // Make the viewport the first responder to allow camera movement
 		
 		_worldAttachment = WorldAttachment::GetSharedInstance();
-		_worldAttachment->SetCamera(_viewport->GetContent()->GetEditorCamera());
+		_worldAttachment->Activate(_viewport->GetContent()->GetEditorCamera());
 		RN::WorldCoordinator::GetSharedInstance()->GetWorld()->AddAttachment(_worldAttachment);
 		
 		_gizmo = new Gizmo(_viewport->GetContent()->GetCamera());

@@ -46,13 +46,6 @@ namespace DP
 			
 			_isServer ? StepServer() : StepClient();
 		}, true);
-		
-		RN::MessageCenter::GetSharedInstance()->AddObserver(kDPWorkspaceSelectionChanged, [this](RN::Message *message) {
-			
-			RN::SafeRelease(_sceneNodes);
-			_sceneNodes = RN::SafeRetain(static_cast<RN::Array *>(message->GetObject()));
-			
-		}, this);
 	}
 	
 	WorldAttachment::~WorldAttachment()
@@ -65,9 +58,17 @@ namespace DP
 		RN::MessageCenter::GetSharedInstance()->RemoveObserver(this);
 	}
 	
-	void WorldAttachment::SetCamera(RN::Camera *camera)
+	void WorldAttachment::Activate(RN::Camera *camera)
 	{
 		_camera = camera;
+		
+		RN::MessageCenter::GetSharedInstance()->RemoveObserver(this);
+		RN::MessageCenter::GetSharedInstance()->AddObserver(kDPWorkspaceSelectionChanged, [this](RN::Message *message) {
+			
+			RN::SafeRelease(_sceneNodes);
+			_sceneNodes = RN::SafeRetain(static_cast<RN::Array *>(message->GetObject()));
+			
+		}, this);
 	}
 	
 	void WorldAttachment::DidBeginCamera(RN::Camera *camera)
@@ -493,9 +494,9 @@ namespace DP
 											}
 										});
 										
+										RN::MessageCenter::GetSharedInstance()->RemoveObserver(this);
 										ActivateDownpour();
 										RN::World::GetActiveWorld()->Update(0.0f);
-										RN::MessageCenter::GetSharedInstance()->RemoveObserver(this);
 										
 										_isLoadingWorld = false;
 										
