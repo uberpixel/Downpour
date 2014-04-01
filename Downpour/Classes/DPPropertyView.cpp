@@ -578,7 +578,10 @@ namespace DP
 				RN::Material *material = model->GetMaterialAtIndex(0, i);
 				RN::UI::Button *button = RN::UI::Button::WithType(RN::UI::Button::Type::Bezel);
 				
-				button->SetImageForState(RN::UI::Image::WithTexture(material->GetTextures()->GetObjectAtIndex<RN::Texture>(0)), RN::UI::Control::State::Normal);
+				const RN::Array *textures = material->GetTextures();
+				
+				if(textures->GetCount() > 0)
+					button->SetImageForState(RN::UI::Image::WithTexture(material->GetTextures()->GetObjectAtIndex<RN::Texture>(0)), RN::UI::Control::State::Normal);
 				button->SetClipSubviews(true);
 				button->AddListener(RN::UI::Control::EventType::MouseUpInside, [material](RN::UI::Control *control, RN::UI::Control::EventType type) {
 					
