@@ -73,7 +73,6 @@ namespace DP
 		void DisconnectFromSession();
 		
 	private:
-		RN::Array *DuplicateSceneNodes(RN::Array *sceneNodes);
 		void SanitizeAndPostSelection();
 		void CreateToolbar();
 		void CreateMainMenu();

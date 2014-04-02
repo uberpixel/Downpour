@@ -56,6 +56,7 @@ namespace DP
 		void RequestSceneNode(RN::Object *object, const RN::Vector3 &position);
 		RN::SceneNode *CreateSceneNode(RN::Object *object, const RN::Vector3 &position);
 		void DeleteSceneNodes(RN::Array *sceneNodes);
+		void DuplicateSceneNodes(RN::Array *sceneNodes);
 		void ApplyTransforms(const TransformRequest &request);
 		
 		void SelectSceneNode(RN::SceneNode *node);

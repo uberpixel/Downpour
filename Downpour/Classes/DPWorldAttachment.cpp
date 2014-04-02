@@ -269,6 +269,71 @@ namespace DP
 		return nullptr;
 	}
 	
+	void WorldAttachment::DuplicateSceneNodes(RN::Array *sceneNodes)
+	{
+		if(!_isConnected || _isServer)
+		{
+			std::vector<uint64> ids;
+			
+			RN::Array *duplicates = new RN::Array();
+			RN::Serializer *serializer = new RN::FlatSerializer();
+			
+			sceneNodes->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
+				
+				RN::MetaClassBase *meta = node->Class();
+				bool noDirectCopy = false;
+				
+				// Find the first class that supports copying to avoid trying to make a copy
+				// of something that doesn't support copying in the first place
+				while(!meta->SupportsCopying())
+				{
+					noDirectCopy = true;
+					meta = meta->SuperClass();
+				}
+				
+				try
+				{
+					RN::SceneNode *copy = static_cast<RN::SceneNode *>(meta->ConstructWithCopy(node));
+					ids.push_back(node->GetLID());
+					RegisterSceneNodeRecursive(copy);
+					duplicates->AddObject(copy);
+					
+					if(noDirectCopy)
+						RNDebug("Can't copy %s, copying %s instead (make sure to implement the Copyable meta class trait!", node->Class()->Name().c_str(), meta->Name().c_str());
+				}
+				catch(RN::Exception e)
+				{} // Meh...
+			});
+			
+			if(_isServer && !ids.empty())
+			{
+				serializer->EncodeBytes(ids.data(), ids.size() * sizeof(uint64));
+				serializer->EncodeObject(duplicates);
+				BroadcastPacket(Packet::WithTypeAndSerializer(Packet::Type::AnswerDuplicateSceneNode, serializer));
+			}
+			
+			RN::World::GetActiveWorld()->ApplyNodes();
+			duplicates->Release();
+			serializer->Release();
+		}
+		else
+		{
+			std::vector<uint64> ids;
+			
+			sceneNodes->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
+				
+				if(_sceneNodeLookup.count(node->GetLID()))
+				{
+					ids.push_back(node->GetLID());
+				}
+				
+			});
+			
+			if(!ids.empty())
+				BroadcastPacket(Packet::WithTypeAndData(Packet::Type::RequestDuplicateSceneNode, ids.data(), ids.size() * sizeof(uint64)));
+		}
+	}
+	
 	void WorldAttachment::DeleteSceneNodes(RN::Array *sceneNodes)
 	{
 		if(!_isConnected || _isServer)
@@ -410,6 +475,23 @@ namespace DP
 							break;
 						}
 							
+						case Packet::Type::RequestDuplicateSceneNode:
+						{
+							size_t count = packet->GetLength() / sizeof(uint64);
+							std::vector<uint64> ids(count);
+							
+							packet->GetData(ids.data());
+							RN::Array *nodes = new RN::Array();
+							for(auto i : ids)
+							{
+								if(_sceneNodeLookup.count(i) > 0)
+									nodes->AddObject(_sceneNodeLookup[i]);
+							}
+							
+							DuplicateSceneNodes(nodes);
+							break;
+						}
+							
 						case Packet::Type::RequestDeleteSceneNode:
 						{
 							size_t count = packet->GetLength() / sizeof(uint64);
@@ -526,6 +608,21 @@ namespace DP
 							packet->GetData(&request);
 							
 							ApplyTransforms(request);
+							break;
+						}
+							
+						case Packet::Type::AnswerDuplicateSceneNode:
+						{
+							RN::Deserializer *deserializer = packet->GetDeserializer();
+							size_t size;
+							void *data = deserializer->DecodeBytes(&size);
+							size_t count = size / sizeof(uint64);
+							RN::Array *nodes = static_cast<RN::Array *>(deserializer->DecodeObject());
+							
+							nodes->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t i, bool &end){
+								RegisterSceneNodeRecursive(node);
+							});
+							
 							break;
 						}
 							

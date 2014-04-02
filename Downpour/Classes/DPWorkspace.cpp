@@ -340,7 +340,11 @@ namespace DP
 	
 	void Workspace::Duplicate()
 	{
-		DuplicateSelection();
+		RN::Array *selection = GetSelection();
+		if(selection)
+		{
+			_worldAttachment->DuplicateSceneNodes(selection);
+		}
 	}
 	
 	void Workspace::Delete()
@@ -364,8 +368,7 @@ namespace DP
 	
 	void Workspace::Paste()
 	{
-		RN::Array *duplicates = DuplicateSceneNodes(_pasteBoard);
-		SetSelection(duplicates);
+		WorldAttachment::GetSharedInstance()->DuplicateSceneNodes(_pasteBoard);
 	}
 	
 	void Workspace::Cut()
@@ -464,53 +467,11 @@ namespace DP
 		
 		SanitizeAndPostSelection();
 	}
+	
 	void Workspace::SetSelection(std::nullptr_t null)
 	{
 		RN::SafeRelease(_selection);
 		SanitizeAndPostSelection();
-	}
-	
-	void Workspace::DuplicateSelection()
-	{
-		RN::Array *duplicates = DuplicateSceneNodes(_selection);
-		SetSelection(duplicates);
-	}
-	
-	RN::Array *Workspace::DuplicateSceneNodes(RN::Array *sceneNodes)
-	{
-		if(!sceneNodes)
-			return nullptr;
-		
-		RN::Array *duplicates = new RN::Array();
-		
-		sceneNodes->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
-			
-			RN::MetaClassBase *meta = node->Class();
-			bool noDirectCopy = false;
-			
-			// Find the first class that supports copying to avoid trying to make a copy
-			// of something that doesn't support copying in the first place
-			while(!meta->SupportsCopying())
-			{
-				noDirectCopy = true;
-				meta = meta->SuperClass();
-			}
-			
-			
-			try
-			{
-				RN::SceneNode *copy = static_cast<RN::SceneNode *>(meta->ConstructWithCopy(node));
-				duplicates->AddObject(copy);
-				
-				if(noDirectCopy)
-					RNDebug("Can't copy %s, copying %s instead (make sure to implement the Copyable meta class trait!", node->Class()->Name().c_str(), meta->Name().c_str());
-			}
-			catch(RN::Exception e)
-			{} // Meh...
-		});
-		
-		RN::World::GetActiveWorld()->ApplyNodes();
-		return duplicates->Autorelease();
 	}
 	
 	// -----------------------
