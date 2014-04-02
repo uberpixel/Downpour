@@ -37,7 +37,9 @@ namespace DP
 			AnswerDeleteSceneNode,
 			RequestDuplicateSceneNode,
 			AnswerDuplicateSceneNode,
-			AnswerHostID
+			AnswerHostID,
+			RequestSceneNodeProperty,
+			AnswerSceneNodeProperty
 		};
 		
 		static Packet *WithType(Type type);

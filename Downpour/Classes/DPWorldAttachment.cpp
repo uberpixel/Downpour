@@ -141,6 +141,7 @@ namespace DP
 		if(_isServer)
 		{
 			TransformRequest request;
+			request.hostID   = _hostID;
 			request.lid      = node->GetLID();
 			request.position = node->GetPosition();
 			request.scale    = node->GetScale();
@@ -151,42 +152,22 @@ namespace DP
 		else
 		{
 			TransformRequest request;
+			request.hostID   = _hostID;
 			request.lid      = node->GetLID();
 			request.position = node->GetPosition();
 			request.scale    = node->GetScale();
 			request.rotation = node->GetRotation();
 			
 			SendPacketToServer(Packet::WithTypeAndData(Packet::Type::RequestTransform, &request, sizeof(TransformRequest)));
-			_requestedTransforms.push_back(std::move(request));
 		}
-	}
-	
-	
-	
-	bool operator== (const WorldAttachment::TransformRequest &first, const WorldAttachment::TransformRequest &second)
-	{
-		if(first.lid != second.lid)
-			return false;
-		if(!(first.position == second.position))
-			return false;
-		if(!(first.scale == second.scale))
-			return false;
-		if(!(first.rotation == second.rotation))
-			return false;
-		
-		return true;
 	}
 	
 	void WorldAttachment::ApplyTransforms(const TransformRequest &request)
 	{
 		RN::LockGuard<decltype(_lock)> lock(_lock);
 		
-		auto it = std::find(_requestedTransforms.begin(), _requestedTransforms.end(), request);
-		if(it != _requestedTransforms.end())
-		{
-			_requestedTransforms.erase(it);
+		if(request.hostID == _hostID)
 			return;
-		}
 		
 		RN_ASSERT(_sceneNodeLookup.count(request.lid) > 0, "A transform for a not existing ID has been received!");
 		
@@ -200,6 +181,47 @@ namespace DP
 			node->SetRotation(request.rotation);
 			
 			_isRemoteChange = false;
+		}
+	}
+	
+	void WorldAttachment::RequestSceneNodePropertyChange(RN::SceneNode *node, const std::string &name, RN::Object *object, uint32 hostID)
+	{
+		if(!node)
+			return;
+		
+		RN::LockGuard<decltype(_lock)> lock(_lock);
+		
+		if(hostID == -1)
+			hostID = _hostID;
+		
+		if(_isServer || !_isConnected)
+		{
+			RN::FlatSerializer *serializer = new RN::FlatSerializer();
+			serializer->EncodeInt32(hostID);
+			serializer->EncodeInt64(node->GetLID());
+			serializer->EncodeString(name);
+			serializer->EncodeObject(object);
+			
+			BroadcastPacket(Packet::WithTypeAndSerializer(Packet::Type::AnswerSceneNodeProperty, serializer));
+			
+			serializer->Release();
+			
+			if(hostID != _hostID)
+			{
+				node->SetValueForKey(object, name);
+			}
+		}
+		else
+		{
+			RN::FlatSerializer *serializer = new RN::FlatSerializer();
+			serializer->EncodeInt32(hostID);
+			serializer->EncodeInt64(node->GetLID());
+			serializer->EncodeString(name);
+			serializer->EncodeObject(object);
+			
+			SendPacketToServer(Packet::WithTypeAndSerializer(Packet::Type::RequestSceneNodeProperty, serializer));
+			
+			serializer->Release();
 		}
 	}
 	
@@ -496,6 +518,21 @@ namespace DP
 							break;
 						}
 							
+						case Packet::Type::RequestSceneNodeProperty:
+						{
+							RN::Deserializer *deserializer = packet->GetDeserializer();
+							uint32 hostID = deserializer->DecodeInt32();
+							uint64 lid = deserializer->DecodeInt64();
+							std::string name = deserializer->DecodeString();
+							RN::Object *object = deserializer->DecodeObject();
+							
+							if(_sceneNodeLookup.count(lid) > 0)
+							{
+								RequestSceneNodePropertyChange(_sceneNodeLookup[lid], name, object, hostID);
+							}
+							break;
+						}
+							
 						case Packet::Type::RequestDuplicateSceneNode:
 						{
 							size_t count = packet->GetLength() / sizeof(uint64);
@@ -643,6 +680,21 @@ namespace DP
 							packet->GetData(&request);
 							
 							ApplyTransforms(request);
+							break;
+						}
+							
+						case Packet::Type::AnswerSceneNodeProperty:
+						{
+							RN::Deserializer *deserializer = packet->GetDeserializer();
+							uint32 hostID = deserializer->DecodeInt32();
+							uint64 lid = deserializer->DecodeInt64();
+							std::string name = deserializer->DecodeString();
+							RN::Object *object = deserializer->DecodeObject();
+							
+							if(_sceneNodeLookup.count(lid) > 0 && hostID != _hostID)
+							{
+								_sceneNodeLookup[lid]->SetValueForKey(object, name);
+							}
 							break;
 						}
 							

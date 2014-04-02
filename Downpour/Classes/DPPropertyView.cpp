@@ -18,6 +18,7 @@
 #include "DPPropertyView.h"
 #include "DPColorScheme.h"
 #include "DPMaterialView.h"
+#include "DPWorldAttachment.h"
 
 #define kDPPropertyViewLayoutLeftTitleLength 65.0f
 
@@ -220,6 +221,19 @@ namespace DP
 		object->RemoveObserver(_observable->GetName(), this);
 	}
 	
+	void ObservablePropertyView::SynchronizeChange()
+	{
+		RN::SceneNode *node = _observable->GetObject()->Downcast<RN::SceneNode>();
+		if(node)
+		{
+			std::vector<RN::ObservableProperty *> properties = node->GetPropertiesForClass(RN::SceneNode::MetaClass());
+			if(std::find(properties.begin(), properties.end(), _observable) == properties.end())
+			{
+				WorldAttachment::GetSharedInstance()->RequestSceneNodePropertyChange(node, _observable->GetName(), _observable->GetValue());
+			}
+		}
+	}
+	
 	// -----------------------
 	// MARK: -
 	// MARK: BooleanPropertyView
@@ -250,6 +264,7 @@ namespace DP
 	void BooleanPropertyView::ButtonClicked()
 	{
 		_observable->SetValue(RN::Number::WithBool(_valueButton->IsSelected()));
+		SynchronizeChange();
 	}
 	
 	void BooleanPropertyView::ValueDidChange(RN::Object *value)
@@ -288,6 +303,7 @@ namespace DP
 	void ScalarPropertyView::TextFieldDidEndEditing(RN::UI::TextField *textField)
 	{
 		_observable->SetValue(textField->GetValue());
+		SynchronizeChange();
 	}
 	
 	void ScalarPropertyView::ValueDidChange(RN::Object *value)
@@ -353,6 +369,8 @@ namespace DP
 				return;
 			}
 		}
+		
+		SynchronizeChange();
 	}
 	
 	void ComponentPropertyView::LayoutSubviews()

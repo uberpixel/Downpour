@@ -33,8 +33,7 @@ namespace DP
 		struct TransformRequest
 		{
 		public:
-			friend bool operator== (const TransformRequest &first, const TransformRequest &second);
-			
+			uint32 hostID;
 			uint64 lid;
 			RN::Vector3 position;
 			RN::Vector3 scale;
@@ -58,6 +57,7 @@ namespace DP
 		void DeleteSceneNodes(RN::Array *sceneNodes);
 		void DuplicateSceneNodes(RN::Array *sceneNodes, uint32 hostID=-1);
 		void ApplyTransforms(const TransformRequest &request);
+		void RequestSceneNodePropertyChange(RN::SceneNode *node, const std::string &name, RN::Object *object, uint32 hostID=-1);
 		
 		void StepServer();
 		void StepClient();
@@ -96,7 +96,6 @@ namespace DP
 		bool _isRemoteChange;
 		bool _isLoadingWorld;
 		
-		std::vector<TransformRequest> _requestedTransforms;
 		std::unordered_map<uint64, RN::SceneNode*> _sceneNodeLookup;
 		
 		RN::RecursiveSpinLock _lock;
