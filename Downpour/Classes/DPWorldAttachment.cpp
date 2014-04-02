@@ -32,7 +32,9 @@ namespace DP
 		_isConnected(false),
 		_isServer(false),
 		_isRemoteChange(false),
-		_isLoadingWorld(false)
+		_isLoadingWorld(false),
+		_hostID(0),
+		_clientCount(0)
 	{
 		_lightClass  = RN::Light::MetaClass();
 		_cameraClass = RN::Camera::MetaClass();
@@ -201,8 +203,11 @@ namespace DP
 		}
 	}
 	
-	void WorldAttachment::RequestSceneNode(RN::Object *object, const RN::Vector3 &position)
+	void WorldAttachment::RequestSceneNode(RN::Object *object, const RN::Vector3 &position, uint32 hostID)
 	{
+		if(hostID == -1)
+			hostID = _hostID;
+		
 		if(_isServer || !_isConnected)
 		{
 			RN::SceneNode *node = CreateSceneNode(object, position);
@@ -211,16 +216,23 @@ namespace DP
 				RegisterSceneNodeRecursive(node);
 				
 				RN::FlatSerializer *serializer = new RN::FlatSerializer();
+				serializer->EncodeInt32(hostID);
 				serializer->EncodeObject(node);
 				
 				BroadcastPacket(Packet::WithTypeAndSerializer(Packet::Type::AnswerSceneNode, serializer));
 				
 				serializer->Release();
+				
+				if(hostID == _hostID)
+				{
+					Workspace::GetSharedInstance()->SetSelection(node);
+				}
 			}
 		}
 		else
 		{
 			RN::FlatSerializer *serializer = new RN::FlatSerializer();
+			serializer->EncodeInt32(hostID);
 			serializer->EncodeObject(object);
 			serializer->EncodeVector3(position);
 			
@@ -269,12 +281,13 @@ namespace DP
 		return nullptr;
 	}
 	
-	void WorldAttachment::DuplicateSceneNodes(RN::Array *sceneNodes)
+	void WorldAttachment::DuplicateSceneNodes(RN::Array *sceneNodes, uint32 hostID)
 	{
+		if(hostID == -1)
+			hostID = _hostID;
+		
 		if(!_isConnected || _isServer)
 		{
-			std::vector<uint64> ids;
-			
 			RN::Array *duplicates = new RN::Array();
 			RN::Serializer *serializer = new RN::FlatSerializer();
 			
@@ -294,7 +307,6 @@ namespace DP
 				try
 				{
 					RN::SceneNode *copy = static_cast<RN::SceneNode *>(meta->ConstructWithCopy(node));
-					ids.push_back(node->GetLID());
 					RegisterSceneNodeRecursive(copy);
 					duplicates->AddObject(copy);
 					
@@ -305,14 +317,18 @@ namespace DP
 				{} // Meh...
 			});
 			
-			if(_isServer && !ids.empty())
+			if(_isServer)
 			{
-				serializer->EncodeBytes(ids.data(), ids.size() * sizeof(uint64));
+				serializer->EncodeInt32(hostID);
 				serializer->EncodeObject(duplicates);
 				BroadcastPacket(Packet::WithTypeAndSerializer(Packet::Type::AnswerDuplicateSceneNode, serializer));
 			}
 			
 			RN::World::GetActiveWorld()->ApplyNodes();
+			if(hostID == _hostID)
+			{
+				Workspace::GetSharedInstance()->SetSelection(duplicates);
+			}
 			duplicates->Release();
 			serializer->Release();
 		}
@@ -330,7 +346,10 @@ namespace DP
 			});
 			
 			if(!ids.empty())
+			{
+				ids.push_back(hostID);
 				BroadcastPacket(Packet::WithTypeAndData(Packet::Type::RequestDuplicateSceneNode, ids.data(), ids.size() * sizeof(uint64)));
+			}
 		}
 	}
 	
@@ -423,6 +442,8 @@ namespace DP
 			{
 				case ENET_EVENT_TYPE_CONNECT:
 				{
+					_clientCount++;
+					SendPacketToPeer(event.peer, Packet::WithTypeAndData(DP::Packet::Type::AnswerHostID, &_clientCount, sizeof(uint32)));
 					break;
 				}
 				
@@ -456,11 +477,11 @@ namespace DP
 						case Packet::Type::RequestSceneNode:
 						{
 							RN::Deserializer *deserializer = packet->GetDeserializer();
-							
+							uint32 hostID = deserializer->DecodeInt32();
 							RN::Object *object   = deserializer->DecodeObject();
 							RN::Vector3 position = deserializer->DecodeVector3();
 							
-							RequestSceneNode(object, position);
+							RequestSceneNode(object, position, hostID);
 							break;
 						}
 						
@@ -479,8 +500,11 @@ namespace DP
 						{
 							size_t count = packet->GetLength() / sizeof(uint64);
 							std::vector<uint64> ids(count);
-							
 							packet->GetData(ids.data());
+							
+							uint32 hostID = static_cast<uint32>(ids.back());
+							ids.pop_back();
+							
 							RN::Array *nodes = new RN::Array();
 							for(auto i : ids)
 							{
@@ -488,7 +512,7 @@ namespace DP
 									nodes->AddObject(_sceneNodeLookup[i]);
 							}
 							
-							DuplicateSceneNodes(nodes);
+							DuplicateSceneNodes(nodes, hostID);
 							break;
 						}
 							
@@ -550,6 +574,12 @@ namespace DP
 					
 					switch(packet->GetType())
 					{
+						case Packet::Type::AnswerHostID:
+						{
+							packet->GetData(&_hostID);
+							break;
+						}
+							
 						case Packet::Type::AnswerWorld:
 						{
 							RN::Deserializer *deserializer = packet->GetDeserializer()->Retain();
@@ -595,8 +625,13 @@ namespace DP
 						case Packet::Type::AnswerSceneNode:
 						{
 							RN::Deserializer *deserializer = packet->GetDeserializer();
-							
+							uint32 hostID = deserializer->DecodeInt32();
 							RN::SceneNode *node = static_cast<RN::SceneNode *>(deserializer->DecodeObject());
+							
+							if(hostID == _hostID)
+							{
+								Workspace::GetSharedInstance()->SetSelection(node);
+							}
 							
 							RegisterSceneNodeRecursive(node);
 							break;
@@ -614,14 +649,17 @@ namespace DP
 						case Packet::Type::AnswerDuplicateSceneNode:
 						{
 							RN::Deserializer *deserializer = packet->GetDeserializer();
-							size_t size;
-							void *data = deserializer->DecodeBytes(&size);
-							size_t count = size / sizeof(uint64);
+							uint32 hostID = deserializer->DecodeInt32();
 							RN::Array *nodes = static_cast<RN::Array *>(deserializer->DecodeObject());
 							
 							nodes->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t i, bool &end){
 								RegisterSceneNodeRecursive(node);
 							});
+							
+							if(hostID == _hostID)
+							{
+								Workspace::GetSharedInstance()->SetSelection(nodes);
+							}
 							
 							break;
 						}
@@ -666,6 +704,8 @@ namespace DP
 		
 		_isServer    = true;
 		_isConnected = true;
+		_hostID = 0;
+		_clientCount = 0;
 		
 		RN::Array *nodes = RN::World::GetActiveWorld()->GetSceneNodes();
 		nodes->Enumerate<RN::SceneNode>([](RN::SceneNode *node, size_t i, bool &stop) {

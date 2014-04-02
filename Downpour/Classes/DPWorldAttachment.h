@@ -53,13 +53,11 @@ namespace DP
 		
 		void SceneNodeDidUpdate(RN::SceneNode *node, RN::SceneNode::ChangeSet changeSet) override;
 		
-		void RequestSceneNode(RN::Object *object, const RN::Vector3 &position);
+		void RequestSceneNode(RN::Object *object, const RN::Vector3 &position, uint32 hostID=-1);
 		RN::SceneNode *CreateSceneNode(RN::Object *object, const RN::Vector3 &position);
 		void DeleteSceneNodes(RN::Array *sceneNodes);
-		void DuplicateSceneNodes(RN::Array *sceneNodes);
+		void DuplicateSceneNodes(RN::Array *sceneNodes, uint32 hostID=-1);
 		void ApplyTransforms(const TransformRequest &request);
-		
-		void SelectSceneNode(RN::SceneNode *node);
 		
 		void StepServer();
 		void StepClient();
@@ -89,6 +87,9 @@ namespace DP
 		
 		ENetHost *_host;
 		ENetPeer *_peer;
+		
+		uint32 _hostID;
+		uint32 _clientCount;
 		
 		bool _isConnected;
 		bool _isServer;
