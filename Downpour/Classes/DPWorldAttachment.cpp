@@ -260,6 +260,21 @@ namespace DP
 		}
 		else
 		{
+			if(object->IsKindOfClass(RN::Value::MetaClass()))
+			{
+				RN::Value *value = static_cast<RN::Value *>(object);
+				
+				try
+				{
+					RN::MetaClassBase *meta = value->GetValue<RN::MetaClassBase *>();
+					object = RNSTR(meta->Fullname().c_str());
+				}
+				catch(RN::Exception e)
+				{
+					return;
+				}
+			}
+			
 			RN::FlatSerializer *serializer = new RN::FlatSerializer();
 			serializer->EncodeInt32(hostID);
 			serializer->EncodeObject(object);
@@ -292,6 +307,28 @@ namespace DP
 			try
 			{
 				RN::MetaClassBase *meta = value->GetValue<RN::MetaClassBase *>();
+				if(meta && meta->InheritsFromClass(RN::SceneNode::MetaClass()))
+				{
+					RN::SceneNode *node = static_cast<RN::SceneNode *>(meta->Construct());
+					node->SetPosition(position);
+					
+					RN::World::GetActiveWorld()->ApplyNodes();
+					
+					return node;
+				}
+			}
+			catch(RN::Exception e)
+			{} // Meh...
+		}
+		
+		if(object->IsKindOfClass(RN::String::MetaClass()))
+		{
+			RN::String *string = static_cast<RN::String *>(object);
+			
+			try
+			{
+				RN::MetaClassBase *meta = RN::Catalogue::GetSharedInstance()->GetClassWithName(string->GetUTF8String());
+				
 				if(meta && meta->InheritsFromClass(RN::SceneNode::MetaClass()))
 				{
 					RN::SceneNode *node = static_cast<RN::SceneNode *>(meta->Construct());
