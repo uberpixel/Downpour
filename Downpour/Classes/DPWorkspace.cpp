@@ -437,12 +437,63 @@ namespace DP
 		_selection->Release();
 		_selection = (sanitized->GetCount() > 0) ? sanitized->Retain() : nullptr;
 		
+		if(_selection)
+		{
+			_selection->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop){
+				RN::MetaClassBase *meta = node->Class();
+				while(meta && meta != RN::Object::MetaClass())
+				{
+					std::vector<RN::ObservableProperty *> properties = node->GetPropertiesForClass(meta);
+					
+					for(RN::ObservableProperty *property : properties)
+					{
+						node->AddObserver(property->GetName(), [](RN::Object *object, const std::string &key, RN::Dictionary *changes){
+							
+							RN::SceneNode *node = object->Downcast<RN::SceneNode>();
+							if(node)
+							{
+								if(key != std::string("position") && key != std::string("rotation") && key != std::string("scale"))
+								{
+									WorldAttachment::GetSharedInstance()->RequestSceneNodePropertyChange(node, key, changes->GetObjectForKey(kRNObservableNewValueKey));
+								}
+							}
+						}, this);
+					}
+					
+					meta = meta->SuperClass();
+				}
+			});
+		}
+		
 		RN::MessageCenter::GetSharedInstance()->PostMessage(kDPWorkspaceSelectionChanged, _selection, nullptr);
+	}
+	
+	void Workspace::RemoveSelection()
+	{
+		if(_selection)
+		{
+			_selection->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop){
+				RN::MetaClassBase *meta = node->Class();
+				while(meta && meta != RN::Object::MetaClass())
+				{
+					std::vector<RN::ObservableProperty *> properties = node->GetPropertiesForClass(meta);
+					
+					for(RN::ObservableProperty *property : properties)
+					{
+						node->RemoveObserver(property->GetName(), this);
+					}
+					
+					meta = meta->SuperClass();
+				}
+			});
+		}
+		
+		RN::SafeRelease(_selection);
 	}
 	
 	void Workspace::SetSelection(RN::Array *selection)
 	{
-		RN::SafeRelease(_selection);
+		RemoveSelection();
 		_selection = selection->Copy();
 		
 		SanitizeAndPostSelection();
@@ -461,7 +512,7 @@ namespace DP
 		}
 		else
 		{
-			RN::SafeRelease(_selection);
+			RemoveSelection();
 			_selection = RN::Array::WithObjects(selection, nullptr)->Retain();
 		}
 		
@@ -470,7 +521,7 @@ namespace DP
 	
 	void Workspace::SetSelection(std::nullptr_t null)
 	{
-		RN::SafeRelease(_selection);
+		RemoveSelection();
 		SanitizeAndPostSelection();
 	}
 	

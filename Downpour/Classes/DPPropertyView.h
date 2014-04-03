@@ -63,7 +63,6 @@ namespace DP
 		~ObservablePropertyView();
 		
 		virtual void ValueDidChange(RN::Object *value) = 0;
-		void SynchronizeChange();
 		
 	protected:
 		RN::ObservableProperty *_observable;

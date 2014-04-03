@@ -189,6 +189,12 @@ namespace DP
 		if(!node)
 			return;
 		
+		if(_isRemoteChange)
+		{
+			_isRemoteChange = false;
+			return;
+		}
+		
 		RN::LockGuard<decltype(_lock)> lock(_lock);
 		
 		if(hostID == -1)
@@ -208,6 +214,7 @@ namespace DP
 			
 			if(hostID != _hostID)
 			{
+				_isRemoteChange = true;
 				node->SetValueForKey(object, name);
 			}
 		}
@@ -693,6 +700,7 @@ namespace DP
 							
 							if(_sceneNodeLookup.count(lid) > 0 && hostID != _hostID)
 							{
+								_isRemoteChange = true;
 								_sceneNodeLookup[lid]->SetValueForKey(object, name);
 							}
 							break;

@@ -74,6 +74,7 @@ namespace DP
 		
 	private:
 		void SanitizeAndPostSelection();
+		void RemoveSelection();
 		void CreateToolbar();
 		void CreateMainMenu();
 		void UpdateSize();
