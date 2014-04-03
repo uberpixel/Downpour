@@ -281,7 +281,6 @@ namespace DP
 			
 			// Get the world to register the new entity immediately
 			RN::World::GetActiveWorld()->ApplyNodes();
-			Workspace::GetSharedInstance()->SetSelection(entity);
 			
 			return entity;
 		}
