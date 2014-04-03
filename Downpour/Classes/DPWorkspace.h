@@ -78,6 +78,8 @@ namespace DP
 		void CreateToolbar();
 		void CreateMainMenu();
 		void UpdateSize();
+		void AddSceneNodeObserver(RN::SceneNode *node);
+		void RemoveSceneNodeObserver(RN::SceneNode *node);
 		
 		void KeyDown(RN::Event *event) override;
 		void DuplicateSelection();

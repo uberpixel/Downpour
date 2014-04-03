@@ -405,6 +405,51 @@ namespace DP
 	// MARK: Selection
 	// -----------------------
 	
+	void Workspace::AddSceneNodeObserver(RN::SceneNode *node)
+	{
+		RN::MetaClassBase *meta = node->Class();
+		
+		while(meta && meta != RN::Object::MetaClass())
+		{
+			std::vector<RN::ObservableProperty *> properties = node->GetPropertiesForClass(meta);
+			
+			for(RN::ObservableProperty *property : properties)
+			{
+				node->AddObserver(property->GetName(), [](RN::Object *object, const std::string &key, RN::Dictionary *changes) {
+					
+					RN::SceneNode *node = object->Downcast<RN::SceneNode>();
+					if(node)
+					{
+						if(key != std::string("position") && key != std::string("rotation") && key != std::string("scale"))
+						{
+							WorldAttachment::GetSharedInstance()->RequestSceneNodePropertyChange(node, key, changes->GetObjectForKey(kRNObservableNewValueKey));
+						}
+					}
+					
+				}, this);
+			}
+			
+			meta = meta->SuperClass();
+		}
+	}
+	
+	void Workspace::RemoveSceneNodeObserver(RN::SceneNode *node)
+	{
+		RN::MetaClassBase *meta = node->Class();
+		
+		while(meta && meta != RN::Object::MetaClass())
+		{
+			std::vector<RN::ObservableProperty *> properties = node->GetPropertiesForClass(meta);
+			
+			for(RN::ObservableProperty *property : properties)
+				node->RemoveObserver(property->GetName(), this);
+			
+			meta = meta->SuperClass();
+		}
+	}
+	
+	
+	
 	void Workspace::SanitizeAndPostSelection()
 	{
 		if(!_selection)
@@ -439,29 +484,8 @@ namespace DP
 		
 		if(_selection)
 		{
-			_selection->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop){
-				RN::MetaClassBase *meta = node->Class();
-				while(meta && meta != RN::Object::MetaClass())
-				{
-					std::vector<RN::ObservableProperty *> properties = node->GetPropertiesForClass(meta);
-					
-					for(RN::ObservableProperty *property : properties)
-					{
-						node->AddObserver(property->GetName(), [](RN::Object *object, const std::string &key, RN::Dictionary *changes){
-							
-							RN::SceneNode *node = object->Downcast<RN::SceneNode>();
-							if(node)
-							{
-								if(key != std::string("position") && key != std::string("rotation") && key != std::string("scale"))
-								{
-									WorldAttachment::GetSharedInstance()->RequestSceneNodePropertyChange(node, key, changes->GetObjectForKey(kRNObservableNewValueKey));
-								}
-							}
-						}, this);
-					}
-					
-					meta = meta->SuperClass();
-				}
+			_selection->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
+				AddSceneNodeObserver(node);
 			});
 		}
 		
@@ -473,23 +497,14 @@ namespace DP
 		if(_selection)
 		{
 			_selection->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop){
-				RN::MetaClassBase *meta = node->Class();
-				while(meta && meta != RN::Object::MetaClass())
-				{
-					std::vector<RN::ObservableProperty *> properties = node->GetPropertiesForClass(meta);
-					
-					for(RN::ObservableProperty *property : properties)
-					{
-						node->RemoveObserver(property->GetName(), this);
-					}
-					
-					meta = meta->SuperClass();
-				}
+				RemoveSceneNodeObserver(node);
 			});
 		}
 		
 		RN::SafeRelease(_selection);
 	}
+	
+	
 	
 	void Workspace::SetSelection(RN::Array *selection)
 	{
@@ -498,6 +513,7 @@ namespace DP
 		
 		SanitizeAndPostSelection();
 	}
+	
 	void Workspace::SetSelection(RN::SceneNode *selection)
 	{
 		if(RN::Input::GetSharedInstance()->GetModifierKeys() & kDPWorkspaceActionKey)
@@ -506,9 +522,15 @@ namespace DP
 				_selection = new RN::Array();
 			
 			if(!_selection->ContainsObject(selection))
+			{
 				_selection->AddObject(selection);
+				AddSceneNodeObserver(selection);
+			}
 			else
+			{
 				_selection->RemoveObject(selection);
+				RemoveSceneNodeObserver(selection);
+			}
 		}
 		else
 		{
