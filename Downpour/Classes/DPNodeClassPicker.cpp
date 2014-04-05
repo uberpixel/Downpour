@@ -45,7 +45,8 @@ namespace DP
 	
 	bool NodeClassPicker::CanDragItemAtRow(DraggableOutlineView *outlineView, void *item, size_t row)
 	{
-		return true;
+		ClassProxy *proxy = static_cast<ClassProxy *>(item);
+		return proxy->constructible;
 	}
 	
 	RN::Object *NodeClassPicker::GetObjectForDraggedItem(DraggableOutlineView *outlineView, void *item)
@@ -99,6 +100,9 @@ namespace DP
 		ClassProxy *proxy = static_cast<ClassProxy *>(item);
 		
 		cell->GetTextLabel()->SetText(proxy->name);
+		
+		if(!proxy->constructible)
+			cell->GetTextLabel()->SetTextColor(RN::Color(0.778f, 0.061f, 0.054f));
 		
 		return cell;
 	}

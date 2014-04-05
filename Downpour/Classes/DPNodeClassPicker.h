@@ -26,13 +26,14 @@ namespace DP
 	struct ClassProxy
 	{
 		ClassProxy(RN::MetaClassBase *tmeta) :
-			meta(tmeta)
+			meta(tmeta),
+			constructible(tmeta->SupportsConstruction())
 		{
 			name = RNSTR(tmeta->Fullname().c_str())->Retain();
 			
 			RN::Catalogue::GetSharedInstance()->EnumerateClasses([&](RN::MetaClassBase *mclass, bool &stop) {
 				
-				if(mclass->SuperClass() == meta && mclass->SupportsConstruction())
+				if(mclass->SuperClass() == meta)
 					children.emplace_back(new ClassProxy(mclass));
 				
 			});
@@ -49,6 +50,7 @@ namespace DP
 		RN::MetaClassBase *meta;
 		RN::String *name;
 		std::vector<ClassProxy *> children;
+		bool constructible;
 	};
 	
 	class NodeClassPicker : public RN::UI::View, RN::UI::OutlineViewDataSource, DraggableOutlineView::Delegate
