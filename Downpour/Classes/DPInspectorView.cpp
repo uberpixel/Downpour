@@ -21,7 +21,7 @@
 
 namespace DP
 {
-	static std::vector<std::pair<RN::MetaClassBase *, RN::MetaClassBase *>> _registeredInspectorViews;
+	std::vector<std::pair<RN::MetaClassBase *, RN::MetaClassBase *>> *_registeredInspectorViews;
 	
 	RNDefineMeta(InspectorView, RN::UI::View)
 	RNDefineMeta(GenericInspectorView, InspectorView)
@@ -96,8 +96,10 @@ namespace DP
 			RN::MetaClassBase *match = nullptr;
 			size_t matchDistance = static_cast<size_t>(-1);
 			
-			for(auto &pair : _registeredInspectorViews)
+			for(auto i = _registeredInspectorViews->begin(); i != _registeredInspectorViews->end(); i ++)
 			{
+				auto &pair = *i;
+				
 				size_t distance = 0;
 				RN::MetaClassBase *temp = meta;
 				
@@ -161,7 +163,12 @@ namespace DP
 	{
 		RN_ASSERT(inspectorClass->InheritsFromClass(InspectorView::MetaClass()), "Inspector class must inherit from InspectorView");
 		
-		_registeredInspectorViews.emplace_back(std::make_pair(inspectorClass, predicate));
+		static std::once_flag token;
+		std::call_once(token, [&] {
+			_registeredInspectorViews = new std::vector<std::pair<RN::MetaClassBase *, RN::MetaClassBase *>>();
+		});
+		
+		_registeredInspectorViews->emplace_back(std::make_pair(inspectorClass, predicate));
 	}
 	
 	
