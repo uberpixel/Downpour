@@ -100,38 +100,24 @@ namespace DP
 			{
 				auto &pair = *i;
 				
-				size_t distance = 0;
-				RN::MetaClassBase *temp = meta;
-				
-				while(temp != pair.second)
+				if(meta == pair.second)
 				{
-					temp = temp->SuperClass();
-					distance ++;
-					
-					if(!temp)
-					{
-						distance = static_cast<size_t>(-1);
-						break;
-					}
-				}
-				
-				if(distance < matchDistance)
-				{
-					matchDistance = distance;
 					match = pair.first;
+					break;
 				}
 			}
 			
-			if(match)
-			{
-				InspectorView *inspectorView = static_cast<InspectorView *>(match->Construct());
-				
-				inspectorView->Initialize(_selection, meta, RNSTR(meta->Name().c_str()));
-				inspectorView->SizeToFit();
-				
-				_inspectors->AddObject(inspectorView->Autorelease());
-				AddSubview(inspectorView);
-			}
+			if(!match)
+				match = GenericInspectorView::MetaClass();
+			
+			
+			InspectorView *inspectorView = static_cast<InspectorView *>(match->Construct());
+			
+			inspectorView->Initialize(_selection, meta, RNSTR(meta->Name().c_str()));
+			inspectorView->SizeToFit();
+			
+			_inspectors->AddObject(inspectorView->Autorelease());
+			AddSubview(inspectorView);
 		}
 	}
 	
