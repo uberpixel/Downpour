@@ -547,6 +547,11 @@ namespace DP
 		SanitizeAndPostSelection();
 	}
 	
+	void Workspace::SetActiveTool(Tool tool)
+	{
+		_activeTool = tool;
+	}
+	
 	// -----------------------
 	// MARK: -
 	// MARK: Event handling

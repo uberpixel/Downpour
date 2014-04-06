@@ -102,27 +102,17 @@ namespace DP
 	void Gizmo::SetSelection(RN::Array *selection)
 	{
 		_selection = selection;
-		
-		RN::SceneNode::Flags flags = GetFlags() & ~RN::SceneNode::Flags::Hidden;
-		if(!_selection)
-		{
-			SetCollisionGroup(1);
-			flags |= RN::SceneNode::Flags::Hidden;
-		}
-		else
-		{
-			SetCollisionGroup(0);
-		}
-		
-		SetFlags(flags);
 	}
 	
 	void Gizmo::UpdateEditMode(float delta)
 	{
 		RN::Entity::UpdateEditMode(delta);
 		
-		if(_selection)
+		if(_selection && Workspace::GetSharedInstance()->GetActiveTool() == Workspace::Tool::Gizmo)
 		{
+			SetFlags(GetFlags() & ~RN::SceneNode::Flags::Hidden);
+			SetCollisionGroup(0);
+			
 			RN::Vector3 center;
 			
 			_selection->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
@@ -140,6 +130,11 @@ namespace DP
 			{
 				SetRotation(RN::Quaternion());
 			}
+		}
+		else
+		{
+			SetFlags(GetFlags() | RN::SceneNode::Flags::Hidden);
+			SetCollisionGroup(1);
 		}
 	}
 	

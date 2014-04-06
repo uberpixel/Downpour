@@ -9,6 +9,10 @@
 /* Begin PBXBuildFile section */
 		D5126C7918C944FC00F91F80 /* DPRenderView.h in Headers */ = {isa = PBXBuildFile; fileRef = D5126C7718C944FC00F91F80 /* DPRenderView.h */; };
 		D5126C7A18C944FC00F91F80 /* DPRenderView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D5126C7818C944FC00F91F80 /* DPRenderView.cpp */; };
+		D5AF949318F09671009821E3 /* DPSculptTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D5AF949118F09671009821E3 /* DPSculptTool.cpp */; };
+		D5AF949418F09671009821E3 /* DPSculptTool.h in Headers */ = {isa = PBXBuildFile; fileRef = D5AF949218F09671009821E3 /* DPSculptTool.h */; };
+		D5CC4C5318F0B6A10015B199 /* DPSculptableInspectorView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D5CC4C5118F0B6A10015B199 /* DPSculptableInspectorView.cpp */; };
+		D5CC4C5418F0B6A10015B199 /* DPSculptableInspectorView.h in Headers */ = {isa = PBXBuildFile; fileRef = D5CC4C5218F0B6A10015B199 /* DPSculptableInspectorView.h */; };
 		E915663718C73FCB005033FC /* DPFileTree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E915663518C73FCB005033FC /* DPFileTree.cpp */; };
 		E915663818C73FCB005033FC /* DPFileTree.h in Headers */ = {isa = PBXBuildFile; fileRef = E915663618C73FCB005033FC /* DPFileTree.h */; };
 		E939D7B518C73A620008D4A5 /* DPWorkspace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E939D7B318C73A620008D4A5 /* DPWorkspace.cpp */; };
@@ -52,6 +56,10 @@
 /* Begin PBXFileReference section */
 		D5126C7718C944FC00F91F80 /* DPRenderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPRenderView.h; path = Classes/DPRenderView.h; sourceTree = "<group>"; };
 		D5126C7818C944FC00F91F80 /* DPRenderView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPRenderView.cpp; path = Classes/DPRenderView.cpp; sourceTree = "<group>"; };
+		D5AF949118F09671009821E3 /* DPSculptTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPSculptTool.cpp; path = Classes/DPSculptTool.cpp; sourceTree = "<group>"; };
+		D5AF949218F09671009821E3 /* DPSculptTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPSculptTool.h; path = Classes/DPSculptTool.h; sourceTree = "<group>"; };
+		D5CC4C5118F0B6A10015B199 /* DPSculptableInspectorView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPSculptableInspectorView.cpp; path = Classes/DPSculptableInspectorView.cpp; sourceTree = "<group>"; };
+		D5CC4C5218F0B6A10015B199 /* DPSculptableInspectorView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPSculptableInspectorView.h; path = Classes/DPSculptableInspectorView.h; sourceTree = "<group>"; };
 		E915663518C73FCB005033FC /* DPFileTree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPFileTree.cpp; path = Classes/DPFileTree.cpp; sourceTree = "<group>"; };
 		E915663618C73FCB005033FC /* DPFileTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPFileTree.h; path = Classes/DPFileTree.h; sourceTree = "<group>"; };
 		E939D7B318C73A620008D4A5 /* DPWorkspace.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPWorkspace.cpp; path = Classes/DPWorkspace.cpp; sourceTree = "<group>"; };
@@ -156,6 +164,10 @@
 				E95892FE18C90CED009F3F6D /* DPSavedState.h */,
 				E9FB736818C938AE00726541 /* DPSceneHierarchy.cpp */,
 				E9FB736918C938AE00726541 /* DPSceneHierarchy.h */,
+				D5CC4C5118F0B6A10015B199 /* DPSculptableInspectorView.cpp */,
+				D5CC4C5218F0B6A10015B199 /* DPSculptableInspectorView.h */,
+				D5AF949118F09671009821E3 /* DPSculptTool.cpp */,
+				D5AF949218F09671009821E3 /* DPSculptTool.h */,
 				E97B52A518C8E2DD00C65F57 /* DPViewport.cpp */,
 				E97B52A618C8E2DD00C65F57 /* DPViewport.h */,
 				E9FB737918CAB36600726541 /* DPWidgetContainer.h */,
@@ -177,8 +189,10 @@
 			files = (
 				E9FB738718CC9E9B00726541 /* DPEditorIcon.h in Headers */,
 				E9FB738318CBC47400726541 /* DPDragNDropTarget.h in Headers */,
+				D5CC4C5418F0B6A10015B199 /* DPSculptableInspectorView.h in Headers */,
 				E9FB737718CA4BFA00726541 /* DPPropertyView.h in Headers */,
 				E915663818C73FCB005033FC /* DPFileTree.h in Headers */,
+				D5AF949418F09671009821E3 /* DPSculptTool.h in Headers */,
 				E97B52A018C74BF500C65F57 /* DPColorScheme.h in Headers */,
 				E958930018C90CED009F3F6D /* DPSavedState.h in Headers */,
 				E971168D18D650B500EF4179 /* DPDraggableOutlineView.h in Headers */,
@@ -251,6 +265,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D5126C7A18C944FC00F91F80 /* DPRenderView.cpp in Sources */,
+				D5CC4C5318F0B6A10015B199 /* DPSculptableInspectorView.cpp in Sources */,
 				E97B52A718C8E2DD00C65F57 /* DPViewport.cpp in Sources */,
 				E947605C188E4C790068D2E6 /* DPMain.cpp in Sources */,
 				E9A1DBF918DD1B7600D117AC /* DPMaterialView.cpp in Sources */,
@@ -266,6 +281,7 @@
 				E9785B6018E20AAC005E78DB /* DPPacket.cpp in Sources */,
 				E9FB736E18C959AD00726541 /* DPInspectorView.cpp in Sources */,
 				E915663718C73FCB005033FC /* DPFileTree.cpp in Sources */,
+				D5AF949318F09671009821E3 /* DPSculptTool.cpp in Sources */,
 				E971169018D67B2200EF4179 /* DPNodeClassPicker.cpp in Sources */,
 				E9FB738218CBC47400726541 /* DPDragNDropTarget.cpp in Sources */,
 				E971169518D6A94300EF4179 /* DPInfoPanel.cpp in Sources */,

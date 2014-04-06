@@ -42,6 +42,8 @@ namespace DP
 		RN::Camera *GetEditorCamera() const { return _editorCamera; }
 		
 		RN::Vector2 ConvertPointToViewport(const RN::Vector2 &point);
+		RN::Vector3 GetDirectionForMouse(const RN::Vector2 &point);
+		RN::Vector3 GetPositionForMouse(const RN::Vector2 &tpoint, float dist);
 		
 	private:
 		RN::Vector3 GetDirectionForPoint(const RN::Vector2 &point);

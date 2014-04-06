@@ -146,6 +146,16 @@ namespace DP
 		return _camera->ToWorld(RN::Vector3(point, dist));
 	}
 	
+	RN::Vector3 Viewport::GetDirectionForMouse(const RN::Vector2 &point)
+	{
+		return GetDirectionForPoint(ConvertPointToViewport(point));
+	}
+	
+	RN::Vector3 Viewport::GetPositionForMouse(const RN::Vector2 &point, float dist)
+	{
+		return GetPositionForPoint(ConvertPointToViewport(point), dist);
+	}
+	
 	void Viewport::Update()
 	{
 		RN::UI::View::Update();
@@ -189,25 +199,28 @@ namespace DP
 		
 		if(event->GetButton() == 0)
 		{
-			RN::Vector3 rayDirection = GetDirectionForPoint(ConvertPointToViewport(event->GetMousePosition()));
-			RN::Vector3 rayPosition = GetPositionForPoint(ConvertPointToViewport(event->GetMousePosition()), _camera->GetClipNear());
-			RN::Hit hit;
-			
-			Workspace *workspace = Workspace::GetSharedInstance();
-			Gizmo *gizmo = workspace->GetGizmo();
-			
-			
-			if(gizmo->GetCollisionGroup() == 0)
-				hit = std::move(gizmo->CastRay(rayPosition, rayDirection));
-			
-			if(hit.node == gizmo)
+			if(Workspace::GetSharedInstance()->GetActiveTool() == Workspace::Tool::Gizmo)
 			{
-				gizmo->BeginMove(hit.meshid, ConvertPointToViewport(event->GetMousePosition()));
-				return;
+				RN::Vector3 rayDirection = GetDirectionForMouse(event->GetMousePosition());
+				RN::Vector3 rayPosition = GetPositionForMouse(event->GetMousePosition(), _camera->GetClipNear());
+				RN::Hit hit;
+				
+				Workspace *workspace = Workspace::GetSharedInstance();
+				Gizmo *gizmo = workspace->GetGizmo();
+				
+				
+				if(gizmo->GetCollisionGroup() == 0)
+					hit = std::move(gizmo->CastRay(rayPosition, rayDirection));
+				
+				if(hit.node == gizmo)
+				{
+					gizmo->BeginMove(hit.meshid, ConvertPointToViewport(event->GetMousePosition()));
+					return;
+				}
+				
+				hit = RN::World::GetActiveWorld()->GetSceneManager()->CastRay(rayPosition, rayDirection, (1 << 0) | (1 << 31));
+				hit.node ? workspace->SetSelection(hit.node) : workspace->SetSelection(nullptr);
 			}
-			
-			hit = RN::World::GetActiveWorld()->GetSceneManager()->CastRay(rayPosition, rayDirection, (1 << 0) | (1 << 31));
-			hit.node ? workspace->SetSelection(hit.node) : workspace->SetSelection(nullptr);
 		}
 	}
 	
@@ -215,11 +228,14 @@ namespace DP
 	{
 		if(event->GetButton() == 0)
 		{
-			Gizmo *gizmo = Workspace::GetSharedInstance()->GetGizmo();
-			if(gizmo->IsActive())
+			if(Workspace::GetSharedInstance()->GetActiveTool() == Workspace::Tool::Gizmo)
 			{
-				RN::Vector2 mouse = ConvertPointToViewport(event->GetMousePosition());
-				gizmo->ContinueMove(mouse);
+				Gizmo *gizmo = Workspace::GetSharedInstance()->GetGizmo();
+				if(gizmo->IsActive())
+				{
+					RN::Vector2 mouse = ConvertPointToViewport(event->GetMousePosition());
+					gizmo->ContinueMove(mouse);
+				}
 			}
 		}
 		else
@@ -234,26 +250,33 @@ namespace DP
 	
 	void Viewport::MouseMoved(RN::Event *event)
 	{
-		Gizmo *gizmo = Workspace::GetSharedInstance()->GetGizmo();
+		if(Workspace::GetSharedInstance()->GetActiveTool() == Workspace::Tool::Gizmo)
+		{
+			Gizmo *gizmo = Workspace::GetSharedInstance()->GetGizmo();
 
-		RN::Vector3 direction = GetDirectionForPoint(ConvertPointToViewport(event->GetMousePosition()));
-		RN::Hit hit;
-		if(gizmo->GetCollisionGroup() == 0)
-			hit = std::move(gizmo->CastRay(_camera->GetPosition(), direction));
-			
-		if(hit.node == gizmo)
-		{
-			gizmo->SetHighlight(hit.meshid);
-		}
-		else
-		{
-			gizmo->SetHighlight(-1);
+			RN::Vector3 direction = GetDirectionForMouse(event->GetMousePosition());
+			RN::Hit hit;
+			if(gizmo->GetCollisionGroup() == 0)
+				hit = std::move(gizmo->CastRay(_camera->GetPosition(), direction));
+				
+			if(hit.node == gizmo)
+			{
+				gizmo->SetHighlight(hit.meshid);
+			}
+			else
+			{
+				gizmo->SetHighlight(-1);
+			}
 		}
 	}
 	
 	void Viewport::MouseUp(RN::Event *event)
 	{
-		Workspace::GetSharedInstance()->GetGizmo()->EndMove();
+		if(Workspace::GetSharedInstance()->GetActiveTool() == Workspace::Tool::Gizmo)
+		{
+			Workspace::GetSharedInstance()->GetGizmo()->EndMove();
+		}
+		
 		MouseMoved(event);
 	}
 	

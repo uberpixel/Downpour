@@ -43,6 +43,12 @@ namespace DP
 	class Workspace : public RN::UI::Widget, public RN::INonConstructingSingleton<Workspace>
 	{
 	public:
+		enum class Tool
+		{
+			Gizmo,
+			Sculpting
+		};
+		
 		Workspace(RN::Module *module);
 		~Workspace() override;
 		
@@ -52,6 +58,9 @@ namespace DP
 		Gizmo *GetGizmo() const { return _gizmo; }
 		Viewport *GetViewport() const { return _viewport->GetContent(); }
 		SavedState *GetSavedState() const { return _state; }
+		
+		void SetActiveTool(Tool tool);
+		Tool GetActiveTool() const { return _activeTool; }
 		
 		void SetSelection(RN::Array *selection);
 		void SetSelection(RN::SceneNode *selection);
@@ -98,6 +107,8 @@ namespace DP
 		RN::UI::Button *_gizmoSpace;
 		
 		Gizmo *_gizmo;
+		
+		Tool _activeTool;
 		
 		RN::Array *_selection;
 		RN::Array *_pasteBoard;
