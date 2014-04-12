@@ -28,6 +28,7 @@
 #include "DPSceneHierarchy.h"
 #include "DPWorldAttachment.h"
 #include "DPGizmo.h"
+#include "DPSculptTool.h"
 
 #define kDPWorkspaceSelectionChanged RNCSTR("kDPWorkspaceSelectionChanged")
 
@@ -56,6 +57,8 @@ namespace DP
 		RN::Array *GetSelection() const { return _selection; }
 		
 		Gizmo *GetGizmo() const { return _gizmo; }
+		SculptTool *GetSculptTool() const { return _sculptTool; }
+		
 		Viewport *GetViewport() const { return _viewport->GetContent(); }
 		SavedState *GetSavedState() const { return _state; }
 		
@@ -107,6 +110,7 @@ namespace DP
 		RN::UI::Button *_gizmoSpace;
 		
 		Gizmo *_gizmo;
+		SculptTool *_sculptTool;
 		
 		Tool _activeTool;
 		

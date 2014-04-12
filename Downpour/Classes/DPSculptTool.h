@@ -10,7 +10,6 @@
 #define __Downpour__DPSculptTool__
 
 #include <Rayne/Rayne.h>
-#include "DPWorkspace.h"
 
 namespace DP
 {
@@ -31,14 +30,18 @@ namespace DP
 		void SetTarget(RN::Sculptable *target);
 		void SetMode(Mode mode);
 		
+		void UseTool();
+		
+		void SetRadius(float radius);
+		float GetRadius() const { return _radius; }
+		
 	private:
 		RN::Sculptable *_target;
 		Viewport *_viewport;
-		bool _checkLastPosition;
-		RN::Vector3 _lastPosition;
+		bool _hasValidPosition;
 		Mode _mode;
 		
-		Workspace::Tool _previousTool;
+		RN::Observable<float, SculptTool> _radius;
 		
 		RNDeclareMeta(SculptTool)
 	};

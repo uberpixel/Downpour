@@ -80,6 +80,8 @@ namespace DP
 		RN::WorldCoordinator::GetSharedInstance()->GetWorld()->AddAttachment(_worldAttachment);
 		
 		_gizmo = new Gizmo(_viewport->GetContent()->GetCamera());
+		_sculptTool = new SculptTool(Workspace::GetSharedInstance()->GetViewport());
+		_sculptTool->RemoveFromWorld();
 		
 		CreateMainMenu();
 		UpdateSize();
@@ -100,6 +102,10 @@ namespace DP
 		
 		_gizmo->RemoveFromWorld();
 		_gizmo->Release();
+		
+		if(_activeTool == Tool::Sculpting)
+			_sculptTool->RemoveFromWorld();
+		_sculptTool->Release();
 		
 		// Restore the old state
 		delete _state;
@@ -549,7 +555,29 @@ namespace DP
 	
 	void Workspace::SetActiveTool(Tool tool)
 	{
-		_activeTool = tool;
+		if(tool == _activeTool)
+			return;
+		
+		if(tool == Tool::Sculpting)
+		{
+			if(_selection && _selection->GetCount() == 1)
+			{
+				RN::Sculptable *sculptable = _selection->GetFirstObject()->Downcast<RN::Sculptable>();
+				if(sculptable)
+				{
+					_sculptTool->SetTarget(sculptable);
+					RN::World::GetActiveWorld()->AddSceneNode(_sculptTool);
+					_activeTool = tool;
+				}
+			}
+		}
+		else
+		{
+			if(_activeTool == Tool::Sculpting)
+				_sculptTool->RemoveFromWorld();
+				
+			_activeTool = tool;
+		}
 	}
 	
 	// -----------------------

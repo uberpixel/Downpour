@@ -7,20 +7,19 @@
 //
 
 #include "DPSculptableInspectorView.h"
-#include "DPWorkspace.h"
 
 namespace DP
 {
 	RNDefineMeta(SculptableInspectorView, InspectorView)
 	
-	SculptableInspectorView::SculptableInspectorView() :
-		_sculptTool(nullptr)
-	{}
+	SculptableInspectorView::SculptableInspectorView()
+	{
+		_previousTool = Workspace::GetSharedInstance()->GetActiveTool();
+	}
 	
 	SculptableInspectorView::~SculptableInspectorView()
 	{
-		if(_sculptTool)
-			_sculptTool->RemoveFromWorld();
+		Workspace::GetSharedInstance()->SetActiveTool(_previousTool);
 	}
 	
 	void SculptableInspectorView::Initialize(RN::Object *object, RN::MetaClassBase *meta, RN::String *title)
@@ -39,17 +38,12 @@ namespace DP
 			RN::Sculptable *node = object->Downcast<RN::Sculptable>();
 			if(control->IsSelected() && node)
 			{
-				_sculptTool = new SculptTool(Workspace::GetSharedInstance()->GetViewport());
-				_sculptTool->SetTarget(node);
-				_sculptTool->Release();
+				_previousTool = Workspace::GetSharedInstance()->GetActiveTool();
+				Workspace::GetSharedInstance()->SetActiveTool(DP::Workspace::Tool::Sculpting);
 			}
 			else
 			{
-				if(_sculptTool)
-				{
-					_sculptTool->RemoveFromWorld();
-					_sculptTool = nullptr;
-				}
+				Workspace::GetSharedInstance()->SetActiveTool(_previousTool);
 			}
 			
 		}, this);
@@ -72,27 +66,25 @@ namespace DP
 			RN::Sculptable *node = object->Downcast<RN::Sculptable>();
 			if(control->IsSelected() && node)
 			{
-				if(_sculptTool)
-				{
-					_sculptTool->SetMode(SculptTool::Mode::Substract);
-				}
+				Workspace::GetSharedInstance()->GetSculptTool()->SetMode(SculptTool::Mode::Substract);
 			}
 			else
 			{
-				if(_sculptTool)
-				{
-					_sculptTool->SetMode(SculptTool::Mode::Add);
-				}
+				Workspace::GetSharedInstance()->GetSculptTool()->SetMode(SculptTool::Mode::Add);
 			}
 			
 		}, this);
 		
-		PropertyView *modeProperty = new PropertyView(RNSTR("Sculpting: "), DP::PropertyView::Layout::TitleLeft);
+		PropertyView *modeProperty = new PropertyView(RNSTR("Mode: "), DP::PropertyView::Layout::TitleLeft);
 		modeProperty->GetContentView()->AddSubview(modeButton);
 		modeProperty->SetPreferredHeight(40.0f);
 		AddPropertyView(modeProperty);
 		
+		SculptTool *sculptTool = Workspace::GetSharedInstance()->GetSculptTool();
+		
 		std::vector<RN::ObservableProperty *> properties = object->GetPropertiesForClass(meta);
+		std::vector<RN::ObservableProperty *> sculptProperties = sculptTool->GetPropertiesForClass(SculptTool::MetaClass());
+		properties.insert(properties.begin(), sculptProperties.begin(), sculptProperties.end());
 		
 		for(RN::ObservableProperty *property : properties)
 		{

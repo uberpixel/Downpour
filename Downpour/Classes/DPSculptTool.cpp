@@ -7,6 +7,7 @@
 //
 
 #include "DPSculptTool.h"
+#include "DPWorkspace.h"
 
 namespace DP
 {
@@ -15,26 +16,25 @@ namespace DP
 	SculptTool::SculptTool(Viewport *viewport) :
 		_viewport(viewport),
 		_mode(Mode::Add),
-		_checkLastPosition(false)
+		_hasValidPosition(false),
+		_radius("radius", 3.0f, &SculptTool::GetRadius, &SculptTool::SetRadius)
 	{
-		SetModel(RN::Model::WithFile(RN::PathManager::Join(Workspace::GetSharedInstance()->GetResourcePath(), "sculpting_sphere.sgm")));
+		AddObservable(&_radius);
 		
-		GetModel()->GetMaterialAtIndex(0, 0)->SetLighting(false);
-		GetModel()->GetMaterialAtIndex(0, 0)->SetDiffuseColor(RN::Color(0.1f, 1.0f, 0.2f, 0.7f));
+		RN::Model *model = RN::Model::WithFile(RN::PathManager::Join(Workspace::GetSharedInstance()->GetResourcePath(), "sculpting_sphere.sgm"));
+		model->GetMaterialAtIndex(0, 0)->SetLighting(false);
+		model->GetMaterialAtIndex(0, 0)->SetDiffuseColor(RN::Color(0.1f, 2.0f, 0.2f, 0.7f));
+		SetModel(model);
 		
 		SetRenderGroup(31);
 		SetCollisionGroup(1);
 		SetFlags(GetFlags() | RN::SceneNode::Flags::HideInEditor | RN::SceneNode::Flags::NoSave);
 		
 		SetScale(RN::Vector3(3.0f));
-		
-		_previousTool = Workspace::GetSharedInstance()->GetActiveTool();
-		Workspace::GetSharedInstance()->SetActiveTool(DP::Workspace::Tool::Sculpting);
 	}
 	
 	SculptTool::~SculptTool()
 	{
-		Workspace::GetSharedInstance()->SetActiveTool(_previousTool);
 	}
 	
 	void SculptTool::SetTarget(RN::Sculptable *target)
@@ -45,6 +45,12 @@ namespace DP
 	void SculptTool::SetMode(Mode mode)
 	{
 		_mode = mode;
+	}
+	
+	void SculptTool::SetRadius(float radius)
+	{
+		_radius = radius;
+		SetScale(RN::Vector3(radius));
 	}
 	
 	void SculptTool::UpdateEditMode(float delta)
@@ -60,29 +66,28 @@ namespace DP
 		RN::Hit hit = _target->CastRay(mouseRayStart, mouseRayDirection);
 		if(hit.distance > 0)
 		{
+			SetFlags(GetFlags() & ~RN::SceneNode::Flags::Hidden);
 			SetWorldPosition(hit.position);
-			
-			if(input->IsMousePressed(0))
+			_hasValidPosition = true;
+		}
+		else
+		{
+			SetFlags(GetFlags() | RN::SceneNode::Flags::Hidden);
+			_hasValidPosition = false;
+		}
+	}
+	
+	void SculptTool::UseTool()
+	{
+		if(_hasValidPosition)
+		{
+			if(_mode == Mode::Add)
 			{
-				if(!_checkLastPosition || _lastPosition.GetDistance(GetWorldPosition()) > GetWorldScale().GetMax()*1.01f)
-				{
-					if(_mode == Mode::Add)
-					{
-						_lastPosition = GetWorldPosition();
-						_target->SetSphere(GetWorldPosition(), GetWorldScale().GetMax());
-					}
-					else if(_mode == Mode::Substract)
-					{
-						_lastPosition = GetWorldPosition();
-						_target->RemoveSphere(GetWorldPosition(), GetWorldScale().GetMax());
-					}
-					
-					_checkLastPosition = true;
-				}
+				_target->SetSphere(GetWorldPosition(), GetWorldScale().GetMax());
 			}
-			else
+			else if(_mode == Mode::Substract)
 			{
-				_checkLastPosition = false;
+				_target->RemoveSphere(GetWorldPosition(), GetWorldScale().GetMax());
 			}
 		}
 	}

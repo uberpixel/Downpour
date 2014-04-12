@@ -199,27 +199,39 @@ namespace DP
 		
 		if(event->GetButton() == 0)
 		{
-			if(Workspace::GetSharedInstance()->GetActiveTool() == Workspace::Tool::Gizmo)
+			switch(Workspace::GetSharedInstance()->GetActiveTool())
 			{
-				RN::Vector3 rayDirection = GetDirectionForMouse(event->GetMousePosition());
-				RN::Vector3 rayPosition = GetPositionForMouse(event->GetMousePosition(), _camera->GetClipNear());
-				RN::Hit hit;
-				
-				Workspace *workspace = Workspace::GetSharedInstance();
-				Gizmo *gizmo = workspace->GetGizmo();
-				
-				
-				if(gizmo->GetCollisionGroup() == 0)
-					hit = std::move(gizmo->CastRay(rayPosition, rayDirection));
-				
-				if(hit.node == gizmo)
+				case Workspace::Tool::Gizmo:
 				{
-					gizmo->BeginMove(hit.meshid, ConvertPointToViewport(event->GetMousePosition()));
-					return;
+					RN::Vector3 rayDirection = GetDirectionForMouse(event->GetMousePosition());
+					RN::Vector3 rayPosition = GetPositionForMouse(event->GetMousePosition(), _camera->GetClipNear());
+					RN::Hit hit;
+					
+					Workspace *workspace = Workspace::GetSharedInstance();
+					Gizmo *gizmo = workspace->GetGizmo();
+					
+					
+					if(gizmo->GetCollisionGroup() == 0)
+						hit = std::move(gizmo->CastRay(rayPosition, rayDirection));
+					
+					if(hit.node == gizmo)
+					{
+						gizmo->BeginMove(hit.meshid, ConvertPointToViewport(event->GetMousePosition()));
+						return;
+					}
+					
+					hit = RN::World::GetActiveWorld()->GetSceneManager()->CastRay(rayPosition, rayDirection, (1 << 0) | (1 << 31));
+					hit.node ? workspace->SetSelection(hit.node) : workspace->SetSelection(nullptr);
+					
+					break;
 				}
-				
-				hit = RN::World::GetActiveWorld()->GetSceneManager()->CastRay(rayPosition, rayDirection, (1 << 0) | (1 << 31));
-				hit.node ? workspace->SetSelection(hit.node) : workspace->SetSelection(nullptr);
+					
+				case Workspace::Tool::Sculpting:
+				{
+					SculptTool *sculptTool = Workspace::GetSharedInstance()->GetSculptTool();
+					sculptTool->UseTool();
+					break;
+				}
 			}
 		}
 	}
@@ -228,13 +240,24 @@ namespace DP
 	{
 		if(event->GetButton() == 0)
 		{
-			if(Workspace::GetSharedInstance()->GetActiveTool() == Workspace::Tool::Gizmo)
+			switch(Workspace::GetSharedInstance()->GetActiveTool())
 			{
-				Gizmo *gizmo = Workspace::GetSharedInstance()->GetGizmo();
-				if(gizmo->IsActive())
+				case Workspace::Tool::Gizmo:
 				{
-					RN::Vector2 mouse = ConvertPointToViewport(event->GetMousePosition());
-					gizmo->ContinueMove(mouse);
+					Gizmo *gizmo = Workspace::GetSharedInstance()->GetGizmo();
+					if(gizmo->IsActive())
+					{
+						RN::Vector2 mouse = ConvertPointToViewport(event->GetMousePosition());
+						gizmo->ContinueMove(mouse);
+					}
+					break;
+				}
+				
+				case Workspace::Tool::Sculpting:
+				{
+					SculptTool *sculptTool = Workspace::GetSharedInstance()->GetSculptTool();
+					sculptTool->UseTool();
+					break;
 				}
 			}
 		}

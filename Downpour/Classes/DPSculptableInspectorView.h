@@ -12,6 +12,7 @@
 #include <Rayne/Rayne.h>
 #include "DPInspectorView.h"
 #include "DPSculptTool.h"
+#include "DPWorkspace.h"
 
 namespace DP
 {
@@ -26,8 +27,7 @@ namespace DP
 		static void InitialWakeUp(RN::MetaClassBase *meta);
 		
 	private:
-		SculptTool *_sculptTool;
-		
+		Workspace::Tool _previousTool;
 		RNDeclareMeta(SculptableInspectorView)
 	};
 }
