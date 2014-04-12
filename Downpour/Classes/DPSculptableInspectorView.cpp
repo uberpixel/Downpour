@@ -38,8 +38,11 @@ namespace DP
 			RN::Sculptable *node = object->Downcast<RN::Sculptable>();
 			if(control->IsSelected() && node)
 			{
-				_previousTool = Workspace::GetSharedInstance()->GetActiveTool();
-				Workspace::GetSharedInstance()->SetActiveTool(DP::Workspace::Tool::Sculpting);
+				if(Workspace::GetSharedInstance()->GetActiveTool() != DP::Workspace::Tool::Sculpting)
+				{
+					_previousTool = Workspace::GetSharedInstance()->GetActiveTool();
+					Workspace::GetSharedInstance()->SetActiveTool(DP::Workspace::Tool::Sculpting);
+				}
 			}
 			else
 			{
