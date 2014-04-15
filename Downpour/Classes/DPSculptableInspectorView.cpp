@@ -26,6 +26,7 @@ namespace DP
 	{
 		InspectorView::Initialize(object, meta, title);
 		
+		// Sculpting on/off
 		RN::UI::Button *sculptButton = new RN::UI::Button(RN::UI::Button::Type::Bezel);
 		sculptButton->SetFrame(RN::Rect(10.0f, 5.0f, 80.0f, 30.0f));
 		sculptButton->SetBehavior(RN::UI::Button::Behavior::Switch);
@@ -56,7 +57,34 @@ namespace DP
 		sculptProperty->SetPreferredHeight(40.0f);
 		AddPropertyView(sculptProperty);
 		
+		//Shape sphere/cube
+		RN::UI::Button *shapeButton = new RN::UI::Button(RN::UI::Button::Type::Bezel);
+		shapeButton->SetFrame(RN::Rect(10.0f, 5.0f, 80.0f, 30.0f));
+		shapeButton->SetBehavior(RN::UI::Button::Behavior::Switch);
+		shapeButton->SetTitleForState(RNCSTR("Sphere"), RN::UI::Control::State::Normal);
+		shapeButton->SetTitleForState(RNCSTR("Cube"), RN::UI::Control::State::Selected);
+		shapeButton->SetTitleColorForState(ColorScheme::GetUIColor(ColorScheme::Type::FileTree_Text), RN::UI::Control::State::Normal);
+		shapeButton->SetFontForState(RN::UI::Style::GetSharedInstance()->GetFont(RN::UI::Style::FontStyle::DefaultFontBold), RN::UI::Control::State::Normal);
+		shapeButton->AddListener(RN::UI::Control::EventType::MouseUpInside, [this, object](RN::UI::Control *control, RN::UI::Control::EventType event) {
+			
+			RN::Sculptable *node = object->Downcast<RN::Sculptable>();
+			if(control->IsSelected() && node)
+			{
+				Workspace::GetSharedInstance()->GetSculptTool()->SetShape(SculptTool::Shape::Cube);
+			}
+			else
+			{
+				Workspace::GetSharedInstance()->GetSculptTool()->SetShape(SculptTool::Shape::Sphere);
+			}
+			
+		}, this);
 		
+		PropertyView *shapeProperty = new PropertyView(RNSTR("Shape: "), DP::PropertyView::Layout::TitleLeft);
+		shapeProperty->GetContentView()->AddSubview(shapeButton);
+		shapeProperty->SetPreferredHeight(40.0f);
+		AddPropertyView(shapeProperty);
+		
+		//mode add/substract
 		RN::UI::Button *modeButton = new RN::UI::Button(RN::UI::Button::Type::Bezel);
 		modeButton->SetFrame(RN::Rect(10.0f, 5.0f, 80.0f, 30.0f));
 		modeButton->SetBehavior(RN::UI::Button::Behavior::Switch);
