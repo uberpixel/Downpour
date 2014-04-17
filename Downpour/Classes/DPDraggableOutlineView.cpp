@@ -79,7 +79,7 @@ namespace DP
 			RN::UI::View *base = GetWidget()->GetContentView();
 			RN::UI::View *hit  = base->HitTest(base->ConvertPointFromBase(event->GetMousePosition()), event);
 			
-			if(hit->IsKindOfClass(DragNDropTarget::MetaClass()))
+			if(hit->IsKindOfClass(DragNDropTarget::GetMetaClass()))
 			{
 				DragNDropTarget *target = static_cast<DragNDropTarget *>(hit);
 				RN::Object *object = _delegate->GetObjectForDraggedItem(this, _draggedItem);

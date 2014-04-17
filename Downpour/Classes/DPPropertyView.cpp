@@ -180,7 +180,7 @@ namespace DP
 				
 			case RN::TypeTranslator<RN::Object *>::value:
 			{
-				if(observable->GetMetaClass()->InheritsFromClass(RN::Model::MetaClass()))
+				if(observable->GetMetaClass()->InheritsFromClass(RN::Model::GetMetaClass()))
 				{
 					ModelPropertyView *view = new ModelPropertyView(observable, title);
 					return view->Autorelease();
@@ -634,7 +634,7 @@ namespace DP
 	
 	bool ModelPropertyView::DragNDropTargetAcceptsDropOfObject(DelegatingDragNDropTarget *target, RN::Object *object)
 	{
-		return (object->IsKindOfClass(RN::Model::MetaClass()));
+		return (object->IsKindOfClass(RN::Model::GetMetaClass()));
 	}
 	
 	void ModelPropertyView::DragNDropTargetHandleDropOfObject(DelegatingDragNDropTarget *target, RN::Object *object, const RN::Vector2 &position)

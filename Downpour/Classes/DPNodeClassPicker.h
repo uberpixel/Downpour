@@ -25,15 +25,15 @@ namespace DP
 {
 	struct ClassProxy
 	{
-		ClassProxy(RN::MetaClassBase *tmeta) :
+		ClassProxy(RN::MetaClass *tmeta) :
 			meta(tmeta),
 			constructible(tmeta->SupportsConstruction())
 		{
-			name = RNSTR(tmeta->Fullname().c_str())->Retain();
+			name = RNSTR(tmeta->GetFullname().c_str())->Retain();
 			
-			RN::Catalogue::GetSharedInstance()->EnumerateClasses([&](RN::MetaClassBase *mclass, bool &stop) {
+			RN::Catalogue::GetSharedInstance()->EnumerateClasses([&](RN::MetaClass *mclass, bool &stop) {
 				
-				if(mclass->SuperClass() == meta)
+				if(mclass->GetSuperClass() == meta)
 					children.emplace_back(new ClassProxy(mclass));
 				
 			});
@@ -47,7 +47,7 @@ namespace DP
 				delete proxy; // Yeah, yeah, unique_ptr
 		}
 		
-		RN::MetaClassBase *meta;
+		RN::MetaClass *meta;
 		RN::String *name;
 		std::vector<ClassProxy *> children;
 		bool constructible;

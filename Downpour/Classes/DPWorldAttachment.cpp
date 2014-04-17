@@ -36,8 +36,8 @@ namespace DP
 		_hostID(0),
 		_clientCount(0)
 	{
-		_lightClass  = RN::Light::MetaClass();
-		_cameraClass = RN::Camera::MetaClass();
+		_lightClass  = RN::Light::GetMetaClass();
+		_cameraClass = RN::Camera::GetMetaClass();
 		
 		RN::LockGuard<decltype(_lock)> lock(_lock);
 		RN_ASSERT(enet_initialize() == 0, "Enet could not be initialized!");
@@ -126,13 +126,13 @@ namespace DP
 		if(node->GetFlags() & RN::SceneNode::Flags::NoSave)
 			return;
 		
-		if(node->IsKindOfClass(RN::Camera::MetaClass()))
+		if(node->IsKindOfClass(RN::Camera::GetMetaClass()))
 			return;
 		
-		if(node->IsKindOfClass(DP::Gizmo::MetaClass()))
+		if(node->IsKindOfClass(DP::Gizmo::GetMetaClass()))
 			return;
 		
-		if(node->IsKindOfClass(DP::EditorIcon::MetaClass()))
+		if(node->IsKindOfClass(DP::EditorIcon::GetMetaClass()))
 			return;
 		
 		if(_sceneNodeLookup.count(node->GetLID()) == 0)
@@ -260,14 +260,14 @@ namespace DP
 		}
 		else
 		{
-			if(object->IsKindOfClass(RN::Value::MetaClass()))
+			if(object->IsKindOfClass(RN::Value::GetMetaClass()))
 			{
 				RN::Value *value = static_cast<RN::Value *>(object);
 				
 				try
 				{
-					RN::MetaClassBase *meta = value->GetValue<RN::MetaClassBase *>();
-					object = RNSTR(meta->Fullname().c_str());
+					RN::MetaClass *meta = value->GetValue<RN::MetaClass *>();
+					object = RNSTR(meta->GetFullname().c_str());
 				}
 				catch(RN::Exception e)
 				{
@@ -288,7 +288,7 @@ namespace DP
 	
 	RN::SceneNode *WorldAttachment::CreateSceneNode(RN::Object *object, const RN::Vector3 &position)
 	{
-		if(object->IsKindOfClass(RN::Model::MetaClass()))
+		if(object->IsKindOfClass(RN::Model::GetMetaClass()))
 		{
 			// Place the model
 			RN::Model *model = static_cast<RN::Model *>(object);
@@ -300,14 +300,14 @@ namespace DP
 			return entity;
 		}
 		
-		if(object->IsKindOfClass(RN::Value::MetaClass()))
+		if(object->IsKindOfClass(RN::Value::GetMetaClass()))
 		{
 			RN::Value *value = static_cast<RN::Value *>(object);
 			
 			try
 			{
-				RN::MetaClassBase *meta = value->GetValue<RN::MetaClassBase *>();
-				if(meta && meta->InheritsFromClass(RN::SceneNode::MetaClass()))
+				RN::MetaClass *meta = value->GetValue<RN::MetaClass *>();
+				if(meta && meta->InheritsFromClass(RN::SceneNode::GetMetaClass()))
 				{
 					RN::SceneNode *node = static_cast<RN::SceneNode *>(meta->Construct());
 					node->SetPosition(position);
@@ -321,15 +321,15 @@ namespace DP
 			{} // Meh...
 		}
 		
-		if(object->IsKindOfClass(RN::String::MetaClass()))
+		if(object->IsKindOfClass(RN::String::GetMetaClass()))
 		{
 			RN::String *string = static_cast<RN::String *>(object);
 			
 			try
 			{
-				RN::MetaClassBase *meta = RN::Catalogue::GetSharedInstance()->GetClassWithName(string->GetUTF8String());
+				RN::MetaClass *meta = RN::Catalogue::GetSharedInstance()->GetClassWithName(string->GetUTF8String());
 				
-				if(meta && meta->InheritsFromClass(RN::SceneNode::MetaClass()))
+				if(meta && meta->InheritsFromClass(RN::SceneNode::GetMetaClass()))
 				{
 					RN::SceneNode *node = static_cast<RN::SceneNode *>(meta->Construct());
 					node->SetPosition(position);
@@ -358,7 +358,7 @@ namespace DP
 			
 			sceneNodes->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
 				
-				RN::MetaClassBase *meta = node->Class();
+				RN::MetaClass *meta = node->GetClass();
 				bool noDirectCopy = false;
 				
 				// Find the first class that supports copying to avoid trying to make a copy
@@ -366,7 +366,7 @@ namespace DP
 				while(!meta->SupportsCopying())
 				{
 					noDirectCopy = true;
-					meta = meta->SuperClass();
+					meta = meta->GetSuperClass();
 				}
 				
 				try
@@ -376,7 +376,7 @@ namespace DP
 					duplicates->AddObject(copy);
 					
 					if(noDirectCopy)
-						RNDebug("Can't copy %s, copying %s instead (make sure to implement the Copyable meta class trait!", node->Class()->Name().c_str(), meta->Name().c_str());
+						RNDebug("Can't copy %s, copying %s instead (make sure to implement the Copyable meta class trait!", node->GetClass()->GetName().c_str(), meta->GetName().c_str());
 				}
 				catch(RN::Exception e)
 				{} // Meh...
@@ -680,7 +680,7 @@ namespace DP
 										
 										RN::Array *nodes = RN::World::GetActiveWorld()->GetSceneNodes();
 										nodes->Enumerate<RN::SceneNode>([](RN::SceneNode *node, size_t i, bool &stop ){
-											if(!node->IsKindOfClass(RN::Camera::MetaClass()))
+											if(!node->IsKindOfClass(RN::Camera::GetMetaClass()))
 											{
 												WorldAttachment::GetSharedInstance()->_sceneNodeLookup[node->GetLID()] = node;
 											}
@@ -805,7 +805,7 @@ namespace DP
 		
 		RN::Array *nodes = RN::World::GetActiveWorld()->GetSceneNodes();
 		nodes->Enumerate<RN::SceneNode>([](RN::SceneNode *node, size_t i, bool &stop) {
-			if(!node->IsKindOfClass(RN::Camera::MetaClass()))
+			if(!node->IsKindOfClass(RN::Camera::GetMetaClass()))
 			{
 				WorldAttachment::GetSharedInstance()->_sceneNodeLookup[node->GetLID()] = node;
 			}

@@ -413,9 +413,9 @@ namespace DP
 	
 	void Workspace::AddSceneNodeObserver(RN::SceneNode *node)
 	{
-		RN::MetaClassBase *meta = node->Class();
+		RN::MetaClass *meta = node->GetClass();
 		
-		while(meta && meta != RN::Object::MetaClass())
+		while(meta && meta != RN::Object::GetMetaClass())
 		{
 			std::vector<RN::ObservableProperty *> properties = node->GetPropertiesForClass(meta);
 			
@@ -435,22 +435,22 @@ namespace DP
 				}, this);
 			}
 			
-			meta = meta->SuperClass();
+			meta = meta->GetSuperClass();
 		}
 	}
 	
 	void Workspace::RemoveSceneNodeObserver(RN::SceneNode *node)
 	{
-		RN::MetaClassBase *meta = node->Class();
+		RN::MetaClass *meta = node->GetClass();
 		
-		while(meta && meta != RN::Object::MetaClass())
+		while(meta && meta != RN::Object::GetMetaClass())
 		{
 			std::vector<RN::ObservableProperty *> properties = node->GetPropertiesForClass(meta);
 			
 			for(RN::ObservableProperty *property : properties)
 				node->RemoveObserver(property->GetName(), this);
 			
-			meta = meta->SuperClass();
+			meta = meta->GetSuperClass();
 		}
 	}
 	
@@ -469,7 +469,7 @@ namespace DP
 		
 		_selection->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {
 			
-			if(node->IsKindOfClass(EditorIcon::MetaClass()))
+			if(node->IsKindOfClass(EditorIcon::GetMetaClass()))
 			{
 				EditorIcon *icon = static_cast<EditorIcon *>(node);
 				sanitized->AddObject(icon->GetSceneNode());

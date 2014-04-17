@@ -311,7 +311,7 @@ namespace DP
 	
 	bool Viewport::AcceptsDropOfObject(RN::Object *object)
 	{
-		return (object->IsKindOfClass(RN::Model::MetaClass()) || object->IsKindOfClass(RN::Value::MetaClass()));
+		return (object->IsKindOfClass(RN::Model::GetMetaClass()) || object->IsKindOfClass(RN::Value::GetMetaClass()));
 	}
 	
 	void Viewport::HandleDropOfObject(RN::Object *object, const RN::Vector2 &position)

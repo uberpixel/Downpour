@@ -100,8 +100,8 @@ namespace DP
 		
 		RN::RecursiveSpinLock _lock;
 		
-		RN::MetaClassBase *_lightClass;
-		RN::MetaClassBase *_cameraClass;
+		RN::MetaClass *_lightClass;
+		RN::MetaClass *_cameraClass;
 		
 		RNDeclareSingleton(WorldAttachment);
 	};

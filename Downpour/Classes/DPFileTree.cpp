@@ -60,7 +60,7 @@ namespace DP
 	bool FileTree::CanDragItemAtRow(DraggableOutlineView *outlineView, void *item, size_t row)
 	{
 		RN::FileSystemNode *node = static_cast<RN::FileSystemNode *>(item);
-		return node->IsKindOfClass(RN::FileProxy::MetaClass());
+		return node->IsKindOfClass(RN::FileProxy::GetMetaClass());
 	}
 	
 	RN::Object *FileTree::GetObjectForDraggedItem(DraggableOutlineView *outlineView, void *item)

@@ -22,9 +22,9 @@ namespace DP
 		SculptableInspectorView();
 		~SculptableInspectorView();
 		
-		void Initialize(RN::Object *object, RN::MetaClassBase *meta, RN::String *title) override;
+		void Initialize(RN::Object *object, RN::MetaClass *meta, RN::String *title) override;
 		
-		static void InitialWakeUp(RN::MetaClassBase *meta);
+		static void InitialWakeUp(RN::MetaClass *meta);
 		
 	private:
 		Workspace::Tool _previousTool;

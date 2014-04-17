@@ -22,7 +22,7 @@ namespace DP
 		Workspace::GetSharedInstance()->SetActiveTool(_previousTool);
 	}
 	
-	void SculptableInspectorView::Initialize(RN::Object *object, RN::MetaClassBase *meta, RN::String *title)
+	void SculptableInspectorView::Initialize(RN::Object *object, RN::MetaClass *meta, RN::String *title)
 	{
 		InspectorView::Initialize(object, meta, title);
 		
@@ -114,7 +114,7 @@ namespace DP
 		SculptTool *sculptTool = Workspace::GetSharedInstance()->GetSculptTool();
 		
 		std::vector<RN::ObservableProperty *> properties = object->GetPropertiesForClass(meta);
-		std::vector<RN::ObservableProperty *> sculptProperties = sculptTool->GetPropertiesForClass(SculptTool::MetaClass());
+		std::vector<RN::ObservableProperty *> sculptProperties = sculptTool->GetPropertiesForClass(SculptTool::GetMetaClass());
 		properties.insert(properties.begin(), sculptProperties.begin(), sculptProperties.end());
 		
 		for(RN::ObservableProperty *property : properties)
@@ -126,11 +126,11 @@ namespace DP
 		}
 	}
 	
-	void SculptableInspectorView::InitialWakeUp(RN::MetaClassBase *meta)
+	void SculptableInspectorView::InitialWakeUp(RN::MetaClass *meta)
 	{
-		if(meta == SculptableInspectorView::MetaClass())
+		if(meta == SculptableInspectorView::GetMetaClass())
 		{
-			RegisterInspectorViewForClass(meta, RN::Sculptable::MetaClass());
+			RegisterInspectorViewForClass(meta, RN::Sculptable::GetMetaClass());
 		}
 	}
 }

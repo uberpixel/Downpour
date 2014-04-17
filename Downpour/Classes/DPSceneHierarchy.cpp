@@ -243,7 +243,7 @@ namespace DP
 		
 		std::string name = node->GetDebugName();
 		if(name.empty())
-			name = node->Class()->Name();
+			name = node->GetClass()->GetName();
 		
 		cell->GetTextLabel()->SetText(RNSTR(name.c_str()));
 		

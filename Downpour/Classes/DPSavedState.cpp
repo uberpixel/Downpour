@@ -37,9 +37,9 @@ namespace DP
 	{
 		RN::Array *sceneGraph = RN::World::GetActiveWorld()->GetSceneNodes();
 		
-		RN::MetaClassBase *cameraClass = RN::Camera::MetaClass();
-		RN::MetaClassBase *lightClass  = RN::Light::MetaClass();
-		RN::MetaClassBase *instancingClass  = RN::InstancingNode::MetaClass();
+		RN::MetaClass *cameraClass = RN::Camera::GetMetaClass();
+		RN::MetaClass *lightClass  = RN::Light::GetMetaClass();
+		RN::MetaClass *instancingClass  = RN::InstancingNode::GetMetaClass();
 		
 		// Disable all cameras to prevent them from flushing onto the screen while the editor is active
 		sceneGraph->Enumerate<RN::SceneNode>([&](RN::SceneNode *node, size_t index, bool &stop) {

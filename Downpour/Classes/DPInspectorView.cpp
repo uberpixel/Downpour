@@ -21,7 +21,7 @@
 
 namespace DP
 {
-	std::vector<std::pair<RN::MetaClassBase *, RN::MetaClassBase *>> *_registeredInspectorViews;
+	std::vector<std::pair<RN::MetaClass *, RN::MetaClass *>> *_registeredInspectorViews;
 	
 	RNDefineMeta(InspectorView, RN::UI::View)
 	RNDefineMeta(GenericInspectorView, InspectorView)
@@ -53,12 +53,12 @@ namespace DP
 		// The workspace uses arrays for selections, even when there is only one object
 		// If there is only one object and it's a scene node, we will unbox the object from the array use that for the selection
 		
-		if(object && object->IsKindOfClass(RN::Array::MetaClass()) && static_cast<RN::Array *>(object)->GetCount() == 1)
+		if(object && object->IsKindOfClass(RN::Array::GetMetaClass()) && static_cast<RN::Array *>(object)->GetCount() == 1)
 		{
 			RN::Array *array = static_cast<RN::Array *>(object);
 			RN::Object *first = array->GetFirstObject();
 			
-			if(first->IsKindOfClass(RN::SceneNode::MetaClass()))
+			if(first->IsKindOfClass(RN::SceneNode::GetMetaClass()))
 			{
 				SetSelection(first);
 				return;
@@ -80,20 +80,20 @@ namespace DP
 			return;
 		
 		// Pick the right inspector views for the object
-		std::vector<RN::MetaClassBase *> classes;
+		std::vector<RN::MetaClass *> classes;
 		
-		RN::MetaClassBase *meta = _selection->Class();
-		while(meta && meta != RN::Object::MetaClass())
+		RN::MetaClass *meta = _selection->GetClass();
+		while(meta && meta != RN::Object::GetMetaClass())
 		{
 			classes.push_back(meta);
-			meta = meta->SuperClass();
+			meta = meta->GetSuperClass();
 		}
 		
 		for(auto i = classes.rbegin(); i != classes.rend(); i ++)
 		{
 			meta = *i;
 			
-			RN::MetaClassBase *match = nullptr;
+			RN::MetaClass *match = nullptr;
 			size_t matchDistance = static_cast<size_t>(-1);
 			
 			for(auto i = _registeredInspectorViews->begin(); i != _registeredInspectorViews->end(); i ++)
@@ -108,12 +108,12 @@ namespace DP
 			}
 			
 			if(!match)
-				match = GenericInspectorView::MetaClass();
+				match = GenericInspectorView::GetMetaClass();
 			
 			
 			InspectorView *inspectorView = static_cast<InspectorView *>(match->Construct());
 			
-			inspectorView->Initialize(_selection, meta, RNSTR(meta->Name().c_str()));
+			inspectorView->Initialize(_selection, meta, RNSTR(meta->GetName().c_str()));
 			inspectorView->SizeToFit();
 			
 			_inspectors->AddObject(inspectorView->Autorelease());
@@ -145,13 +145,13 @@ namespace DP
 	// MARK: InspectorView
 	// -----------------------
 	
-	void InspectorView::RegisterInspectorViewForClass(RN::MetaClassBase *inspectorClass, RN::MetaClassBase *predicate)
+	void InspectorView::RegisterInspectorViewForClass(RN::MetaClass *inspectorClass, RN::MetaClass *predicate)
 	{
-		RN_ASSERT(inspectorClass->InheritsFromClass(InspectorView::MetaClass()), "Inspector class must inherit from InspectorView");
+		RN_ASSERT(inspectorClass->InheritsFromClass(InspectorView::GetMetaClass()), "Inspector class must inherit from InspectorView");
 		
 		static std::once_flag token;
 		std::call_once(token, [&] {
-			_registeredInspectorViews = new std::vector<std::pair<RN::MetaClassBase *, RN::MetaClassBase *>>();
+			_registeredInspectorViews = new std::vector<std::pair<RN::MetaClass *, RN::MetaClass *>>();
 		});
 		
 		_registeredInspectorViews->emplace_back(std::make_pair(inspectorClass, predicate));
@@ -183,7 +183,7 @@ namespace DP
 		_propertyViews->Release();
 	}
 	
-	void InspectorView::Initialize(RN::Object *object, RN::MetaClassBase *meta, RN::String *title)
+	void InspectorView::Initialize(RN::Object *object, RN::MetaClass *meta, RN::String *title)
 	{
 		_object = object;
 		_meta   = meta;
@@ -247,7 +247,7 @@ namespace DP
 	GenericInspectorView::GenericInspectorView()
 	{}
 	
-	void GenericInspectorView::Initialize(RN::Object *object, RN::MetaClassBase *meta, RN::String *title)
+	void GenericInspectorView::Initialize(RN::Object *object, RN::MetaClass *meta, RN::String *title)
 	{
 		InspectorView::Initialize(object, meta, title);
 		
@@ -262,11 +262,11 @@ namespace DP
 		}
 	}
 	
-	void GenericInspectorView::InitialWakeUp(RN::MetaClassBase *meta)
+	void GenericInspectorView::InitialWakeUp(RN::MetaClass *meta)
 	{
-		if(meta == GenericInspectorView::MetaClass())
+		if(meta == GenericInspectorView::GetMetaClass())
 		{
-			RegisterInspectorViewForClass(meta, RN::Object::MetaClass());
+			RegisterInspectorViewForClass(meta, RN::Object::GetMetaClass());
 		}
 	}
 }

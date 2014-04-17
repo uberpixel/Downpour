@@ -21,7 +21,7 @@
 namespace DP
 {
 	NodeClassPicker::NodeClassPicker() :
-		_root(new ClassProxy(RN::SceneNode::MetaClass()))
+		_root(new ClassProxy(RN::SceneNode::GetMetaClass()))
 	{
 		_tree = new DraggableOutlineView();
 		_tree->SetAutoresizingMask(RN::UI::View::AutoresizingMask::FlexibleHeight | RN::UI::View::AutoresizingMask::FlexibleWidth);

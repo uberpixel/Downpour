@@ -36,10 +36,10 @@ namespace DP
 		GetMaterial()->SetDiscard(true);
 		
 		
-		if(node->IsKindOfClass(RN::Light::MetaClass()))
+		if(node->IsKindOfClass(RN::Light::GetMetaClass()))
 			SetIcon("light.png");
 		
-		if(node->IsKindOfClass(RN::Camera::MetaClass()))
+		if(node->IsKindOfClass(RN::Camera::GetMetaClass()))
 			SetIcon("camera.png");
 		
 		RN::MessageCenter::GetSharedInstance()->AddObserver(RNCSTR("DPClose"), [this](RN::Message *message) {
@@ -94,10 +94,10 @@ namespace DP
 	
 	bool EditorIcon::SupportsSceneNodeClass(RN::SceneNode *node)
 	{
-		if(node->IsKindOfClass(RN::Light::MetaClass()))
+		if(node->IsKindOfClass(RN::Light::GetMetaClass()))
 			return true;
 		
-		if(node->IsKindOfClass(RN::Camera::MetaClass()))
+		if(node->IsKindOfClass(RN::Camera::GetMetaClass()))
 			return true;
 		
 		return false;

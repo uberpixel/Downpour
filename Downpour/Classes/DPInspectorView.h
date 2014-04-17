@@ -42,16 +42,16 @@ namespace DP
 	public:
 		~InspectorView();
 		
-		virtual void Initialize(RN::Object *object, RN::MetaClassBase *meta, RN::String *title);
+		virtual void Initialize(RN::Object *object, RN::MetaClass *meta, RN::String *title);
 		
 		RN::Object *GetObject() const { return _object; }
-		RN::MetaClassBase *GetMetaClassBase() const { return _meta; }
+		RN::MetaClass *GetMetaClassBase() const { return _meta; }
 		
 		RN::Vector2 GetSizeThatFits() override;
 		
 		void LayoutSubviews() override;
 				
-		static void RegisterInspectorViewForClass(RN::MetaClassBase *inspectorClass, RN::MetaClassBase *predicate);
+		static void RegisterInspectorViewForClass(RN::MetaClass *inspectorClass, RN::MetaClass *predicate);
 		
 	protected:
 		InspectorView();
@@ -60,7 +60,7 @@ namespace DP
 		
 	private:
 		RN::Object *_object;
-		RN::MetaClassBase *_meta;
+		RN::MetaClass *_meta;
 		
 		RN::UI::Label *_titleLabel;
 		RN::Array *_propertyViews;
@@ -73,9 +73,9 @@ namespace DP
 	public:
 		GenericInspectorView();
 		
-		void Initialize(RN::Object *object, RN::MetaClassBase *meta, RN::String *title) override;
+		void Initialize(RN::Object *object, RN::MetaClass *meta, RN::String *title) override;
 		
-		static void InitialWakeUp(RN::MetaClassBase *meta);
+		static void InitialWakeUp(RN::MetaClass *meta);
 		
 		RNDeclareMeta(GenericInspectorView)
 	};
