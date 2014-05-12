@@ -25,14 +25,14 @@ namespace DP
 	class RenderView : public RN::UI::View
 	{
 	public:
-		RNAPI RenderView();
-		RNAPI ~RenderView() override;
+		RenderView();
+		~RenderView() override;
 		
-		RNAPI void AddTexture(RN::Texture *texture);
-		RNAPI void SetFrame(const RN::Rect& frame) override;
+		void AddTexture(RN::Texture *texture);
+		void SetFrame(const RN::Rect& frame) override;
 	
 	protected:
-		RNAPI void Draw(RN::Renderer *renderer) override;
+		void Draw(RN::Renderer *renderer) override;
 		
 	private:
 		RN::Shader *_shader;

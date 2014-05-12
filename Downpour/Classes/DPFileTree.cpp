@@ -73,7 +73,7 @@ namespace DP
 			RN::Object *object = RN::ResourceCoordinator::GetSharedInstance()->GetResourceWithName<RN::Object>(RNSTR(path.c_str()), nullptr);
 			return object;
 		}
-		catch(RN::Exception &e)
+		catch(RN::Exception &)
 		{
 			return nullptr;
 		}
