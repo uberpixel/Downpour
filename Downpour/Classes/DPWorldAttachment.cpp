@@ -795,7 +795,10 @@ namespace DP
 		RN::LockGuard<decltype(_lock)> lock(_lock);
 		DestroyHost();
 		
-		ENetAddress address { .host = ENET_HOST_ANY, .port = 2003 };
+		ENetAddress address;
+		address.host = ENET_HOST_ANY;
+		address.port = 2003;
+		
 		RN_ASSERT((_host = enet_host_create(&address, 32, 2, 0, 0)), "Enet couldn't create server");
 		
 		_isServer    = true;

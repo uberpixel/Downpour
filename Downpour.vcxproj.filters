@@ -1,0 +1,178 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Vendor">
+      <UniqueIdentifier>{ca61923b-56af-4cc0-876a-0adaa5ac9826}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Vendor\enet">
+      <UniqueIdentifier>{4314b2d0-9100-4e74-9174-4a4b4d2af2ab}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Downpour\Classes\DPColorScheme.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Classes\DPDraggableOutlineView.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Classes\DPDragNDropTarget.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Classes\DPEditorIcon.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Classes\DPFileTree.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Classes\DPGizmo.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Classes\DPInfoPanel.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Classes\DPInspectorView.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Classes\DPIPPanel.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Classes\DPMain.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Classes\DPMaterialView.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Classes\DPNodeClassPicker.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Classes\DPPacket.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Classes\DPPropertyView.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Classes\DPRenderView.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Classes\DPSavedState.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Classes\DPSceneHierarchy.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Classes\DPViewport.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Classes\DPWorkspace.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Classes\DPWorldAttachment.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Vendor\enet\callbacks.c">
+      <Filter>Vendor\enet</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Vendor\enet\compress.c">
+      <Filter>Vendor\enet</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Vendor\enet\host.c">
+      <Filter>Vendor\enet</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Vendor\enet\list.c">
+      <Filter>Vendor\enet</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Vendor\enet\packet.c">
+      <Filter>Vendor\enet</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Vendor\enet\peer.c">
+      <Filter>Vendor\enet</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Vendor\enet\protocol.c">
+      <Filter>Vendor\enet</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Vendor\enet\unix.c">
+      <Filter>Vendor\enet</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Vendor\enet\win32.c">
+      <Filter>Vendor\enet</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Classes\DPSculptableInspectorView.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Downpour\Classes\DPSculptTool.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Downpour\Classes\DPColorScheme.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Downpour\Classes\DPDraggableOutlineView.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Downpour\Classes\DPDragNDropTarget.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Downpour\Classes\DPEditorIcon.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Downpour\Classes\DPFileTree.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Downpour\Classes\DPGizmo.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Downpour\Classes\DPInfoPanel.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Downpour\Classes\DPInspectorView.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Downpour\Classes\DPIPPanel.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Downpour\Classes\DPMaterialView.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Downpour\Classes\DPNodeClassPicker.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Downpour\Classes\DPPacket.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Downpour\Classes\DPPropertyView.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Downpour\Classes\DPRenderView.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Downpour\Classes\DPSavedState.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Downpour\Classes\DPSceneHierarchy.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Downpour\Classes\DPViewport.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Downpour\Classes\DPWidgetContainer.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Downpour\Classes\DPWorkspace.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Downpour\Classes\DPWorldAttachment.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Downpour\Classes\DPSculptableInspectorView.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Downpour\Classes\DPSculptTool.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
