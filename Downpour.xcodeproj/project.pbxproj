@@ -38,6 +38,14 @@
 		E9A1DBFA18DD1B7600D117AC /* DPMaterialView.h in Headers */ = {isa = PBXBuildFile; fileRef = E9A1DBF818DD1B7600D117AC /* DPMaterialView.h */; };
 		E9C2243218C8FD0A00626302 /* DPWorldAttachment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E9C2243018C8FD0A00626302 /* DPWorldAttachment.cpp */; };
 		E9C2243318C8FD0A00626302 /* DPWorldAttachment.h in Headers */ = {isa = PBXBuildFile; fileRef = E9C2243118C8FD0A00626302 /* DPWorldAttachment.h */; };
+		E9ED75B1192145F6005221C9 /* callbacks.c in Sources */ = {isa = PBXBuildFile; fileRef = E9ED75A9192145F6005221C9 /* callbacks.c */; };
+		E9ED75B2192145F6005221C9 /* compress.c in Sources */ = {isa = PBXBuildFile; fileRef = E9ED75AA192145F6005221C9 /* compress.c */; };
+		E9ED75B3192145F6005221C9 /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = E9ED75AB192145F6005221C9 /* host.c */; };
+		E9ED75B4192145F6005221C9 /* list.c in Sources */ = {isa = PBXBuildFile; fileRef = E9ED75AC192145F6005221C9 /* list.c */; };
+		E9ED75B5192145F6005221C9 /* packet.c in Sources */ = {isa = PBXBuildFile; fileRef = E9ED75AD192145F6005221C9 /* packet.c */; };
+		E9ED75B6192145F6005221C9 /* peer.c in Sources */ = {isa = PBXBuildFile; fileRef = E9ED75AE192145F6005221C9 /* peer.c */; };
+		E9ED75B7192145F6005221C9 /* protocol.c in Sources */ = {isa = PBXBuildFile; fileRef = E9ED75AF192145F6005221C9 /* protocol.c */; };
+		E9ED75B8192145F6005221C9 /* unix.c in Sources */ = {isa = PBXBuildFile; fileRef = E9ED75B0192145F6005221C9 /* unix.c */; };
 		E9FB736A18C938AE00726541 /* DPSceneHierarchy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E9FB736818C938AE00726541 /* DPSceneHierarchy.cpp */; };
 		E9FB736B18C938AE00726541 /* DPSceneHierarchy.h in Headers */ = {isa = PBXBuildFile; fileRef = E9FB736918C938AE00726541 /* DPSceneHierarchy.h */; };
 		E9FB736E18C959AD00726541 /* DPInspectorView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E9FB736C18C959AD00726541 /* DPInspectorView.cpp */; };
@@ -86,6 +94,14 @@
 		E9A1DBF818DD1B7600D117AC /* DPMaterialView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPMaterialView.h; path = Classes/DPMaterialView.h; sourceTree = "<group>"; };
 		E9C2243018C8FD0A00626302 /* DPWorldAttachment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPWorldAttachment.cpp; path = Classes/DPWorldAttachment.cpp; sourceTree = "<group>"; };
 		E9C2243118C8FD0A00626302 /* DPWorldAttachment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPWorldAttachment.h; path = Classes/DPWorldAttachment.h; sourceTree = "<group>"; };
+		E9ED75A9192145F6005221C9 /* callbacks.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = callbacks.c; path = Downpour/Vendor/enet/callbacks.c; sourceTree = "<group>"; };
+		E9ED75AA192145F6005221C9 /* compress.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = compress.c; path = Downpour/Vendor/enet/compress.c; sourceTree = "<group>"; };
+		E9ED75AB192145F6005221C9 /* host.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = host.c; path = Downpour/Vendor/enet/host.c; sourceTree = "<group>"; };
+		E9ED75AC192145F6005221C9 /* list.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = list.c; path = Downpour/Vendor/enet/list.c; sourceTree = "<group>"; };
+		E9ED75AD192145F6005221C9 /* packet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = packet.c; path = Downpour/Vendor/enet/packet.c; sourceTree = "<group>"; };
+		E9ED75AE192145F6005221C9 /* peer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = peer.c; path = Downpour/Vendor/enet/peer.c; sourceTree = "<group>"; };
+		E9ED75AF192145F6005221C9 /* protocol.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = protocol.c; path = Downpour/Vendor/enet/protocol.c; sourceTree = "<group>"; };
+		E9ED75B0192145F6005221C9 /* unix.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = unix.c; path = Downpour/Vendor/enet/unix.c; sourceTree = "<group>"; };
 		E9FB736818C938AE00726541 /* DPSceneHierarchy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPSceneHierarchy.cpp; path = Classes/DPSceneHierarchy.cpp; sourceTree = "<group>"; };
 		E9FB736918C938AE00726541 /* DPSceneHierarchy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DPSceneHierarchy.h; path = Classes/DPSceneHierarchy.h; sourceTree = "<group>"; };
 		E9FB736C18C959AD00726541 /* DPInspectorView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DPInspectorView.cpp; path = Classes/DPInspectorView.cpp; sourceTree = "<group>"; };
@@ -116,6 +132,7 @@
 			isa = PBXGroup;
 			children = (
 				E947605A188E4C790068D2E6 /* Classes */,
+				E9ED75BA1921460A005221C9 /* Vendor */,
 				E9476058188E4C790068D2E6 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -178,6 +195,29 @@
 			);
 			name = Classes;
 			path = Downpour;
+			sourceTree = "<group>";
+		};
+		E9ED75B919214603005221C9 /* enet */ = {
+			isa = PBXGroup;
+			children = (
+				E9ED75A9192145F6005221C9 /* callbacks.c */,
+				E9ED75AA192145F6005221C9 /* compress.c */,
+				E9ED75AB192145F6005221C9 /* host.c */,
+				E9ED75AC192145F6005221C9 /* list.c */,
+				E9ED75AD192145F6005221C9 /* packet.c */,
+				E9ED75AE192145F6005221C9 /* peer.c */,
+				E9ED75AF192145F6005221C9 /* protocol.c */,
+				E9ED75B0192145F6005221C9 /* unix.c */,
+			);
+			name = enet;
+			sourceTree = "<group>";
+		};
+		E9ED75BA1921460A005221C9 /* Vendor */ = {
+			isa = PBXGroup;
+			children = (
+				E9ED75B919214603005221C9 /* enet */,
+			);
+			name = Vendor;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -267,19 +307,27 @@
 				D5126C7A18C944FC00F91F80 /* DPRenderView.cpp in Sources */,
 				D5CC4C5318F0B6A10015B199 /* DPSculptableInspectorView.cpp in Sources */,
 				E97B52A718C8E2DD00C65F57 /* DPViewport.cpp in Sources */,
+				E9ED75B6192145F6005221C9 /* peer.c in Sources */,
 				E947605C188E4C790068D2E6 /* DPMain.cpp in Sources */,
+				E9ED75B8192145F6005221C9 /* unix.c in Sources */,
 				E9A1DBF918DD1B7600D117AC /* DPMaterialView.cpp in Sources */,
 				E971168C18D650B500EF4179 /* DPDraggableOutlineView.cpp in Sources */,
 				E939D7B518C73A620008D4A5 /* DPWorkspace.cpp in Sources */,
+				E9ED75B7192145F6005221C9 /* protocol.c in Sources */,
+				E9ED75B2192145F6005221C9 /* compress.c in Sources */,
 				E9C2243218C8FD0A00626302 /* DPWorldAttachment.cpp in Sources */,
 				E97B529F18C74BF500C65F57 /* DPColorScheme.cpp in Sources */,
+				E9ED75B3192145F6005221C9 /* host.c in Sources */,
 				E9FB737E18CB757800726541 /* DPGizmo.cpp in Sources */,
+				E9ED75B1192145F6005221C9 /* callbacks.c in Sources */,
+				E9ED75B4192145F6005221C9 /* list.c in Sources */,
 				E95892FF18C90CED009F3F6D /* DPSavedState.cpp in Sources */,
 				E9FB736A18C938AE00726541 /* DPSceneHierarchy.cpp in Sources */,
 				E9FB738618CC9E9B00726541 /* DPEditorIcon.cpp in Sources */,
 				E9FB737618CA4BFA00726541 /* DPPropertyView.cpp in Sources */,
 				E9785B6018E20AAC005E78DB /* DPPacket.cpp in Sources */,
 				E9FB736E18C959AD00726541 /* DPInspectorView.cpp in Sources */,
+				E9ED75B5192145F6005221C9 /* packet.c in Sources */,
 				E915663718C73FCB005033FC /* DPFileTree.cpp in Sources */,
 				D5AF949318F09671009821E3 /* DPSculptTool.cpp in Sources */,
 				E971169018D67B2200EF4179 /* DPNodeClassPicker.cpp in Sources */,
@@ -371,17 +419,14 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/include/rayne/,
-					/usr/local/include,
+					"\"$(SRCROOT)/Downpour/Vendor/enet/include\"",
 				);
 				LD_DYLIB_INSTALL_NAME = "@rpath/$(EXECUTABLE_PATH)";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/lib/,
 				);
-				OTHER_LDFLAGS = (
-					"-lRayne",
-					"-lenet",
-				);
+				OTHER_LDFLAGS = "-lRayne";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -398,17 +443,14 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/include/rayne/,
-					/usr/local/include,
+					"\"$(SRCROOT)/Downpour/Vendor/enet/include\"",
 				);
 				LD_DYLIB_INSTALL_NAME = "@rpath/$(EXECUTABLE_PATH)";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/lib/,
 				);
-				OTHER_LDFLAGS = (
-					"-lRayne",
-					"-lenet",
-				);
+				OTHER_LDFLAGS = "-lRayne";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
