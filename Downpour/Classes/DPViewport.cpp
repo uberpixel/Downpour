@@ -103,7 +103,7 @@ namespace DP
 	{
 		RN::UI::View::SetFrame(frame);
 		
-		RN::Rect rect = RN::Rect(RN::Vector2(), frame.Size() * _resolutionFactor);
+		RN::Rect rect = RN::Rect(RN::Vector2(), frame.GetSize() * _resolutionFactor);
 		
 		_camera->SetFrame(rect);
 		_editorCamera->SetFrame(rect);
@@ -128,7 +128,7 @@ namespace DP
 	
 	RN::Vector3 Viewport::GetDirectionForPoint(const RN::Vector2 &tpoint)
 	{
-		RN::Vector2 point = tpoint / _camera->GetFrame().Size();
+		RN::Vector2 point = tpoint / _camera->GetFrame().GetSize();
 		point.y = 1.0f - point.y;
 		point *= 2.0f;
 		point -= 1.0f;
@@ -138,7 +138,7 @@ namespace DP
 	
 	RN::Vector3 Viewport::GetPositionForPoint(const RN::Vector2 &tpoint, float dist)
 	{
-		RN::Vector2 point = tpoint / _camera->GetFrame().Size();
+		RN::Vector2 point = tpoint / _camera->GetFrame().GetSize();
 		point.y = 1.0f - point.y;
 		point *= 2.0f;
 		point -= 1.0f;

@@ -178,7 +178,7 @@ namespace DP
 	
 	RN::Vector3 Gizmo::GetMousePosition(const RN::Plane &plane, RN::Vector2 mouse)
 	{
-		mouse /= _camera->GetFrame().Size();
+		mouse /= _camera->GetFrame().GetSize();
 		mouse.y = 1.0 - mouse.y;
 		mouse *= 2.0f;
 		mouse -= 1.0f;

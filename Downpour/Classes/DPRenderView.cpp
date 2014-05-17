@@ -49,7 +49,7 @@ namespace DP
 		RN::Mesh::ElementIterator<RN::Vector2> vertices = chunk.GetIterator<RN::Vector2>(RN::MeshFeature::Vertices);
 		RN::Mesh::ElementIterator<RN::Vector2> uvCoords = chunk.GetIterator<RN::Vector2>(RN::MeshFeature::UVSet0);
 		
-		RN::Vector2 size = GetBounds().Size();
+		RN::Vector2 size = GetBounds().GetSize();
 		*vertices ++ = RN::Vector2(size.x, size.y);
 		*vertices ++ = RN::Vector2(0.0f, size.y);
 		*vertices ++ = RN::Vector2(size.x, 0.0f);
