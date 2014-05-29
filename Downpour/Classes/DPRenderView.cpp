@@ -87,7 +87,7 @@ namespace DP
 	
 	void RenderView::AddTexture(RN::Texture *texture)
 	{
-		RN::Material *material = BasicMaterial(_shader);
+		RN::Material *material = GetBasicMaterial(_shader);
 		material->Define("targetmap0", "mTexture0");
 		material->AddTexture(texture);
 		
