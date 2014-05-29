@@ -122,29 +122,14 @@ namespace DP
 		
 		_gizmoTool = new RN::UI::SegmentView();
 		_gizmoTool->SetFrame(RN::Rect(50.0f, 5.0f, 150.0f, 30.0f));
-		_gizmoTool->InsertegmentAtIndex(RN::UI::Image::WithFile(RN::PathManager::Join(GetResourcePath(), "icons/move.png")), 0);
-		_gizmoTool->InsertegmentAtIndex(RN::UI::Image::WithFile(RN::PathManager::Join(GetResourcePath(), "icons/scale.png")), 1);
-		_gizmoTool->InsertegmentAtIndex(RN::UI::Image::WithFile(RN::PathManager::Join(GetResourcePath(), "icons/rotate.png")), 2);
-		_gizmoTool->SetSegmentAtIndexEnabled(0, true);
+		_gizmoTool->SetRequiresSelection(true);
+		_gizmoTool->SetRequiresSingleSelection(true);
+		_gizmoTool->InsertSegmentAtIndex(RN::UI::Image::WithFile(RN::PathManager::Join(GetResourcePath(), "icons/move.png")), 0);
+		_gizmoTool->InsertSegmentAtIndex(RN::UI::Image::WithFile(RN::PathManager::Join(GetResourcePath(), "icons/scale.png")), 1);
+		_gizmoTool->InsertSegmentAtIndex(RN::UI::Image::WithFile(RN::PathManager::Join(GetResourcePath(), "icons/rotate.png")), 2);
 		_gizmoTool->AddListener(RN::UI::Control::EventType::ValueChanged, [this](RN::UI::Control *control, RN::UI::Control::EventType event) {
 			
-			// This is a bit of an ugly hack to allow for single selection only
-			// Basically the state of the toolbar and the gizmo are converted into bitfields which are then XOR'd
-			// to retrieve the newly selected tool.
-			
-			uint32 selection = 0;
-			
-			for(int i = 0; i < 3; i ++)
-			{
-				selection |= (_gizmoTool->IsSegmentAtIndexEnabled(i)) ? (1 << i) : 0;
-				_gizmoTool->SetSegmentAtIndexEnabled(i, false);
-			}
-			
-			selection = (1 << static_cast<uint32>(_gizmo->GetMode())) ^ selection;
-			selection = selection >> 1;
-			
-			_gizmo->SetMode(static_cast<Gizmo::Mode>(selection));
-			_gizmoTool->SetSegmentAtIndexEnabled(selection, true);
+			_gizmo->SetMode(static_cast<Gizmo::Mode>(_gizmoTool->GetSelection()));
 			
 		}, this);
 		
