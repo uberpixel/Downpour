@@ -99,13 +99,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(ProgramFiles)\Rayne\include;$(ProjectDir)\Downpour\Vendor\enet\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProgramFiles)\Rayne\$(Configuration);$(ProjectDir)\rayne-assimp\Vendor\$(Configuration);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProgramFiles)\Rayne\$(Configuration);$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)~debug</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(ProgramFiles)\Rayne\include;$(ProjectDir)\Downpour\Vendor\enet\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProgramFiles)\Rayne\$(Configuration);$(ProjectDir)\rayne-assimp\Vendor\$(Configuration);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProgramFiles)\Rayne\$(Configuration);$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -140,7 +140,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>assimp.lib;%(AdditionalDependencies);Rayne.lib;zlibstatic.lib</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);Rayne.lib;ws2_32.lib;winmm.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(TargetPath)" "$(ProjectDir)..\bin\$(ProjectName)\" /Y</Command>
