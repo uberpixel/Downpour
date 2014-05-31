@@ -157,15 +157,16 @@ namespace DP
 		RNDeclareMeta(QuaternionPropertyView)
 	};
 	
-	class ColorPropertyView : public ComponentPropertyView
+	class ColorPropertyView : public ObservablePropertyView
 	{
 	public:
 		ColorPropertyView(RN::ObservableProperty *observable, RN::String *title);
 		
-		void ValueAtIndexChanged(size_t index) override;
 		void ValueDidChange(RN::Object *newValue) override;
 		
 	private:
+		RN::UI::ColorView *_colorView;
+		
 		RNDeclareMeta(ColorPropertyView)
 	};
 	
