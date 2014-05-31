@@ -492,26 +492,22 @@ namespace DP
 	// -----------------------
 	
 	ColorPropertyView::ColorPropertyView(RN::ObservableProperty *observable, RN::String *title) :
-		ComponentPropertyView(observable, title, 4)
+		ObservablePropertyView(observable, title, PropertyView::Layout::TitleLeft)
 	{
-		SetTitle(RNCSTR("R"), 0);
-		SetTitle(RNCSTR("G"), 1);
-		SetTitle(RNCSTR("B"), 2);
-		SetTitle(RNCSTR("A"), 3);
+		_colorView = new RN::UI::ColorView();
+		_colorView->SetFrame(RN::Rect(0.0f, 0.0f, 140.0f, 15.0f));
+		_colorView->AddListener(RN::UI::Control::EventType::ValueChanged, [this](RN::UI::Control *control, RN::UI::Control::EventType event) {
+			
+			RN::UI::ColorView *colorView = control->Downcast<RN::UI::ColorView>();
+			const RN::Color &color = colorView->GetColor();
+			
+			_observable->SetValue(RN::Value::WithColor(color));
+			
+		}, nullptr);
 		
+		GetContentView()->AddSubview(_colorView->Autorelease());
 		ValueDidChange(_observable->GetValue());
-	}
-	
-	void ColorPropertyView::ValueAtIndexChanged(size_t index)
-	{
-		RN::Color color;
-		
-		color.r = GetValue(0)->Downcast<RN::Number>()->GetFloatValue();
-		color.g = GetValue(1)->Downcast<RN::Number>()->GetFloatValue();
-		color.b = GetValue(2)->Downcast<RN::Number>()->GetFloatValue();
-		color.a = GetValue(3)->Downcast<RN::Number>()->GetFloatValue();
-		
-		_observable->SetValue(RN::Value::WithColor(color));
+		SetPreferredHeight(15.0f);
 	}
 	
 	void ColorPropertyView::ValueDidChange(RN::Object *newValue)
@@ -519,10 +515,7 @@ namespace DP
 		RN::Value *value = newValue->Downcast<RN::Value>();
 		RN::Color color  = value->GetValue<RN::Color>();
 		
-		SetValue(RN::Number::WithFloat(color.r), 0);
-		SetValue(RN::Number::WithFloat(color.g), 1);
-		SetValue(RN::Number::WithFloat(color.b), 2);
-		SetValue(RN::Number::WithFloat(color.a), 3);
+		_colorView->SetColor(color);
 	}
 	
 	// -----------------------
