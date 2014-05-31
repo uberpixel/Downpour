@@ -89,7 +89,7 @@ namespace DP
 	RN::UI::OutlineViewCell *NodeClassPicker::OutlineViewGetCellForItem(RN::UI::OutlineView *outlineView, void *item)
 	{
 		RN::String *identifier = RNCSTR("Cell");
-		DraggableOutlineViewCell *cell = static_cast<DraggableOutlineViewCell *>(outlineView->DequeCellWithIdentifier(identifier));
+		DraggableOutlineViewCell *cell = static_cast<DraggableOutlineViewCell *>(outlineView->DequeueCellWithIdentifier(identifier));
 		
 		if(!cell)
 		{

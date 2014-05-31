@@ -36,7 +36,7 @@ namespace DP
 		void InsertBooleanWithTitle(RN::String *title, std::function<void (bool)> &&setter, bool state);
 		void InsertFloatWithTitle(RN::String *title, std::function<void (float)> &&setter, float value);
 		void InsertColorWithTitle(RN::String *title, std::function<void (const RN::Color &)> &&setter, const RN::Color &color);
-		void InsertEnumWithTitle(RN::String *title, std::function<void (size_t)> &&setter, size_t value, RN::UI::Menu *menu);
+		void InsertEnumWithTitle(RN::String *title, std::function<void (int32)> &&setter, int32 value, RN::UI::Menu *menu);
 		void InsertViewWithTitle(RN::String *title, RN::UI::View *view);
 		
 		RN::Material *_material;

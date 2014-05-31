@@ -231,7 +231,7 @@ namespace DP
 	RN::UI::OutlineViewCell *SceneHierarchy::OutlineViewGetCellForItem(RN::UI::OutlineView *outlineView, void *item)
 	{
 		RN::String *identifier = RNCSTR("Cell");
-		OutlineViewCell *cell = static_cast<OutlineViewCell *>(outlineView->DequeCellWithIdentifier(identifier));
+		OutlineViewCell *cell = static_cast<OutlineViewCell *>(outlineView->DequeueCellWithIdentifier(identifier));
 		
 		if(!cell)
 		{
