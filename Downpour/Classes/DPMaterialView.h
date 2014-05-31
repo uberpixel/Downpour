@@ -35,6 +35,8 @@ namespace DP
 		void InsertTexture(RN::Texture *texture);
 		void InsertBooleanWithTitle(RN::String *title, std::function<void (bool)> &&setter, bool state);
 		void InsertFloatWithTitle(RN::String *title, std::function<void (float)> &&setter, float value);
+		void InsertColorWithTitle(RN::String *title, std::function<void (const RN::Color &)> &&setter, const RN::Color &color);
+		void InsertEnumWithTitle(RN::String *title, std::function<void (size_t)> &&setter, size_t value, RN::UI::Menu *menu);
 		void InsertViewWithTitle(RN::String *title, RN::UI::View *view);
 		
 		RN::Material *_material;
@@ -45,12 +47,15 @@ namespace DP
 		RNDeclareMeta(MaterialView)
 	};
 	
-	class MaterialWidget : public RN::UI::Widget
+	class MaterialWidget : public RN::UI::Widget, public RN::UI::ScrollViewDelegate
 	{
 	public:
 		MaterialWidget(RN::Material *material);
 		
+		RNAPI void ScrollViewDidChangeScrollerInset(RN::UI::ScrollView *scrollView, const RN::UI::EdgeInsets &insets) override;
+		
 	private:
+		MaterialView *_materialView;
 		RNDeclareMeta(MaterialWidget)
 	};
 }
