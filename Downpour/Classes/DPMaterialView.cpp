@@ -17,13 +17,12 @@
 
 #include "DPMaterialView.h"
 #include "DPColorScheme.h"
+#include "DPPropertyView.h"
 
 #define kDPTitleLabelOffset (80.0f)
 #define kDPTextureSize      (70.0f)
 
 #define DPBindSetter(name) (std::bind(&RN::Material::name, _material, std::placeholders::_1))
-
-extern const char *kDPEnumItemAssociatedKey;
 
 namespace DP
 {
@@ -45,17 +44,9 @@ namespace DP
 		
 		
 		RN::UI::Menu *polygonModeMenu = new RN::UI::Menu();
-		RN::UI::MenuItem *item = RN::UI::MenuItem::WithTitle(RNCSTR("Points"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::PolygonMode::Points)), RN::Object::MemoryPolicy::Retain);
-		polygonModeMenu->AddItem(item);
-		
-		item = RN::UI::MenuItem::WithTitle(RNCSTR("Lines"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::PolygonMode::Lines)), RN::Object::MemoryPolicy::Retain);
-		polygonModeMenu->AddItem(item);
-		
-		item = RN::UI::MenuItem::WithTitle(RNCSTR("Fill"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::PolygonMode::Fill)), RN::Object::MemoryPolicy::Retain);
-		polygonModeMenu->AddItem(item);
+		polygonModeMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("Points"), RN::Number::WithInt32(static_cast<int32>(RN::Material::PolygonMode::Points))));
+		polygonModeMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("Lines"), RN::Number::WithInt32(static_cast<int32>(RN::Material::PolygonMode::Lines))));
+		polygonModeMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("Fill"), RN::Number::WithInt32(static_cast<int32>(RN::Material::PolygonMode::Fill))));
 		
 		InsertEnumWithTitle(RNCSTR("Polygon mode"), [material](int32 value) {
 			material->SetPolygonMode(static_cast<RN::Material::PolygonMode>(value));
@@ -76,37 +67,14 @@ namespace DP
 		
 		
 		RN::UI::Menu *depthTestModeMenu = new RN::UI::Menu();
-		item = RN::UI::MenuItem::WithTitle(RNCSTR("Never"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::Never)), RN::Object::MemoryPolicy::Retain);
-		depthTestModeMenu->AddItem(item);
-		
-		item = RN::UI::MenuItem::WithTitle(RNCSTR("Always"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::Always)), RN::Object::MemoryPolicy::Retain);
-		depthTestModeMenu->AddItem(item);
-		
-		item = RN::UI::MenuItem::WithTitle(RNCSTR("Less"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::Less)), RN::Object::MemoryPolicy::Retain);
-		depthTestModeMenu->AddItem(item);
-		
-		item = RN::UI::MenuItem::WithTitle(RNCSTR("Less or Equal"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::LessOrEqual)), RN::Object::MemoryPolicy::Retain);
-		depthTestModeMenu->AddItem(item);
-		
-		item = RN::UI::MenuItem::WithTitle(RNCSTR("Equal"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::Equal)), RN::Object::MemoryPolicy::Retain);
-		depthTestModeMenu->AddItem(item);
-		
-		item = RN::UI::MenuItem::WithTitle(RNCSTR("Not Equal"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::NotEqual)), RN::Object::MemoryPolicy::Retain);
-		depthTestModeMenu->AddItem(item);
-		
-		item = RN::UI::MenuItem::WithTitle(RNCSTR("Greater or Equal"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::GreaterOrEqual)), RN::Object::MemoryPolicy::Retain);
-		depthTestModeMenu->AddItem(item);
-		
-		item = RN::UI::MenuItem::WithTitle(RNCSTR("Greater"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::Greater)), RN::Object::MemoryPolicy::Retain);
-		depthTestModeMenu->AddItem(item);
+		depthTestModeMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("Never"), RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::Never))));
+		depthTestModeMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("Always"), RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::Always))));
+		depthTestModeMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("Less"), RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::Less))));
+		depthTestModeMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("Less or Equal"), RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::LessOrEqual))));
+		depthTestModeMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("Equal"), RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::Equal))));
+		depthTestModeMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("Not Equal"), RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::NotEqual))));
+		depthTestModeMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("Greater or Equal"), RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::GreaterOrEqual))));
+		depthTestModeMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("Greater"), RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::Greater))));
 		
 		InsertEnumWithTitle(RNCSTR("Depth test mode"), [material](int32 value) {
 			material->SetDepthTestMode(static_cast<RN::Material::DepthMode>(value));
@@ -127,45 +95,17 @@ namespace DP
 		
 		
 		RN::UI::Menu *blendModeMenu = new RN::UI::Menu();
-		item = RN::UI::MenuItem::WithTitle(RNCSTR("Zero"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendMode::Zero)), RN::Object::MemoryPolicy::Retain);
-		blendModeMenu->AddItem(item);
+		blendModeMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("Zero"), RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendMode::Zero))));
+		blendModeMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("One"), RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendMode::One))));
+		blendModeMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("Source Color"), RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendMode::SourceColor))));
+		blendModeMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("One minus Source Color"), RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendMode::OneMinusSourceColor))));
+		blendModeMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("Source Alpha"), RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendMode::SourceAlpha))));
+		blendModeMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("One minus Source Alpha"), RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendMode::OneMinusSourceAlpha))));
+		blendModeMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("Destination Color"), RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendMode::DestinationColor))));
+		blendModeMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("One minus Destination Color"), RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendMode::OneMinusDestinationColor))));
+		blendModeMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("Destination Alpha"), RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendMode::DestinationAlpha))));
+		blendModeMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("One minus Destination Alpha"), RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendMode::OneMinusDestinationAlpha))));
 		
-		item = RN::UI::MenuItem::WithTitle(RNCSTR("One"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendMode::One)), RN::Object::MemoryPolicy::Retain);
-		blendModeMenu->AddItem(item);
-		
-		item = RN::UI::MenuItem::WithTitle(RNCSTR("Source Color"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendMode::SourceColor)), RN::Object::MemoryPolicy::Retain);
-		blendModeMenu->AddItem(item);
-		
-		item = RN::UI::MenuItem::WithTitle(RNCSTR("One minus Source Color"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendMode::OneMinusSourceColor)), RN::Object::MemoryPolicy::Retain);
-		blendModeMenu->AddItem(item);
-		
-		item = RN::UI::MenuItem::WithTitle(RNCSTR("Source Alpha"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendMode::SourceAlpha)), RN::Object::MemoryPolicy::Retain);
-		blendModeMenu->AddItem(item);
-		
-		item = RN::UI::MenuItem::WithTitle(RNCSTR("One minus Source Alpha"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendMode::OneMinusSourceAlpha)), RN::Object::MemoryPolicy::Retain);
-		blendModeMenu->AddItem(item);
-		
-		item = RN::UI::MenuItem::WithTitle(RNCSTR("Destination Color"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendMode::DestinationColor)), RN::Object::MemoryPolicy::Retain);
-		blendModeMenu->AddItem(item);
-		
-		item = RN::UI::MenuItem::WithTitle(RNCSTR("One minus Destination Color"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendMode::OneMinusDestinationColor)), RN::Object::MemoryPolicy::Retain);
-		blendModeMenu->AddItem(item);
-		
-		item = RN::UI::MenuItem::WithTitle(RNCSTR("Destination Alpha"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendMode::DestinationAlpha)), RN::Object::MemoryPolicy::Retain);
-		blendModeMenu->AddItem(item);
-		
-		item = RN::UI::MenuItem::WithTitle(RNCSTR("One minus Destination Alpha"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendMode::OneMinusDestinationAlpha)), RN::Object::MemoryPolicy::Retain);
-		blendModeMenu->AddItem(item);
 		blendModeMenu->Autorelease();
 		
 		InsertEnumWithTitle(RNCSTR("Blend source mode"), [material](int32 value) {
@@ -175,28 +115,14 @@ namespace DP
 		InsertEnumWithTitle(RNCSTR("Blend destination mode"), [material](int32 value) {
 			material->SetBlendMode(material->GetBlendSource(), static_cast<RN::Material::BlendMode>(value));
 		}, static_cast<int32>(material->GetBlendDestination()), blendModeMenu);
-
+		
 		
 		RN::UI::Menu *blendEquationMenu = new RN::UI::Menu();
-		item = RN::UI::MenuItem::WithTitle(RNCSTR("Add"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendEquation::Add)), RN::Object::MemoryPolicy::Retain);
-		blendEquationMenu->AddItem(item);
-		
-		item = RN::UI::MenuItem::WithTitle(RNCSTR("Substract"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendEquation::Subtract)), RN::Object::MemoryPolicy::Retain);
-		blendEquationMenu->AddItem(item);
-		
-		item = RN::UI::MenuItem::WithTitle(RNCSTR("Reverse Substract"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendEquation::ReverseSubtract)), RN::Object::MemoryPolicy::Retain);
-		blendEquationMenu->AddItem(item);
-		
-		item = RN::UI::MenuItem::WithTitle(RNCSTR("Min"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendEquation::Min)), RN::Object::MemoryPolicy::Retain);
-		blendEquationMenu->AddItem(item);
-		
-		item = RN::UI::MenuItem::WithTitle(RNCSTR("Max"));
-		item->SetAssociatedObject(kDPEnumItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendEquation::Max)), RN::Object::MemoryPolicy::Retain);
-		blendEquationMenu->AddItem(item);
+		blendEquationMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("Add"), RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendEquation::Add))));
+		blendEquationMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("Substract"), RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendEquation::Subtract))));
+		blendEquationMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("Reverse Substract"), RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendEquation::ReverseSubtract))));
+		blendEquationMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("Min"), RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendEquation::Min))));
+		blendEquationMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("Max"), RN::Number::WithInt32(static_cast<int32>(RN::Material::BlendEquation::Max))));
 		
 		InsertEnumWithTitle(RNCSTR("Blend equation"), [material](int32 value) {
 			material->SetBlendEquation(static_cast<RN::Material::BlendEquation>(value));
