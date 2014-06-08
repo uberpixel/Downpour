@@ -22,6 +22,8 @@
 
 #define kDPPropertyViewLayoutLeftTitleLength 65.0f
 
+const char *kDPEnumItemAssociatedKey = "kDPMenuItemAssociatedKey";
+
 namespace DP
 {
 	RNDefineMeta(PropertyView, RN::UI::View)
@@ -35,6 +37,8 @@ namespace DP
 	RNDefineMeta(ColorPropertyView, ComponentPropertyView)
 	
 	RNDefineMeta(ModelPropertyView, ObservablePropertyView)
+	
+	RNDefineMeta(EnumPropertyView, PropertyView)
 	
 	// -----------------------
 	// MARK: -
@@ -633,5 +637,52 @@ namespace DP
 	void ModelPropertyView::DragNDropTargetHandleDropOfObject(DelegatingDragNDropTarget *target, RN::Object *object, const RN::Vector2 &position)
 	{
 		_observable->SetValue(object);
+	}
+	
+	
+	EnumPropertyView::EnumPropertyView(RN::UI::Menu *menu, RN::String *title, std::function<void (int32)> &&setter, int32 value)
+	: PropertyView(title, PropertyView::Layout::TitleLeft)
+	{
+		_popUpButton = new RN::UI::PopUpButton();
+		_popUpButton->SetTitleColorForState(ColorScheme::GetUIColor(ColorScheme::Type::FileTree_Text), RN::UI::Control::State::Normal);
+		_popUpButton->SetMenu(menu);
+		
+		GetContentView()->AddSubview(_popUpButton);
+		SetPreferredHeight(20);
+		
+		menu->GetItems()->Enumerate<RN::UI::MenuItem>([=](RN::UI::MenuItem *item, size_t index, bool &stop){
+			if(item->GetAssociatedObject(kDPEnumItemAssociatedKey)->Downcast<RN::Number>()->GetInt32Value() == value)
+			{
+				_popUpButton->SetSelection(index);
+				stop = true;
+			}
+		});
+		
+		_popUpButton->AddListener(RN::UI::Control::EventType::ValueChanged, [=](RN::UI::Control *control, RN::UI::Control::EventType event) {
+			RN::UI::PopUpButton *popUp = control->Downcast<RN::UI::PopUpButton>();
+			setter(popUp->GetSelectedItem()->GetAssociatedObject(kDPEnumItemAssociatedKey)->Downcast<RN::Number>()->GetInt32Value());
+		}, nullptr);
+	}
+	
+	EnumPropertyView::~EnumPropertyView()
+	{
+		RN::SafeRelease(_popUpButton);
+	}
+	
+	void EnumPropertyView::LayoutSubviews()
+	{
+		PropertyView::LayoutSubviews();
+		
+		_popUpButton->SetFrame([&]() -> RN::Rect {
+			
+			RN::Vector2 size = _popUpButton->GetSizeThatFits();
+			RN::Rect frame = _popUpButton->GetFrame();
+			frame.height = size.y;
+			frame.width  = GetContentView()->GetBounds().width;
+			SetPreferredHeight(frame.height);
+			
+			return frame;
+			
+		}());
 	}
 }

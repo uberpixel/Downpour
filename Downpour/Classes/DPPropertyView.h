@@ -21,6 +21,15 @@
 #include <Rayne/Rayne.h>
 #include "DPDragNDropTarget.h"
 
+extern const char *kDPEnumItemAssociatedKey;
+
+#define DPMenuItemWithTitleAndObject(title, object) \
+	[]() -> RN::UI::MenuItem* { \
+		RN::UI::MenuItem *temp = RN::UI::MenuItem::WithTitle(title); \
+		temp->SetAssociatedObject(kDPEnumItemAssociatedKey, object, RN::Object::MemoryPolicy::Retain); \
+		return temp; \
+	}()
+
 namespace DP
 {
 	class PropertyView : public RN::UI::View
@@ -189,6 +198,20 @@ namespace DP
 		DelegatingDragNDropTarget *_dragTarget;
 		
 		RNDeclareMeta(ModelPropertyView)
+	};
+	
+	class EnumPropertyView : public PropertyView
+	{
+	public:
+		EnumPropertyView(RN::UI::Menu *menu, RN::String *title, std::function<void (int32)> &&setter, int32 value);
+		~EnumPropertyView();
+		
+		void LayoutSubviews() override;
+		
+	private:
+		RN::UI::PopUpButton *_popUpButton;
+		
+		RNDeclareMeta(EnumPropertyView)
 	};
 }
 
