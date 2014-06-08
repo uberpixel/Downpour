@@ -89,23 +89,23 @@ namespace DP
 		depthTestModeMenu->AddItem(item);
 		
 		item = RN::UI::MenuItem::WithTitle(RNCSTR("Less or Equal"));
-		item->SetAssociatedObject(kDPMenuItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::Less)), RN::Object::MemoryPolicy::Retain);
+		item->SetAssociatedObject(kDPMenuItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::LessOrEqual)), RN::Object::MemoryPolicy::Retain);
 		depthTestModeMenu->AddItem(item);
 		
 		item = RN::UI::MenuItem::WithTitle(RNCSTR("Equal"));
-		item->SetAssociatedObject(kDPMenuItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::Less)), RN::Object::MemoryPolicy::Retain);
+		item->SetAssociatedObject(kDPMenuItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::Equal)), RN::Object::MemoryPolicy::Retain);
 		depthTestModeMenu->AddItem(item);
 		
 		item = RN::UI::MenuItem::WithTitle(RNCSTR("Not Equal"));
-		item->SetAssociatedObject(kDPMenuItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::Less)), RN::Object::MemoryPolicy::Retain);
+		item->SetAssociatedObject(kDPMenuItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::NotEqual)), RN::Object::MemoryPolicy::Retain);
 		depthTestModeMenu->AddItem(item);
 		
 		item = RN::UI::MenuItem::WithTitle(RNCSTR("Greater or Equal"));
-		item->SetAssociatedObject(kDPMenuItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::Less)), RN::Object::MemoryPolicy::Retain);
+		item->SetAssociatedObject(kDPMenuItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::GreaterOrEqual)), RN::Object::MemoryPolicy::Retain);
 		depthTestModeMenu->AddItem(item);
 		
 		item = RN::UI::MenuItem::WithTitle(RNCSTR("Greater"));
-		item->SetAssociatedObject(kDPMenuItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::Less)), RN::Object::MemoryPolicy::Retain);
+		item->SetAssociatedObject(kDPMenuItemAssociatedKey, RN::Number::WithInt32(static_cast<int32>(RN::Material::DepthMode::Greater)), RN::Object::MemoryPolicy::Retain);
 		depthTestModeMenu->AddItem(item);
 		
 		InsertEnumWithTitle(RNCSTR("Depth test mode"), [material](int32 value) {
