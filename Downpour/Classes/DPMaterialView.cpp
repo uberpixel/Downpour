@@ -245,7 +245,7 @@ namespace DP
 	
 	void MaterialView::InsertFloatWithTitle(RN::String *title, std::function<void (float)> &&setter, float value)
 	{
-		RN::UI::TextField *valueField = RN::UI::TextField::WithType(RN::UI::TextField::Type::Bezel)->Retain();
+		RN::UI::TextField *valueField = RN::UI::TextField::WithType(RN::UI::TextField::Type::Bezel);
 		valueField->SetFormatter((new RN::NumberFormatter())->Autorelease());
 		valueField->SetValue(RN::Number::WithFloat(value));
 		valueField->SetFrame(RN::Rect(0.0f, 0.0f, 0.0f, 20.0f));
@@ -259,78 +259,19 @@ namespace DP
 	
 	void MaterialView::InsertColorWithTitle(RN::String *title, std::function<void (const RN::Color &)> &&setter, const RN::Color &color)
 	{
-		RN::UI::Label *label = new RN::UI::Label();
-		label->SetAlignment(RN::UI::TextAlignment::Left);
-		label->SetText(title);
-		label->SetTextColor(ColorScheme::GetColor(ColorScheme::Type::FileTree_Text));
-		
-		RN::UI::Label *redLabel = new RN::UI::Label();
-		redLabel->SetAlignment(RN::UI::TextAlignment::Right);
-		redLabel->SetText(RNCSTR("R"));
-		redLabel->SetTextColor(ColorScheme::GetColor(ColorScheme::Type::FileTree_Text));
-		
-		RN::UI::Label *greenLabel = new RN::UI::Label();
-		greenLabel->SetAlignment(RN::UI::TextAlignment::Right);
-		greenLabel->SetText(RNCSTR("G"));
-		greenLabel->SetTextColor(ColorScheme::GetColor(ColorScheme::Type::FileTree_Text));
-		
-		RN::UI::Label *blueLabel = new RN::UI::Label();
-		blueLabel->SetAlignment(RN::UI::TextAlignment::Right);
-		blueLabel->SetText(RNCSTR("B"));
-		blueLabel->SetTextColor(ColorScheme::GetColor(ColorScheme::Type::FileTree_Text));
-		
-		RN::UI::Label *alphaLabel = new RN::UI::Label();
-		alphaLabel->SetAlignment(RN::UI::TextAlignment::Right);
-		alphaLabel->SetText(RNCSTR("A"));
-		alphaLabel->SetTextColor(ColorScheme::GetColor(ColorScheme::Type::FileTree_Text));
-		
-		
-		RN::UI::TextField *redField = RN::UI::TextField::WithType(RN::UI::TextField::Type::Bezel)->Retain();
-		redField->SetFormatter((new RN::NumberFormatter())->Autorelease());
-		redField->SetValue(RN::Number::WithFloat(color.r));
-		redField->SetFrame(RN::Rect(0.0f, 0.0f, 0.0f, 20.0f));
-		
-		RN::UI::TextField *greenField = RN::UI::TextField::WithType(RN::UI::TextField::Type::Bezel)->Retain();
-		greenField->SetFormatter((new RN::NumberFormatter())->Autorelease());
-		greenField->SetValue(RN::Number::WithFloat(color.g));
-		greenField->SetFrame(RN::Rect(0.0f, 0.0f, 0.0f, 20.0f));
-		
-		RN::UI::TextField *blueField = RN::UI::TextField::WithType(RN::UI::TextField::Type::Bezel)->Retain();
-		blueField->SetFormatter((new RN::NumberFormatter())->Autorelease());
-		blueField->SetValue(RN::Number::WithFloat(color.b));
-		blueField->SetFrame(RN::Rect(0.0f, 0.0f, 0.0f, 20.0f));
-		
-		RN::UI::TextField *alphaField = RN::UI::TextField::WithType(RN::UI::TextField::Type::Bezel)->Retain();
-		alphaField->SetFormatter((new RN::NumberFormatter())->Autorelease());
-		alphaField->SetValue(RN::Number::WithFloat(color.a));
-		alphaField->SetFrame(RN::Rect(0.0f, 0.0f, 0.0f, 20.0f));
-		
-		auto applyChange = [=](RN::UI::Control *control, RN::UI::Control::EventType event){
-			RN::Color color;
-			color.r = redField->GetValue()->Downcast<RN::Number>()->GetFloatValue();
-			color.g = greenField->GetValue()->Downcast<RN::Number>()->GetFloatValue();
-			color.b = blueField->GetValue()->Downcast<RN::Number>()->GetFloatValue();
-			color.a = alphaField->GetValue()->Downcast<RN::Number>()->GetFloatValue();
+		RN::UI::ColorView *colorView = new RN::UI::ColorView();
+		colorView->SetFrame(RN::Rect(0.0f, 0.0f, 140.0f, 15.0f));
+		colorView->AddListener(RN::UI::Control::EventType::ValueChanged, [=](RN::UI::Control *control, RN::UI::Control::EventType event) {
+			
+			RN::UI::ColorView *colorView = control->Downcast<RN::UI::ColorView>();
+			const RN::Color &color = colorView->GetColor();
+			
 			setter(color);
-		};
+			
+		}, nullptr);
+		colorView->SetColor(color);
 		
-		redField->AddListener(RN::UI::Control::EventType::ValueChanged, applyChange, nullptr);
-		greenField->AddListener(RN::UI::Control::EventType::ValueChanged, applyChange, nullptr);
-		blueField->AddListener(RN::UI::Control::EventType::ValueChanged, applyChange, nullptr);
-		alphaField->AddListener(RN::UI::Control::EventType::ValueChanged, applyChange, nullptr);
-		
-		
-		_views->AddObject(RN::Array::WithObjects(label->Autorelease(), redLabel->Autorelease(), redField, greenLabel->Autorelease(), greenField, blueLabel->Autorelease(), blueField, alphaLabel->Autorelease(), alphaField, nullptr));
-		
-		AddSubview(label);
-		AddSubview(redLabel);
-		AddSubview(redField);
-		AddSubview(greenLabel);
-		AddSubview(greenField);
-		AddSubview(blueLabel);
-		AddSubview(blueField);
-		AddSubview(alphaLabel);
-		AddSubview(alphaField);
+		InsertViewWithTitle(title, colorView->Autorelease());
 	}
 	
 	
