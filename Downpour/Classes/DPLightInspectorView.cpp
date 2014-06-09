@@ -49,15 +49,41 @@ namespace DP
 		
 		RN::UI::Menu *typeMenu = new RN::UI::Menu();
 		typeMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("Point Light"), RN::Number::WithInt32(static_cast<int32>(RN::Light::Type::PointLight))));
-		
 		typeMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("Spot Light"), RN::Number::WithInt32(static_cast<int32>(RN::Light::Type::SpotLight))));
-		
 		typeMenu->AddItem(DPMenuItemWithTitleAndObject(RNCSTR("Directional Light"), RN::Number::WithInt32(static_cast<int32>(RN::Light::Type::DirectionalLight))));
 		
 		PropertyView *typeProperty = new EnumPropertyView(typeMenu, RNCSTR("Type"), [light](int32 value) {
 			light->SetType(static_cast<RN::Light::Type>(value));
 		}, static_cast<int32>(light->GetType()));
 		AddPropertyView(typeProperty->Autorelease());
+		
+		
+		RN::UI::Button *shadowButton = RN::UI::Button::WithType(RN::UI::Button::Type::CheckBox);
+		shadowButton->SetTitleColorForState(ColorScheme::GetUIColor(ColorScheme::Type::FileTree_Text), RN::UI::Control::State::Normal);
+		shadowButton->SetFontForState(RN::UI::Style::GetSharedInstance()->GetFont(RN::UI::Style::FontStyle::DefaultFontBold), RN::UI::Control::State::Normal);
+		shadowButton->AddListener(RN::UI::Control::EventType::MouseUpInside, [light](RN::UI::Control *control, RN::UI::Control::EventType event) {
+			if(control->IsSelected())
+			{
+				light->ActivateShadows();
+			}
+			else
+			{
+				light->DeactivateShadows();
+			}
+		}, this);
+		
+		PropertyView *shadowProperty = new PropertyView(RNCSTR("Shadows:"), DP::PropertyView::Layout::TitleLeft);
+		shadowProperty->GetContentView()->AddSubview(shadowButton);
+		shadowProperty->SetPreferredHeight(40.0f);
+		AddPropertyView(shadowProperty);
+		
+		
+/*		RN::ShadowParameter shadowParameter = light->GetShadowParameters();
+		
+		RN::UI::TextField *shadowParameterField = RN::UI::TextField::WithType(RN::UI::TextField::Type::Bezel);
+		shadowParameterField->
+		
+		PropertyView *shadowParameterProperty = new PropertyView(RNCSTR("Shadow Resolution:"), DP::PropertyView::Layout::TitleLeft);*/
 	}
 	
 	void LightInspectorView::InitialWakeUp(RN::MetaClass *meta)

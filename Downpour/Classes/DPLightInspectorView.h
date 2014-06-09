@@ -36,6 +36,8 @@ namespace DP
 		static void InitialWakeUp(RN::MetaClass *meta);
 		
 	private:
+		
+		
 		RNDeclareMeta(LightInspectorView)
 	};
 }
