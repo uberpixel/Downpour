@@ -139,7 +139,7 @@ namespace DP
 		_gizmoSpace->SetBehavior(RN::UI::Button::Behavior::Switch);
 		_gizmoSpace->SetTitleForState(RNCSTR("Local"), RN::UI::Control::State::Normal);
 		_gizmoSpace->SetTitleForState(RNCSTR("Global"), RN::UI::Control::State::Selected);
-		_gizmoSpace->SetTitleColorForState(ColorScheme::GetUIColor(ColorScheme::Type::FileTree_Text), RN::UI::Control::State::Normal);
+		_gizmoSpace->SetTitleColorForState(ColorScheme::GetColor(ColorScheme::Type::FileTree_Text), RN::UI::Control::State::Normal);
 		_gizmoSpace->SetFontForState(RN::UI::Style::GetSharedInstance()->GetFont(RN::UI::Style::FontStyle::DefaultFontBold), RN::UI::Control::State::Normal);
 		_gizmoSpace->AddListener(RN::UI::Control::EventType::MouseUpInside, [this](RN::UI::Control *control, RN::UI::Control::EventType event) {
 			

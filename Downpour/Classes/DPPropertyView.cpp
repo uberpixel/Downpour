@@ -644,7 +644,7 @@ namespace DP
 	: PropertyView(title, PropertyView::Layout::TitleLeft)
 	{
 		_popUpButton = new RN::UI::PopUpButton();
-		_popUpButton->SetTitleColorForState(ColorScheme::GetUIColor(ColorScheme::Type::FileTree_Text), RN::UI::Control::State::Normal);
+		_popUpButton->SetTitleColorForState(ColorScheme::GetColor(ColorScheme::Type::FileTree_Text), RN::UI::Control::State::Normal);
 		_popUpButton->SetMenu(menu);
 		
 		GetContentView()->AddSubview(_popUpButton);

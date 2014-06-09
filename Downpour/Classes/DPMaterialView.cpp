@@ -206,7 +206,7 @@ namespace DP
 		RN::UI::PopUpButton *popUpButton = new RN::UI::PopUpButton();
 		popUpButton->SetFrame(RN::Rect(0.0f, 0.0f, 0.0f, 20.0f));
 		popUpButton->SetMenu(menu);
-		popUpButton->SetTitleColorForState(ColorScheme::GetUIColor(ColorScheme::Type::FileTree_Text), RN::UI::Control::State::Normal);
+		popUpButton->SetTitleColorForState(ColorScheme::GetColor(ColorScheme::Type::FileTree_Text), RN::UI::Control::State::Normal);
 		
 		menu->GetItems()->Enumerate<RN::UI::MenuItem>([popUpButton, value](RN::UI::MenuItem *item, size_t index, bool &stop){
 			if(item->GetAssociatedObject(kDPEnumItemAssociatedKey)->Downcast<RN::Number>()->GetInt32Value() == value)

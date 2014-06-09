@@ -59,7 +59,7 @@ namespace DP
 		
 		
 		RN::UI::Button *shadowButton = RN::UI::Button::WithType(RN::UI::Button::Type::CheckBox);
-		shadowButton->SetTitleColorForState(ColorScheme::GetUIColor(ColorScheme::Type::FileTree_Text), RN::UI::Control::State::Normal);
+		shadowButton->SetTitleColorForState(ColorScheme::GetColor(ColorScheme::Type::FileTree_Text), RN::UI::Control::State::Normal);
 		shadowButton->SetFontForState(RN::UI::Style::GetSharedInstance()->GetFont(RN::UI::Style::FontStyle::DefaultFontBold), RN::UI::Control::State::Normal);
 		shadowButton->SetSelected(light->HasShadows());
 		shadowButton->AddListener(RN::UI::Control::EventType::MouseUpInside, [light](RN::UI::Control *control, RN::UI::Control::EventType event) {

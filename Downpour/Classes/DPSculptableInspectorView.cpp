@@ -41,7 +41,7 @@ namespace DP
 		sculptButton->SetBehavior(RN::UI::Button::Behavior::Switch);
 		sculptButton->SetTitleForState(RNCSTR("Off"), RN::UI::Control::State::Normal);
 		sculptButton->SetTitleForState(RNCSTR("On"), RN::UI::Control::State::Selected);
-		sculptButton->SetTitleColorForState(ColorScheme::GetUIColor(ColorScheme::Type::FileTree_Text), RN::UI::Control::State::Normal);
+		sculptButton->SetTitleColorForState(ColorScheme::GetColor(ColorScheme::Type::FileTree_Text), RN::UI::Control::State::Normal);
 		sculptButton->SetFontForState(RN::UI::Style::GetSharedInstance()->GetFont(RN::UI::Style::FontStyle::DefaultFontBold), RN::UI::Control::State::Normal);
 		sculptButton->AddListener(RN::UI::Control::EventType::MouseUpInside, [this, object](RN::UI::Control *control, RN::UI::Control::EventType event) {
 			
@@ -72,7 +72,7 @@ namespace DP
 		shapeButton->SetBehavior(RN::UI::Button::Behavior::Switch);
 		shapeButton->SetTitleForState(RNCSTR("Sphere"), RN::UI::Control::State::Normal);
 		shapeButton->SetTitleForState(RNCSTR("Cube"), RN::UI::Control::State::Selected);
-		shapeButton->SetTitleColorForState(ColorScheme::GetUIColor(ColorScheme::Type::FileTree_Text), RN::UI::Control::State::Normal);
+		shapeButton->SetTitleColorForState(ColorScheme::GetColor(ColorScheme::Type::FileTree_Text), RN::UI::Control::State::Normal);
 		shapeButton->SetFontForState(RN::UI::Style::GetSharedInstance()->GetFont(RN::UI::Style::FontStyle::DefaultFontBold), RN::UI::Control::State::Normal);
 		shapeButton->AddListener(RN::UI::Control::EventType::MouseUpInside, [this, object](RN::UI::Control *control, RN::UI::Control::EventType event) {
 			
@@ -99,7 +99,7 @@ namespace DP
 		modeButton->SetBehavior(RN::UI::Button::Behavior::Switch);
 		modeButton->SetTitleForState(RNCSTR("Add"), RN::UI::Control::State::Normal);
 		modeButton->SetTitleForState(RNCSTR("Substract"), RN::UI::Control::State::Selected);
-		modeButton->SetTitleColorForState(ColorScheme::GetUIColor(ColorScheme::Type::FileTree_Text), RN::UI::Control::State::Normal);
+		modeButton->SetTitleColorForState(ColorScheme::GetColor(ColorScheme::Type::FileTree_Text), RN::UI::Control::State::Normal);
 		modeButton->SetFontForState(RN::UI::Style::GetSharedInstance()->GetFont(RN::UI::Style::FontStyle::DefaultFontBold), RN::UI::Control::State::Normal);
 		modeButton->AddListener(RN::UI::Control::EventType::MouseUpInside, [this, object](RN::UI::Control *control, RN::UI::Control::EventType event) {
 			

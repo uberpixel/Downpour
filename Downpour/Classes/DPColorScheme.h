@@ -33,8 +33,7 @@ namespace DP
 			FileTree_TextSelection
 		};
 		
-		const RN::Color &GetColor(Type type);
-		RN::UI::Color *GetUIColor(Type type);
+		RN::UI::Color *GetColor(Type type);
 	}
 	
 	class OutlineViewCell : public RN::UI::OutlineViewCell
@@ -57,7 +56,7 @@ namespace DP
 			}
 			else
 			{
-				SetBackgroundColor(RN::Color::ClearColor());
+				SetBackgroundColor(RN::UI::Color::ClearColor());
 				GetTextLabel()->SetTextColor(ColorScheme::GetColor(ColorScheme::Type::FileTree_Text));
 			}
 		}

@@ -35,7 +35,7 @@ namespace DP
 		_ipField->SetText(RN::Settings::GetSharedInstance()->GetObjectForKey<RN::String>(RNCSTR("DPHostIP")));
 		
 		_connectButton = new RN::UI::Button(RN::UI::Button::Type::Bezel);
-		_connectButton->SetTitleColorForState(ColorScheme::GetUIColor(ColorScheme::Type::FileTree_Text), RN::UI::Control::State::Normal);
+		_connectButton->SetTitleColorForState(ColorScheme::GetColor(ColorScheme::Type::FileTree_Text), RN::UI::Control::State::Normal);
 		_connectButton->SetTitleForState(RNCSTR("Connect"), RN::UI::Control::State::Normal);
 		_connectButton->SetFrame(RN::Rect(110.0f, 70.0f, 80.0f, 30.0f));
 		_connectButton->AddListener(RN::UI::Control::EventType::MouseUpInside, [this, callback](RN::UI::Control *, RN::UI::Control::EventType) {

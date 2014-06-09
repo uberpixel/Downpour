@@ -31,7 +31,7 @@ namespace DP
 			__colorTable[static_cast<uint32>(type)] = color->Retain();
 		}
 		
-		const RN::Color &GetColor(Type type)
+		RN::UI::Color *GetColor(Type type)
 		{
 			static std::once_flag token;
 			std::call_once(token, [] {
@@ -46,12 +46,6 @@ namespace DP
 				
 			});
 			
-			return __colorTable[static_cast<uint32>(type)]->GetRNColor();;
-		}
-		
-		RN::UI::Color *GetUIColor(Type type)
-		{
-			GetColor(type);
 			return __colorTable[static_cast<uint32>(type)];
 		}
 	}

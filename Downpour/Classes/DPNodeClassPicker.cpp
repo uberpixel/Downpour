@@ -102,7 +102,7 @@ namespace DP
 		cell->GetTextLabel()->SetText(proxy->name);
 		
 		if(!proxy->constructible)
-			cell->GetTextLabel()->SetTextColor(RN::Color(0.778f, 0.061f, 0.054f));
+			cell->GetTextLabel()->SetTextColor(RN::UI::Color::WithRGB(0.778f, 0.061f, 0.054f));
 		
 		return cell;
 	}

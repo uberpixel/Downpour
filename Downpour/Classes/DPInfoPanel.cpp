@@ -36,7 +36,7 @@ namespace DP
 		_messageLabel->SetLineBreak(RN::UI::LineBreakMode::WordWrapping);
 		
 		_okButton = new RN::UI::Button(RN::UI::Button::Type::Bezel);
-		_okButton->SetTitleColorForState(ColorScheme::GetUIColor(ColorScheme::Type::FileTree_Text), RN::UI::Control::State::Normal);
+		_okButton->SetTitleColorForState(ColorScheme::GetColor(ColorScheme::Type::FileTree_Text), RN::UI::Control::State::Normal);
 		_okButton->SetTitleForState(RNCSTR("Ok"), RN::UI::Control::State::Normal);
 		_okButton->SetFrame(RN::Rect(210.0f, 340.0f, 80.0f, 30.0f));
 		_okButton->AddListener(RN::UI::Control::EventType::MouseUpInside, std::bind(&InfoPanel::Close, this), nullptr);
