@@ -503,9 +503,9 @@ namespace DP
 		_colorView->AddListener(RN::UI::Control::EventType::ValueChanged, [this](RN::UI::Control *control, RN::UI::Control::EventType event) {
 			
 			RN::UI::ColorView *colorView = control->Downcast<RN::UI::ColorView>();
-			const RN::Color &color = colorView->GetColor();
+			RN::UI::Color *color = colorView->GetColor();
 			
-			_observable->SetValue(RN::Value::WithColor(color));
+			_observable->SetValue(RN::Value::WithColor(color->GetRNColor()));
 			
 		}, nullptr);
 		
@@ -519,7 +519,7 @@ namespace DP
 		RN::Value *value = newValue->Downcast<RN::Value>();
 		RN::Color color  = value->GetValue<RN::Color>();
 		
-		_colorView->SetColor(color);
+		_colorView->SetColor(RN::UI::Color::WithCorrectedRNColor(color));
 	}
 	
 	// -----------------------

@@ -190,12 +190,12 @@ namespace DP
 		colorView->AddListener(RN::UI::Control::EventType::ValueChanged, [=](RN::UI::Control *control, RN::UI::Control::EventType event) {
 			
 			RN::UI::ColorView *colorView = control->Downcast<RN::UI::ColorView>();
-			const RN::Color &color = colorView->GetColor();
+			RN::UI::Color *color = colorView->GetColor();
 			
-			setter(color);
+			setter(color->GetRNColor());
 			
 		}, nullptr);
-		colorView->SetColor(color);
+		colorView->SetColor(RN::UI::Color::WithCorrectedRNColor(color));
 		
 		InsertViewWithTitle(title, colorView->Autorelease());
 	}
