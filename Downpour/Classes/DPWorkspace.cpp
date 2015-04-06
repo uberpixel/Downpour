@@ -30,7 +30,8 @@ namespace DP
 		RN::UI::Widget(RN::UI::Widget::Style::Borderless, RN::Rect(0.0f, 0.0f, 1024.0f, 768.0f)),
 		_module(module),
 		_selection(nullptr),
-		_pasteBoard(nullptr)
+		_pasteBoard(nullptr),
+		_activeTool(Tool::Gizmo)
 	{
 		MakeShared();
 		SetWidgetLevel(kRNUIWidgetLevelBackground);
